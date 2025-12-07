@@ -6,6 +6,9 @@ tagline: "Exploring the Nonprofit IT Landscape: Insights and Reflections"
 description: "Edward Jensen is a nonprofit technology professional who writes about the intersection of technology and mission-driven impact work."
 logo: "/assets/images/bluebackground.png"
 
+payload_graphql:
+  url: "https://tailscale.edwardjensencms.com/api/graphql"
+
 plugins:
   - jekyll-postcss-v2
   - jekyll-sitemap
@@ -50,7 +53,7 @@ exclude:
   - _posts
   - _working_notes
   - _historic_posts
-  - migrations
+  - assets/images/posts
 
 include:
   - _pages
@@ -60,6 +63,9 @@ collections:
   posts:
     output: true
     permalink: /:collection/:year/:year-:month/:title
+    cms:
+      collection: "Posts"
+      layout: "single-post"
   photography:
     output: true
     permalink: /photos/:year/:year-:month/:title
@@ -73,11 +79,39 @@ collections:
   working_notes:
     output: true
     permalink: /notes/:year-:month-:day/:title
+    cms:
+      collection: "WorkingNotes"
+      layout: "single-working-note"
+      fields:
+        - id
+        - title
+        - slug
+        - date
+        - tags { tag }
+        - content
+        - markdown
+        - permalink
+        - updatedAt
+        - createdAt
   landing_sections:
     output: false
   historic_posts:
     output: true
     permalink: /archive/posts/:title
+    cms:
+      collection: "HistoricPosts"
+      layout: "single-post"
+      fields:
+        - id
+        - title
+        - slug
+        - date
+        - tags { tag }
+        - content
+        - markdown
+        - permalink
+        - updatedAt
+        - createdAt
 
 defaults:
   -

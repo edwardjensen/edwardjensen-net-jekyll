@@ -1,6 +1,7 @@
 # STAGING CONFIGURATION
 
-url: "https://ejnetstaging.edwardjenseninternal.com"
+url: "https://stagingsite.edwardjensencms.com"
 title: "Edward Jensen [STAGING]"
-future: true
-show_drafts: true
+
+payload_graphql:
+  url: "https://testing-tailscale.edwardjensencms.com/api/graphql"
