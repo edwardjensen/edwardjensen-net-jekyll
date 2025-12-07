@@ -4,9 +4,9 @@ permissions:
   contents: read
   
 on:
-#   push:
-#     branches:
-#       - main
+  push:
+    branches:
+      - main
   workflow_dispatch:
   repository_dispatch:
     types: [staging_cms_publish]
@@ -41,11 +41,14 @@ jobs:
           node-version: '25.1.0'
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Install Ruby dependencies
+        run: bundle install --frozen
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Process micro.edwardjensen.net photos JSON
         run: |
-          gem install bundler
-          BUNDLE_FROZEN=1 bundle install
-          npm ci
           pwsh -File ./scripts/microphotojsonprocessor.ps1 -InputUri "https://micro.edwardjensen.net/photos/index.json"
 
       - name: Connect to Tailscale VPN

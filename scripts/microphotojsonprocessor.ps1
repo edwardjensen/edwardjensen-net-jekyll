@@ -52,6 +52,9 @@ function Get-ProcessedMicroPhotos {
     try {
         Write-Host "Fetching JSON from: $Uri" -ForegroundColor Green
         
+        # Force TLS 1.2 or higher for compatibility
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls13
+        
         # Fetch JSON from URI
         $response = Invoke-RestMethod -Uri $Uri -Method Get -ContentType "application/json"
         
