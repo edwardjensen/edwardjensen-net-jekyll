@@ -1,0 +1,48 @@
+---
+layout: base
+main_class: " space-y-16"
+main_aria: ' aria-label="Main content area"'
+content_for_head: |
+  <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ site.url }}/feed.xml" />
+---
+<a rel="me" href="https://mastodon.social/@edwardjensen" class="sr-only">Mastodon Profile</a>
+
+<!-- Top section without box, full width with matching header margins -->
+<main class="w-full" id="main-content" role="main">
+  <section class="flex items-center justify-center text-center max-w-7xl mx-auto px-4 lg:px-8 py-6 lg:py-6 mb-0" aria-labelledby="homepage-hero-section">
+    <div class="prose dark:prose-invert max-w-none text-xl [&_h1]:text-3xl">
+      {{ content }}
+    </div>
+  </section>
+
+  <!-- Other sections in constrained width -->
+  <div class="max-w-4xl mx-auto px-4 lg:px-8">
+
+{% assign collection_name = page.collection %}
+{% assign sections = site[collection_name] | sort: 'order' %}
+{% for section in sections %}
+
+<!-- Section -->
+{% if section.bounded == false %}
+<section class="flex items-center justify-center text-center max-w-7xl mx-auto px-4 lg:px-8 py-6 lg:py-6 mb-8" aria-labelledby="{{ section.section | downcase }}-heading">
+{% else %}
+<section class="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 dark:border-slate-700/20 overflow-hidden transition-colors duration-300 p-8 mb-8" aria-labelledby="{{ section.section | downcase }}-heading">
+{% endif %}
+    {% if section.bounded != false %}
+  <header class="flex flex-col md:flex-row items-center md:items-center gap-4 mb-8 text-center md:text-left">
+  <div class="hidden md:flex w-12 h-12 bg-gradient-to-br {{ section.icon_bg_color }} rounded-xl items-center justify-center" aria-hidden="true">
+    <i class="bi bi-{{ section.icon }} text-white text-xl" aria-hidden="true"></i>
+  </div>
+
+  <div>
+    <h2 id="{{ section.section | downcase }}-heading" class="font-header font-bold text-3xl text-slate-800 dark:text-slate-200 tracking-wide lowercase transition-colors duration-300">{{ section.section | smartify }}</h2>
+    <p class="text-muted mt-1 lowercase transition-colors duration-300">{{ section.subheader }}</p>
+  </div>
+
+</header>
+  {% endif %}
+  {{ section.content }}
+</section>
+{% endfor %}
+  </div>
+</main>

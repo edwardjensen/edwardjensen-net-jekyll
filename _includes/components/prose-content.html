@@ -1,0 +1,54 @@
+<!-- Reusable Prose Content Component
+  Standardizes markdown content rendering with consistent styling.
+  Automatically converts bare YouTube URLs to lite-youtube embeds.
+-->
+<div class="prose dark:prose-invert !max-w-none hyperlink-container text-[18px]" role="document" id="prose-content">
+  {{ content }}
+</div>
+
+{% if page.has_youtube_video %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('prose-content');
+    if (!container) return;
+
+    // Process all paragraphs to find YouTube URLs
+    const paragraphs = container.querySelectorAll('p');
+    
+    paragraphs.forEach(p => {
+      const text = p.textContent.trim();
+      const youtubeUrlRegex = /^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\S+$/;
+      
+      if (youtubeUrlRegex.test(text)) {
+        const url = text;
+        let videoId = null;
+        
+        // Extract video ID from youtu.be format
+        const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
+        if (shortMatch) {
+          videoId = shortMatch[1];
+        } else {
+          // Extract video ID from youtube.com format
+          const longMatch = url.match(/[?&]v=([a-zA-Z0-9_-]+)/);
+          if (longMatch) videoId = longMatch[1];
+        }
+        
+        if (videoId) {
+          // Create the lite-youtube element
+          const liteYT = document.createElement('lite-youtube');
+          liteYT.setAttribute('videoid', videoId);
+          liteYT.setAttribute('playlabel', 'Play');
+          liteYT.setAttribute('title', 'YouTube video player');
+          // Set background image explicitly
+          liteYT.style.backgroundImage = `url("https://i.ytimg.com/vi/${videoId}/hqdefault.jpg")`;
+          liteYT.style.margin = '1.5rem 0';
+          liteYT.style.display = 'block';
+          
+          // Replace the paragraph with the embed
+          p.replaceWith(liteYT);
+        }
+      }
+    });
+  });
+</script>
+{% endif %}

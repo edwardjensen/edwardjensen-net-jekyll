@@ -1,0 +1,186 @@
+<!-- Sticky Header Navigation -->
+<header class="sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700 transition-colors duration-300" role="banner">
+  <div class="max-w-7xl mx-auto px-4 lg:px-8">
+    <div class="flex items-center justify-between h-16 gap-4">
+      
+      <!-- Site Title/Logo -->
+      <div class="flex items-center flex-shrink-0 h-full">
+        <a href="/" class="font-header font-bold text-2xl text-slate-900 dark:text-slate-50 hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200 flex items-center h-full lowercase" aria-label="Home">
+          {{ site.title }}
+        </a>
+      </div>
+
+      <!-- Desktop Navigation -->
+      <nav class="hidden lg:flex items-center gap-8 h-full flex-1 justify-center" role="navigation" aria-label="Main navigation">
+        <ul class="flex items-center gap-8 list-none m-0 p-0 h-full">
+          {% for item in site.data.navbar %}
+          <li class="h-full flex items-center relative group">
+            {% if item.items %}
+            <!-- Parent item with dropdown -->
+            <a href="{{ item.url }}"
+               class="font-header text-lg text-body hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200 flex items-center h-full lowercase relative"
+               aria-haspopup="true" aria-expanded="false">
+              <span class="group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors duration-200 relative">
+                {{ item.title }}
+              </span>
+              <i class="bi bi-chevron-down text-sm text-muted group-hover:text-body transition-transform duration-200 group-hover:rotate-180 ml-0.5" aria-hidden="true"></i>
+            </a>
+            
+            <!-- Dropdown Menu -->
+            <div class="dropdown-menu absolute left-0 mt-0 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 origin-top-left pt-2 pb-2 top-full">
+              <ul class="flex flex-col list-none m-0 p-0">
+                {% for subitem in item.items %}
+                <li>
+                  <a href="{{ subitem.url }}" 
+                     class="block px-4 py-2 text-body hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200 lowercase text-base">
+                     {{ subitem.title }}
+                  </a>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+            {% else %}
+            <!-- Regular link without dropdown -->
+            <a href="{{ item.url }}" 
+               class="font-header text-lg text-body hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200 flex items-center h-full lowercase relative group"
+               {% if item.newTab %}target="_blank" rel="noopener noreferrer" aria-label="{{ item.title }} (opens in new tab)"{% endif %}>
+               <span class="relative inline-flex items-center">
+                 {% if item.icon %}<i class="bi {{ item.icon }} absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-10 transition-opacity duration-200 text-4xl text-body pointer-events-none -z-10" aria-hidden="true"></i>{% endif %}
+                 {{ item.title }}
+               </span>
+            </a>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+      </nav>
+
+      <!-- Search and Social Links (Desktop) -->
+      <div class="hidden lg:flex items-center gap-4 h-full" role="navigation" aria-label="Search and social media links">
+        <!-- Search Link -->
+        <a href="/search" 
+           class="icon-interactive flex items-center h-full p-1" 
+           aria-label="Search site content">
+            <i class="bi bi-search text-xl" aria-hidden="true"></i>
+        </a>
+        
+        <!-- Social Links -->
+        <div class="flex items-center gap-2 h-full">
+          {% for item in site.data.social %}
+          <a href="{{ item.url | relative_url }}" 
+             class="icon-interactive flex items-center h-full p-1" 
+             target="_blank" 
+             rel="noopener noreferrer"
+             aria-label="{{ item.title }} (opens in new tab)">
+              <i class="bi {{ item.bootstrap-icon }} text-xl" aria-hidden="true"></i>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Mobile Hamburger Menu -->
+      <div class="lg:hidden flex items-center gap-2 h-full" x-data="{ open: false }">
+        <!-- Hamburger Button -->
+        <button @click="open = !open" 
+                @click.away="open = false"
+                class="p-2 rounded-md text-body hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-200 flex items-center h-full"
+                aria-label="Toggle navigation menu"
+                :aria-expanded="open">
+          <i class="bi bi-list text-2xl" aria-hidden="true"></i>
+        </button>
+
+        <!-- Mobile Menu (Alpine.js controlled) -->
+        <div x-show="open" 
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 -translate-y-2"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 translate-y-0"
+             x-transition:leave-end="opacity-0 -translate-y-2"
+             class="dropdown-menu absolute top-16 right-0 w-48 py-2 origin-top"
+             @keydown.escape="open = false"
+             @click.outside="open = false">
+          <nav class="flex flex-col" role="navigation" aria-label="Mobile navigation">
+            <!-- Navigation Links -->
+            <ul class="flex flex-col list-none m-0 p-0">
+              <!-- Search Link for Mobile -->
+              <li>
+                <a href="/search" 
+                   class="block px-4 py-2 text-body hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200 lowercase flex items-center gap-2"
+                   @click="open = false">
+                   <i class="bi bi-search" aria-hidden="true"></i>
+                   search
+                </a>
+              </li>
+              {% for item in site.data.navbar %}
+              <li>
+                {% if item.items %}
+                <!-- Parent item with accordion toggle -->
+                <div x-data="{ expanded: false }">
+                  <div class="flex items-center">
+                    <a href="{{ item.url }}"
+                       class="flex-1 px-4 py-2 text-body hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200 lowercase"
+                       @click="open = false">
+                      {{ item.title }}
+                    </a>
+                    <button @click.stop="expanded = !expanded"
+                            class="px-4 py-2 text-body hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-200"
+                            :aria-expanded="expanded"
+                            aria-label="Toggle {{ item.title }} submenu">
+                      <i class="bi bi-chevron-down transition-transform duration-200" :class="{ 'rotate-180': expanded }" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  
+                  <!-- Submenu items -->
+                  <ul x-show="expanded"
+                      x-transition:enter="transition ease-out duration-150"
+                      x-transition:enter-start="opacity-0 -translate-y-1"
+                      x-transition:enter-end="opacity-100 translate-y-0"
+                      x-transition:leave="transition ease-in duration-100"
+                      x-transition:leave-start="opacity-100 translate-y-0"
+                      x-transition:leave-end="opacity-0 -translate-y-1"
+                      class="flex flex-col list-none m-0 p-0 bg-slate-50 dark:bg-slate-800/50">
+                    {% for subitem in item.items %}
+                    <li>
+                      <a href="{{ subitem.url }}"
+                         class="block px-8 py-2 text-sm text-muted hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200 lowercase"
+                         @click="open = false">
+                         {{ subitem.title }}
+                      </a>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                {% else %}
+                <!-- Regular link without accordion -->
+                <a href="{{ item.url }}" 
+                   class="block px-4 py-2 text-body hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200 lowercase"
+                   {% if item.newTab %}target="_blank" rel="noopener noreferrer"{% endif %}
+                   @click="open = false">
+                   {{ item.title }}
+                </a>
+                {% endif %}
+              </li>
+              {% endfor %}
+            </ul>
+            <!-- Social Links -->
+            <div class="border-t border-slate-200 dark:border-slate-700 mt-2 pt-2 px-2">
+              <div class="grid grid-cols-3 gap-2">
+                {% for item in site.data.social %}
+                <a href="{{ item.url | relative_url }}" 
+                   class="icon-interactive flex items-center justify-center p-2" 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   aria-label="{{ item.site }} (opens in new tab)">
+                    <i class="bi {{ item.bootstrap-icon }} text-xl" aria-hidden="true"></i>
+                </a>
+                {% endfor %}
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</header>

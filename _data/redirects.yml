@@ -1,0 +1,6 @@
+- source: /linkedin
+  destination: https://www.linkedin.com/in/edwardjensen/
+  type: 302
+- source: /demo
+  destination: https://confidencedemo.edwardjensen.net/
+  type: 302

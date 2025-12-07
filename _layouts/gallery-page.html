@@ -1,0 +1,29 @@
+---
+layout: content-wrapper
+---
+<div class="article-container">
+  <!-- Page Header -->
+  {% capture header_metadata %}
+  {% if page.metadata %}
+    <div class="flex flex-wrap gap-2 justify-center lg:justify-start text-sm">
+      {{ page.metadata }}
+    </div>
+  {% endif %}
+  {% endcapture %}
+
+  {% include components/page-header.html
+    page_title=page.title
+    page_subtitle=page.subtitle
+    page_excerpt=page.excerpt
+    header_icon=page.header_icon
+    header_gradient=page.header_gradient
+    show_icon_badge=page.show_icon_badge
+    center_text=page.center_text
+    metadata=header_metadata
+  %}
+
+  <!-- Gallery Content -->
+  <div class="p-8 lg:p-12 [&_a]:hyperlinks">
+    {{ content }}
+  </div>
+</div>

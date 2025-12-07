@@ -1,0 +1,30 @@
+- title: Writings
+  url: /writing
+  icon: bi-pen
+  items:
+    - title: Current Archives
+      url: /writing
+      icon: bi-pen
+    - title: Retired Posts
+      url: /archive
+      icon: bi-archive-fill
+- title: Working Notes
+  url: /notes
+  icon: bi-journal-text
+- title: Photos
+  url: /photos
+  icon: bi-camera
+  newTab: true
+- title: About
+  icon: bi-emoji-smile
+  url: /about
+  items:
+    - title: About Me
+      url: /about
+      icon: bi-emoji-smile
+    - title: Portfolio
+      url: /portfolio
+      icon: bi-briefcase
+    - title: Uses
+      url: /about/uses
+      icon: bi-backpack2-fill

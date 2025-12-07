@@ -1,0 +1,34 @@
+{
+  "scripts": {
+    "a11y": "node ./scripts/a11y-check.js dev",
+    "a11y:dev": "node ./scripts/a11y-check.js dev",
+    "a11y:local": "node ./scripts/a11y-check.js local-staging",
+    "a11y:staging": "node ./scripts/a11y-check.js staging",
+    "a11y:prod": "node ./scripts/a11y-check.js prod",
+    "a11y:report": "node ./scripts/a11y-check.js dev --json --report accessibility-report.json",
+    "copy-assets": "node ./scripts/copy-vendor-assets.js",
+    "prebuild": "npm run copy-assets",
+    "photos": "pwsh ./scripts/microphotojsonprocessor.ps1",
+    "build": "JEKYLL_ENV=production bundle exec jekyll build",
+    "build:serve": "bundle exec jekyll serve --config _config.yml,_config.dev.yml --livereload",
+    "build:staging": "JEKYLL_ENV=staging bundle exec jekyll build --config _config.yml,_config.staging.yml",
+    "jekyll": "bundle exec jekyll serve --config _config.yml,_config.dev.yml --livereload",
+    "jekyll:kill": "lsof -ti :4000 | xargs kill"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.16",
+    "@tailwindcss/typography": "^0.5.19",
+    "alpinejs": "^3.15.1",
+    "autoprefixer": "^10.4.21",
+    "bootstrap-icons": "^1.13.1",
+    "cssnano": "^7.1.1",
+    "js-yaml": "^4.1.0",
+    "lite-youtube-embed": "^0.3.3",
+    "lunr": "^2.3.9",
+    "pa11y": "^9.0.1",
+    "pa11y-ci": "^4.0.1",
+    "postcss": "^8.5.6",
+    "postcss-cli": "^11.0.1",
+    "tailwindcss": "^4.1.16"
+  }
+}

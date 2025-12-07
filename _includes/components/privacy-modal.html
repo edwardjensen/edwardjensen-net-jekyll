@@ -1,0 +1,85 @@
+<!-- Privacy Policy Modal -->
+<div id="privacy-modal" x-data="{ open: false }" @open-privacy-modal.window="open = true" @close-privacy-modal.window="open = false">
+  <!-- Modal Backdrop -->
+  <div x-show="open" 
+       x-transition:enter="transition ease-out duration-200"
+       x-transition:enter-start="opacity-0"
+       x-transition:enter-end="opacity-100"
+       x-transition:leave="transition ease-in duration-150"
+       x-transition:leave-start="opacity-100"
+       x-transition:leave-end="opacity-0"
+       @click="open = false"
+       class="fixed inset-0 bg-black/50 z-40"
+       style="display: none;" x-cloak></div>
+
+  <!-- Modal Container -->
+  <div x-show="open"
+       x-transition:enter="transition ease-out duration-200"
+       x-transition:enter-start="opacity-0 scale-95"
+       x-transition:enter-end="opacity-100 scale-100"
+       x-transition:leave="transition ease-in duration-150"
+       x-transition:leave-start="opacity-100 scale-100"
+       x-transition:leave-end="opacity-0 scale-95"
+       class="fixed inset-0 z-50 flex items-center justify-center p-4"
+       @click.self="open = false"
+       style="display: none;" x-cloak>
+    
+    <!-- Modal Content -->
+    <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl max-h-[90vh] w-full max-w-2xl border border-slate-200 dark:border-slate-700 flex flex-col">
+      
+      <!-- Modal Header -->
+      <div class="sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 px-6 py-4">
+        <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-50">Privacy Policy</h2>
+      </div>
+
+      <!-- Modal Body (Scrollable) -->
+      <div class="overflow-y-auto flex-1 prose dark:prose-invert px-6 py-4 text-slate-900 dark:text-slate-50">
+        <h3>Introduction</h3>
+        <p>This Privacy Policy outlines how we collect, use, and protect information when you visit our website. We are committed to safeguarding your privacy and ensuring compliance with applicable data protection laws. The only data collection services used on this website are Cloudflare and Plausible Analytics, both of which prioritize privacy and minimize data collection.</p>
+
+        <h3>Data Collection</h3>
+
+        <h4>Cloudflare</h4>
+        <p>We use Cloudflare to enhance the security and performance of our website. As part of its services, Cloudflare may process limited technical data, such as:</p>
+        <ul>
+          <li>IP addresses</li>
+          <li>HTTP request headers</li>
+          <li>Network metadata (e.g., protocol information like TCP/UDP)</li>
+        </ul>
+        <p>This data is collected to:</p>
+        <ul>
+          <li>Mitigate Distributed Denial of Service (DDoS) attacks</li>
+          <li>Provide traffic visibility</li>
+          <li>Ensure secure and efficient content delivery</li>
+        </ul>
+        <p>Cloudflare does not use cookies or track users across websites. It processes this data on our behalf in compliance with GDPR and other applicable laws. For more details, please refer to <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Cloudflare's privacy practices</a>.</p>
+
+        <h4>Plausible Analytics</h4>
+        <p>We use Plausible Analytics to <a href="https://plausible.io/privacy-focused-web-analytics" target="_blank" rel="noopener noreferrer">understand website traffic trends</a> without compromising visitor privacy. Plausible operates without cookies and does not collect personal or identifiable information. The data collected is entirely anonymous and includes:</p>
+        <ul>
+          <li>Aggregated page views</li>
+          <li>Referring websites</li>
+          <li>Browser types</li>
+          <li>Device types</li>
+        </ul>
+        <p>Plausible ensures compliance with GDPR, CCPA, and other privacy regulations by adhering to principles of data minimization and pseudonymization.</p>
+
+        <h3>How We Use Data</h3>
+        <p>The limited data collected via Cloudflare and Plausible Analytics is used solely for the following purposes:</p>
+        <ul>
+          <li>Enhancing website security and performance.</li>
+          <li>Analyzing aggregate website traffic trends to improve user experience.</li>
+        </ul>
+        <p>We do not sell, share, or use your data for advertising or tracking purposes.</p>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="sticky bottom-0 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-6 py-4 text-right">
+        <button @click="open = false"
+                class="btn-primary">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

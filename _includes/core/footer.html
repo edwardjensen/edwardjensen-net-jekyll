@@ -1,0 +1,24 @@
+<div class="mt-16 w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-slate-100 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 transition-colors duration-300" x-data>
+    <div class="text-center text-sm py-6 font-mono italic tracking-tighter text-body flex flex-col space-y-3 px-4 md:px-8 lg:px-12">
+        <div>
+            <p>Copyright &copy; 2008-{{ "now" | date: "%Y" }} Edward Jensen. All rights reserved. Please read our <a href="#" @click.prevent="$dispatch('open-privacy-modal')" class="underline hover:text-amber-600 dark:hover:text-amber-400" aria-label="Privacy Policy">Privacy Policy</a>.</p>
+        </div>
+        <div>
+            <p><span class="font-bold" role="note">Disclaimer:</span> {{ site.disclaimer }}</p>
+        </div>
+        <div>
+            <p>
+                {% if jekyll.environment == "production" %}
+                edwardjensen.net is proudly powered by <a href="https://jekyllrb.com/" target="_blank" rel="noopener noreferrer" aria-label="Jekyll static site generator (opens in new tab)" class="hover:text-amber-600 dark:hover:text-amber-400">Jekyll {{ jekyll.version }}</a>. It was last built on <time datetime="{{ site.time | date_to_xmlschema }}">{{ site.time | date: "%e %B %Y" }}</time> from commit <a href="https://github.com/edwardjensen/edwardjensen2025/commit/{{ site.data.buildinfo.commit }}" target="_blank" rel="noopener noreferrer" aria-label="View commit {{ site.data.buildinfo.commit | slice: 0, 7 }} on GitHub (opens in new tab)" class="hover:text-amber-600 dark:hover:text-amber-400">{{ site.data.buildinfo.commit | slice: 0, 7 }}</a> ({{ site.data.buildinfo.build_type }}).
+                {% elsif jekyll.environment == "staging" %}
+                <span class="text-amber-600 dark:text-amber-400 font-semibold">⚠ STAGING ENVIRONMENT</span>. Built on <time datetime="{{ site.time | date_to_xmlschema }}">{{ site.time | date: "%e %B %Y at %H:%M:%S" }}</time> from commit <a href="https://github.com/edwardjensen/edwardjensen2025/commit/{{ site.data.buildinfo.commit }}" target="_blank" rel="noopener noreferrer" aria-label="View commit {{ site.data.buildinfo.commit | slice: 0, 7 }} on GitHub (opens in new tab)" class="hover:text-amber-600 dark:hover:text-amber-400">{{ site.data.buildinfo.commit | slice: 0, 7 }}</a>. Jekyll {{ jekyll.version }}
+                {% else %}
+                Local Development Environment. Jekyll {{ jekyll.version }}
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Include Privacy Modal -->
+{% include components/privacy-modal.html %}

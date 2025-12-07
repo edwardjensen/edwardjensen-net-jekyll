@@ -1,0 +1,116 @@
+url: "https://www.edwardjensen.net"
+baseurl: ""
+lang: "en-US"
+title: "Edward Jensen"
+tagline: "Exploring the Nonprofit IT Landscape: Insights and Reflections"
+description: "Edward Jensen is a nonprofit technology professional who writes about the intersection of technology and mission-driven impact work."
+logo: "/assets/images/bluebackground.png"
+
+plugins:
+  - jekyll-postcss-v2
+  - jekyll-sitemap
+  - jekyll-paginate-v2
+  - jekyll-seo-tag
+  - jekyll-redirect-from
+
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM
+
+postcss:
+  cache: false
+  script: node_modules/.bin/postcss
+  config: postcss.config.js
+
+pagination:
+  enabled: true
+  per_page: 20
+  limit: 0
+  sort_field: 'date'
+  sort_reverse: true
+
+exclude:
+  - package-lock.json
+  - package.json
+  - node_modules
+  - postcss.config.js
+  - tailwind.config.js
+  - .vscode
+  - '*.code-workspace'
+  - .github
+  - _config.staging.yml
+  - _config.dev.yml
+  - scripts
+  - .claude
+  - site-docs
+  - CLAUDE.md
+  - README.md
+  - .pa11yci.json
+  - _posts
+  - _working_notes
+  - _historic_posts
+  - migrations
+
+include:
+  - _pages
+  - _redirects
+
+collections:
+  posts:
+    output: true
+    permalink: /:collection/:year/:year-:month/:title
+  photography:
+    output: true
+    permalink: /photos/:year/:year-:month/:title
+  portfolio:
+    output: true
+    permalink: /portfolio/:title
+  feeds:
+    output: true
+  homepage_sections:
+    output: false
+  working_notes:
+    output: true
+    permalink: /notes/:year-:month-:day/:title
+  landing_sections:
+    output: false
+  historic_posts:
+    output: true
+    permalink: /archive/posts/:title
+
+defaults:
+  -
+    scope: 
+      path: "_posts"
+    values:
+      layout: single-post
+  -
+    scope: 
+      path: "_drafts"
+    values:
+      layout: single-post
+  -
+    scope:
+      path: "_working_notes"
+    values:
+      layout: single-working-note
+      future: false
+  -
+    scope:
+      path: "_historic_posts"
+    values:
+      layout: single-post
+
+social:
+  name: Edward Jensen
+  links:
+    - https://www.linkedin.com/in/edwardjensen
+    - https://github.com/edwardjensen
+    - https://bsky.app/profile/edwardjensen.net
+
+google_site_verification: "PUqXTWcgjCSbkQtEjssc5jBk2ClsrtS3qeJc0-JNvLM"
+
+disclaimer: "The content and opinions expressed herein, while well-reasoned and insightful, are my own personal views and do not necessarily reflect those of my employer, their clients, or any other organizations with which I am affiliated."
+
+feed_footer_text: "This post was originally published on [Edward Jensen](https://www.edwardjensen.net)."

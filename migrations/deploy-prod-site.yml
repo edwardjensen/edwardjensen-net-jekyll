@@ -1,0 +1,63 @@
+name: PROD - Build and deploy site
+
+permissions:
+  contents: read
+  
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '55 13 * * *'  # Daily build for future-dated posts
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          ref: main
+
+      - name: Generate build info
+        run: |
+          mkdir -p ./_data
+          echo "commit: ${{ github.sha }}" > ./_data/buildinfo.yml
+          echo "build_id: ${{ github.run_id }}" >> ./_data/buildinfo.yml
+          echo "build_type: ${{ github.event_name }}" >> ./_data/buildinfo.yml
+          echo "build_name: ${{ github.workflow }}" >> ./_data/buildinfo.yml
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '${{ vars.RUBY_VERSION }}'
+          bundler-cache: true
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '${{ vars.NODE_VERSION }}'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          gem install bundler
+          BUNDLE_FROZEN=1 bundle install
+          npm ci
+
+      - name: Generate microphotos data
+        run: |
+          pwsh -File ./scripts/microphotojsonprocessor.ps1 -InputUri "https://micro.edwardjensen.net/photos/index.json"
+
+      - name: Build site
+        run: |
+          JEKYLL_ENV=production bundle exec jekyll build
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy _site --project-name=${{ secrets.CF_PAGES_PROJECT }} --commit-dirty=true

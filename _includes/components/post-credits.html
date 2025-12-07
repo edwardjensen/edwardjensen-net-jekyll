@@ -1,0 +1,10 @@
+{% if page.post_credits %}
+  <div class="hyperlink-container">
+    <h3 class="font-bold">Credits and acknowledgements:</h3>
+    {% for c in page.post_credits %}
+      <ul>
+        <li class="italic">{{ c | markdownify }}</li>
+      </ul>
+    {% endfor %}
+  </div>
+{% endif %}

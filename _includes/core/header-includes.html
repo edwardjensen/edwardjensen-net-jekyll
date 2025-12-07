@@ -1,0 +1,15 @@
+<!-- <link rel="stylesheet" href="{{ "/assets/css/main.css" | relative_url }}"> -->
+
+
+<link rel="stylesheet" href="{{ "/assets/css/main.css" | relative_url }}?v={{ site.time | date: '%Y%m%d%H%M%S' }}">
+{% if page.has_youtube_video %}
+<link rel="stylesheet" href="{{ '/assets/css/lite-yt-embed.css' | relative_url }}" />
+{% endif %}
+<link rel="stylesheet" href="https://use.typekit.net/ylk0tvr.css">
+<link rel="stylesheet" href="{{ '/assets/css/bootstrap-icons.min.css' | relative_url }}">
+<script src="{{ '/assets/js/photo-gallery.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/alpine.min.js' | relative_url }}" defer></script>
+{% if page.has_youtube_video %}
+<script src="{{ '/assets/js/lite-yt-embed.js' | relative_url }}"></script>
+{% endif %}
+{% seo %}

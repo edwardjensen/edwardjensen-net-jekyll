@@ -1,0 +1,6 @@
+---
+layout: null
+permalink: /search-index.json
+searchable: false
+---
+{"documents":[{%- assign items = site.posts | concat: site.pages | concat: site.photography | concat: site.working_notes -%}{%- for item in items -%}{%- if item.url != '/search' and item.url != '/search/' and item.searchable != false and item.title %}{"id":"{{ item.url | slugify }}","title":"{{ item.title | json_escape }}","url":"{{ item.url }}","type":"{% if item.collection == 'posts' %}post{% elsif item.collection == 'photography' %}photography{% else %}page{% endif %}","date":"{% if item.date %}{{ item.date | date: '%Y-%m-%d' }}{% endif %}","excerpt":"{{ item.excerpt | default: item.content | json_escape }}","content":"{{ item.content | json_escape }}"}{% unless forloop.last %},{%- endunless -%}{%- endif -%}{%- endfor %}]}

@@ -1,0 +1,19 @@
+---
+layout: content-wrapper
+---
+
+<h1 class="font-header font-bold text-3xl lg:text-5xl leading-tight tracking-wide mb-8 text-center">
+  {{ page.title | smartify }}
+</h1>
+
+<div class="prose prose-slate dark:prose-invert max-w-4xl mx-auto mb-12">
+  {{ content }}
+</div>
+
+{% include components/search-interface.html %}
+
+<div class="mt-12 mb-8">
+  <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-6">Selected Historical Posts</h2>
+</div>
+
+{% include sections/historic-post-list.html %}

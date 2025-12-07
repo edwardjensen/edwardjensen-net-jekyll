@@ -1,0 +1,98 @@
+name: STAGING - Build and deploy to Internal Server
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - staging
+  schedule:
+    - cron: '0 12 * * *'
+  workflow_dispatch:
+
+jobs:
+  build-site:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          ref: staging
+
+      - name: Generate build info
+        run: |
+          mkdir -p ./_data
+          echo "commit: ${{ github.sha }}" > ./_data/buildinfo.yml
+          echo "build_id: ${{ github.run_id }}" >> ./_data/buildinfo.yml
+          echo "build_type: staging" >> ./_data/buildinfo.yml
+          echo "build_name: ${{ github.workflow }}" >> ./_data/buildinfo.yml
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '${{ vars.RUBY_VERSION }}'
+          bundler-cache: true
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '${{ vars.NODE_VERSION }}'
+          cache: 'npm'
+
+      - name: Install Gem and Node dependencies
+        run: |
+          gem install bundler
+          BUNDLE_FROZEN=1 bundle install
+          npm ci
+
+      - name: Generate microphotos data
+        run: |
+          pwsh -File ./scripts/microphotojsonprocessor.ps1 -InputUri "https://micro.edwardjensen.net/photos/index.json"
+
+      - name: BUILD STAGING SITE
+        run: |
+          JEKYLL_ENV=staging bundle exec jekyll build --config _config.yml,_config.staging.yml
+     
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v5
+        with:
+          name: staging-site
+          path: ./_site
+
+  deploy-site:
+    needs: build-site
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v6
+        with:
+          name: staging-site
+          path: ./_site
+          
+      - name: Connect to Tailscale VPN
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.STAGING_TS_CLIENT_ID }}
+          oauth-secret: ${{ secrets.STAGING_TS_CLIENT_SECRET }}
+          tags: tag:github-actions
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.STAGING_TS_CLIENT_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo "Host ${{ secrets.STAGING_TS_CLIENT_IP }}" >> ~/.ssh/config
+          echo "  StrictHostKeyChecking no" >> ~/.ssh/config
+          echo "  UserKnownHostsFile=/dev/null" >> ~/.ssh/config
+          chmod 600 ~/.ssh/config
+      
+      - name: Deploy to staging server
+        run: |
+          rsync -avz --no-times --no-perms --delete ./_site/ ${{ secrets.STAGING_TS_CLIENT_USER }}@${{ secrets.STAGING_TS_CLIENT_IP }}:${{ secrets.STAGING_DIR }}
+
+      - name: Restart web server on staging
+        run: |
+          ssh ${{ secrets.STAGING_TS_CLIENT_USER }}@${{ secrets.STAGING_TS_CLIENT_IP }} 'docker restart ejnet-staging'

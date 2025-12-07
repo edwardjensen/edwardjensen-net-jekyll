@@ -1,0 +1,333 @@
+---
+---
+
+@import "tailwindcss";
+
+@theme {
+    --font-sans: 'basic-sans', sans-serif;
+    --font-header: 'museo-slab', serif;
+}
+
+/* === ACCESSIBILITY UTILITIES === */
+@layer utilities {
+    /* Screen reader only class */
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    /* Show screen reader content when focused */
+    .sr-only:focus,
+    .focus\:not-sr-only:focus {
+        position: static;
+        width: auto;
+        height: auto;
+        padding: inherit;
+        margin: inherit;
+        overflow: visible;
+        clip: auto;
+        white-space: normal;
+    }
+}
+
+/* === ACCESSIBILITY BASE STYLES === */
+@layer base {
+    /* Enhanced focus styles for better visibility */
+    a:focus,
+    button:focus,
+    input:focus,
+    textarea:focus,
+    select:focus {
+        outline: 2px solid #3b82f6;
+        outline-offset: 2px;
+    }
+
+    /* Ensure focus is visible in dark mode */
+    @media (prefers-color-scheme: dark) {
+        a:focus,
+        button:focus,
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline-color: #60a5fa;
+        }
+    }
+
+    /* High contrast mode adjustments */
+    @media (prefers-contrast: high) {
+        .bg-white\/70,
+        .dark\:bg-slate-800\/70 {
+            background-color: rgba(255, 255, 255, 0.95);
+        }
+
+        .dark .bg-white\/70,
+        .dark .dark\:bg-slate-800\/70 {
+            background-color: rgba(30, 41, 59, 0.95);
+        }
+    }
+
+    /* Reduced motion preferences */
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+    }
+
+    /* Skip link positioning */
+    .skip-link {
+        position: absolute;
+        top: -40px;
+        left: 6px;
+        background: #000;
+        color: #fff;
+        padding: 8px;
+        text-decoration: none;
+        z-index: 1000;
+    }
+
+    .skip-link:focus {
+        top: 6px;
+    }
+
+    /* Ensure minimum tap target size for touch devices */
+    @media (pointer: coarse) {
+        a,
+        button,
+        input,
+        select,
+        textarea {
+            min-height: 44px;
+            min-width: 44px;
+        }
+    }
+
+    /* Print styles for better accessibility */
+    @media print {
+        /* Ensure good contrast for printing */
+        * {
+            background: transparent !important;
+            color: black !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+        }
+
+        /* Show URLs for links */
+        a[href]::after {
+            content: " (" attr(href) ")";
+        }
+
+        /* Hide decorative elements */
+        .sr-only,
+        [aria-hidden="true"] {
+            display: none !important;
+        }
+    }
+}
+
+/* Global body background and text colors */
+:root {
+    color-scheme: light dark;
+}
+
+@layer components {
+    body {
+        @apply bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-50 transition-colors duration-300;
+    }
+
+    /* Links with warm accent color */
+    a {
+        @apply text-amber-600 dark:text-amber-400 transition-colors duration-200;
+        
+        &:hover {
+            @apply text-amber-700 dark:text-amber-300 underline;
+        }
+    }
+
+    .hyperlink-container a {
+        @apply text-amber-600 dark:text-amber-400 underline;
+        
+        &:hover {
+            @apply text-amber-700 dark:text-amber-300 font-bold underline;
+        }
+    }
+
+    /* === REUSABLE TEXT COLOR UTILITIES === */
+    .text-body {
+        @apply text-slate-700 dark:text-slate-300;
+    }
+    
+    .text-muted {
+        @apply text-slate-600 dark:text-slate-400;
+    }
+    
+    .text-heading {
+        @apply text-slate-900 dark:text-slate-50;
+    }
+    
+    /* === REUSABLE LINK STYLES === */
+    .link-accent {
+        @apply text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 transition-colors duration-200;
+    }
+    
+    /* === REUSABLE BUTTON STYLES === */
+    .btn-primary {
+        @apply px-4 py-2 rounded-lg bg-amber-600 text-white hover:bg-amber-700 dark:bg-amber-500 dark:hover:bg-amber-600 transition-colors duration-200 font-medium no-underline;
+
+        &:hover {
+            @apply text-white no-underline;
+        }
+    }
+
+    .btn-secondary {
+        @apply px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors duration-200 font-medium no-underline;
+
+        &:hover {
+            @apply text-slate-900 dark:text-slate-100 no-underline;
+        }
+    }
+
+    .btn-ghost {
+        @apply px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-200 no-underline;
+
+        &:hover {
+            @apply text-slate-700 dark:text-slate-300 no-underline;
+        }
+    }
+    
+    /* === REUSABLE CONTAINER/CARD STYLES === */
+    .article-container {
+        @apply bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 dark:border-slate-700/20 overflow-hidden transition-colors duration-300;
+    }
+
+    .dropdown-menu {
+        @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg;
+    }
+
+    .info-box {
+        @apply bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 text-slate-600 dark:text-slate-400;
+    }
+
+    .badge-accent {
+        @apply bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 px-2 py-1 rounded text-xs font-medium border border-amber-200 dark:border-amber-800;
+    }
+    
+    /* === REUSABLE SECTION BACKGROUNDS === */
+    .section-bg {
+        @apply bg-slate-100 dark:bg-slate-800;
+    }
+    
+    .section-bg-white {
+        @apply bg-white dark:bg-slate-900;
+    }
+    
+    /* === REUSABLE ICON STYLES === */
+    .icon-interactive {
+        @apply text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200;
+    }
+    
+    /* === REUSABLE INPUT STYLES === */
+    .input-default {
+        @apply w-full px-4 py-3 rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-50 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:border-amber-600 dark:focus:border-amber-400 transition-colors;
+    }
+
+    /* === PROSE/ARTICLE STYLING === */
+    .prose {
+        @apply text-slate-900 dark:text-slate-50;
+
+        h2 {
+            @apply mt-12 mb-6 pt-6 pb-3 border-t-2 border-amber-100 dark:border-amber-900 relative font-bold text-slate-900 dark:text-slate-50 text-2xl;
+
+            &:first-of-type {
+                @apply mt-8 border-t-0 pt-0;
+            }
+
+            &::before {
+                content: '';
+                @apply absolute -top-0.5 left-0 w-16 h-0.5 bg-gradient-to-r from-amber-600 to-orange-600 dark:from-amber-400 dark:to-orange-400 rounded-sm;
+            }
+        }
+
+        h3 {
+            @apply text-xl font-bold text-slate-800 dark:text-slate-100 mt-8 mb-4;
+        }
+
+        p {
+            @apply leading-relaxed my-4;
+        }
+
+        a {
+            @apply text-amber-600 dark:text-amber-400 underline hover:no-underline;
+        }
+
+        blockquote {
+            @apply border-l-4 border-amber-500 pl-4 italic text-slate-700 dark:text-slate-200;
+        }
+
+        code {
+            @apply bg-slate-100 dark:bg-slate-900 px-2 py-1 rounded text-sm font-mono text-slate-900 dark:text-slate-100;
+        }
+
+        pre {
+            @apply bg-slate-800 p-4 rounded-lg overflow-x-auto my-4;
+
+            code {
+                @apply bg-transparent p-0 rounded-none text-inherit;
+            }
+        }
+    }
+
+    /* === CARD/SECTION STYLING === */
+    .card, .section-card {
+        @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm transition-all duration-300;
+
+        &:hover {
+            @apply shadow-md;
+        }
+    }
+}
+
+/* Syntax highlighting - ensure colors display */
+.highlight {
+    @apply text-slate-50;
+}
+
+.highlight pre {
+    @apply bg-slate-800;
+    background-color: #1e293b !important;
+}
+
+.highlight .c, .highlight .cm, .highlight .c1, .highlight .cs {
+    @apply text-gray-500 italic;
+}
+
+.highlight .k, .highlight .kc, .highlight .kd, .highlight .kn, .highlight .kp, .highlight .kr, .highlight .kt {
+    @apply text-lime-400 font-semibold;
+}
+
+.highlight .s, .highlight .sa, .highlight .sb, .highlight .sc, .highlight .sd, .highlight .s1, .highlight .s2, .highlight .se, .highlight .sh, .highlight .si, .highlight .sx, .highlight .sr, .highlight .s3, .highlight .ss {
+    @apply text-yellow-300;
+}
+
+.highlight .n, .highlight .na, .highlight .nb, .highlight .nc, .highlight .no, .highlight .nd, .highlight .ni, .highlight .ne, .highlight .nf, .highlight .nl, .highlight .nn, .highlight .nx, .highlight .py, .highlight .nt, .highlight .nv {
+    @apply text-slate-200;
+}
+
+.highlight .m, .highlight .mf, .highlight .mh, .highlight .mi, .highlight .il, .highlight .mo {
+    @apply text-cyan-400;
+}
+
+.highlight .o, .highlight .ow {
+    @apply text-slate-300;
+}

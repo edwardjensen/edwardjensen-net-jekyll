@@ -1,0 +1,176 @@
+<div class="space-y-4">
+  <!-- Result count -->
+  <div class="text-sm text-muted">
+    <span x-text="`${results.length} result${results.length !== 1 ? 's' : ''} found`"></span>
+  </div>
+
+  <!-- Results list -->
+  <div class="space-y-6" x-show="results.length > 0">
+    <template x-for="result in results" :key="result.ref">
+      <article class="border-l-4 border-amber-600 dark:border-amber-400 pl-4 pb-4">
+        <!-- Result type badge -->
+        <div class="flex items-center gap-2 mb-2">
+          <span
+            class="inline-block text-xs font-semibold uppercase tracking-wide px-2 py-1 rounded"
+            :class="{
+              'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200': data[result.ref].type === 'post',
+              'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300': data[result.ref].type === 'page',
+              'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300': data[result.ref].type === 'photography'
+            }"
+            x-text="data[result.ref].type"
+          ></span>
+          <time 
+            v-if="data[result.ref].date"
+            class="text-xs text-slate-500 dark:text-slate-400"
+            x-show="data[result.ref].date"
+            x-text="new Date(data[result.ref].date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })"
+          ></time>
+        </div>
+
+        <!-- Title -->
+        <h3 class="text-lg font-semibold mb-2">
+          <a 
+            :href="data[result.ref].url"
+            class="link-accent hover:underline"
+            x-text="data[result.ref].title"
+          ></a>
+        </h3>
+
+        <!-- Excerpt -->
+        <p class="text-body mb-3">
+          <span x-text="data[result.ref].excerpt"></span>…
+        </p>
+
+        <!-- Read more link -->
+        <a 
+          :href="data[result.ref].url"
+          class="inline-flex items-center link-accent font-medium text-sm"
+        >
+          <span>read more</span>
+          <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </a>
+      </article>
+    </template>
+  </div>
+
+  <!-- No results state -->
+  <div x-show="results.length === 0 && queryInput.length > 0" class="py-8 text-center">
+    <p class="text-muted mb-2">no results found</p>
+    <p class="text-sm text-muted">
+      try different keywords or browse the <a href="/writing" class="link-accent">latest posts</a>
+    </p>
+  </div>
+</div>
+
+<!-- Lunr search script from CDN -->
+<script src={{ "/assets/js/lunr.min.js" | relative_url }}></script>
+<script>
+  function searchHandler() {
+    return {
+      queryInput: '',
+      results: [],
+      data: {},
+      index: null,
+      isSearching: false,
+      searchTimeout: null,
+
+      async init() {
+        try {
+          // Fetch the search index
+          const response = await fetch('/search-index.json');
+          const searchData = await response.json();
+          
+          // Build a map of documents for quick lookup
+          searchData.documents.forEach(doc => {
+            this.data[doc.id] = doc;
+          });
+
+          // Build Lunr index
+          this.index = lunr(function() {
+            this.ref('id');
+            this.field('title', { boost: 10 });
+            this.field('excerpt', { boost: 5 });
+            this.field('content');
+            this.field('type');
+
+            searchData.documents.forEach(doc => {
+              this.add(doc);
+            });
+          });
+        } catch (error) {
+          console.error('Failed to load search index:', error);
+        }
+      },
+
+      performSearch() {
+        // Clear existing timeout
+        clearTimeout(this.searchTimeout);
+        
+        // Set a new timeout for debounced search (1.5 seconds)
+        this.searchTimeout = setTimeout(() => {
+          if (!this.index) return;
+          
+          this.isSearching = true;
+          
+          const query = this.queryInput.trim();
+          
+          if (query.length === 0) {
+            this.results = [];
+            this.isSearching = false;
+            return;
+          }
+
+          // Perform the search with Lunr
+          try {
+            // Enhance query with wildcards for better matching
+            const enhancedQuery = query
+              .split(' ')
+              .map(term => term + '*')
+              .join(' ');
+            
+            this.results = this.index.search(enhancedQuery);
+          } catch (error) {
+            // If search fails, try with the original query
+            console.log('Search error, trying original query:', error);
+            this.results = this.index.search(query);
+          }
+
+          this.isSearching = false;
+        }, 1500); // 1.5 second debounce
+      }
+    };
+  }
+
+  // Initialize search when page loads
+  document.addEventListener('alpine:init', () => {
+    // Alpine is ready, the x-data initialization will handle it
+  });
+
+  // Also try immediate initialization for compatibility
+  document.addEventListener('DOMContentLoaded', () => {
+    // Give Alpine a moment to initialize
+    setTimeout(() => {
+      const searchElement = document.querySelector('[x-data*="searchHandler"]');
+      if (searchElement && searchElement.__x) {
+        searchElement.__x.init();
+      }
+    }, 100);
+  });
+</script>
+
+<style>
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+  
+  .animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+</style>

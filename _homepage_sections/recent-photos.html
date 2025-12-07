@@ -1,0 +1,58 @@
+---
+section: Photography
+subheader: Visual stories and moments
+icon: camera
+order: 30
+icon_bg_color: from-emerald-500 to-teal-600
+---
+
+<!-- Photo Gallery Container with Modal -->
+<div x-data="photoGallery()">
+  <!-- Hidden container with all photos for the slideshow -->
+  <div id="photo-gallery-all-photos" style="display: none;" role="presentation">
+    {% assign all_photos = site.data.microphotos.items | sort: 'date_published' | reverse %}
+    {% for photo in all_photos %}
+    <button class="gallery-photo-data"
+            data-image="{{ photo.image_url }}"
+            data-alt="{{ photo.alt_text }}"
+            data-caption="{{ photo.content_preview }}"
+            data-link="{{ photo.url }}"
+            data-date="{{ photo.date_published }}"
+            aria-label="Photo from {{ photo.date_published | date: '%B %d, %Y' }}"
+            style="display: none;">
+    </button>
+    {% endfor %}
+  </div>
+
+  <!-- Photo Gallery Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-4" 
+       role="region" 
+       aria-label="Recent photography gallery">
+    {% assign recent_photos = site.data.microphotos.items | sort: 'date_published' | reverse | slice: 0, 6 %}
+    {% for photo in recent_photos %}
+    <figure class="overflow-hidden rounded-lg hover:opacity-75 transition-opacity duration-300 cursor-pointer">
+      <button @click="openPhoto($el)"
+              class="w-full h-full text-left focus:outline-none focus:ring-0 focus:ring-offset-0 focus:shadow-none block border-0 bg-transparent p-0 appearance-none"
+              data-image="{{ photo.image_url }}"
+              data-alt="{{ photo.alt_text }}"
+              data-caption="{{ photo.content_preview }}"
+              data-link="{{ photo.url }}"
+              data-date="{{ photo.date_published }}"
+              aria-label="View full size: {{ photo.alt_text }}">
+        <img src="{{ photo.thumbnail_url }}" 
+             class="w-full h-full object-cover" 
+             alt="{{ photo.alt_text }}" 
+             title="{{ photo.content_preview }}"
+             loading="lazy">
+      </button>
+    </figure>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- External Link -->
+<div class="flex hyperlink-container">
+  <p class="italic text-body transition-colors duration-300">
+    More photography resides on my microblog, <a href="https://micro.edwardjensen.net/" target="_blank" rel="noopener noreferrer" aria-label="Edward Jensen's microblog (opens in new tab)">micro.edwardjensen.net</a>.
+  </p>
+</div>

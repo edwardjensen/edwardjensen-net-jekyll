@@ -1,0 +1,16 @@
+---
+layout: content-wrapper
+---
+<article class="article-container">
+  <!-- Page Header -->
+  {% include components/page-header.html
+    page_title=page.title
+    page_subtitle=page.subtitle
+    page_excerpt=page.excerpt
+  %}
+
+  <!-- Content -->
+  <div class="p-8 lg:p-12">
+    {% include components/prose-content.html %}
+  </div>
+</article>

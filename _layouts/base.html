@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: "en-US" }}">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    {% if page.url == "/" %}
+      <title>{{ site.title }}</title>
+    {% else %}
+      <title>{{ page.title }} - {{ site.title }}</title>
+    {% endif %}
+    {% include core/header-includes.html %}
+    {{ content_for_head }}
+  </head>
+
+<body class="bg-white dark:bg-slate-950 min-h-screen transition-colors duration-300">
+  <!-- Skip to main content link for screen readers -->
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-amber-600 text-white px-4 py-2 rounded-md z-50 focus:z-50">Skip to main content</a>
+
+  <!-- Sticky Header Navigation -->
+  {% include components/header-nav.html %}
+
+  <!-- Main Content -->
+  {{ content }}
+
+  <!-- Photo Gallery Modal - outside main constraints to be full-screen -->
+  <div id="photo-modal-root"></div>
+
+  <!-- Footer -->
+  <footer role="contentinfo" aria-label="Site footer">
+    {% include core/footer.html %}
+  </footer>
+</body>
+</html>

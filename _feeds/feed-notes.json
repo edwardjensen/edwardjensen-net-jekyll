@@ -1,0 +1,35 @@
+---
+layout: null
+permalink: /feeds/notes.json
+---
+{
+  "version": "https://jsonfeed.org/version/1.1",
+  "title": "{{ site.title }} - Working Notes",
+  "description": "{{ site.description }} - Microblog entries and quick thoughts",
+  "home_page_url": "{{ site.url }}/notes/",
+  "feed_url": "{{ site.url }}/feeds/notes.json",
+  "favicon": "{{ site.url }}/favicon.ico",
+  "expired": false,
+  "language": "{{ site.language | default: 'en-US' }}",
+  "items": [
+    {% assign sorted_notes = site.working_notes | sort: 'date' | reverse %}
+    {% for note in sorted_notes limit:20 %}
+      {% if note.date <= site.time %}
+      {
+        "id": "{{ note.url | absolute_url }}",
+        "url": "{{ note.url | absolute_url }}",
+        "title": {{ note.title | jsonify }},
+        "content_html": {{ note.content | jsonify }},
+        "date_published": "{{ note.date | date_to_xmlschema }}"
+        {% if note.tags %},
+        "tags": [
+          {% for tag in note.tags %}
+          {{ tag | jsonify }}{% unless forloop.last %},{% endunless %}
+          {% endfor %}
+        ]
+        {% endif %}
+      }{% unless forloop.last %},{% endunless %}
+      {% endif %}
+    {% endfor %}
+  ]
+}

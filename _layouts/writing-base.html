@@ -1,0 +1,16 @@
+---
+layout: content-wrapper
+---
+<div class="article-container">
+  <!-- Page Header -->
+  {% include components/page-header.html
+    page_title=page.title
+    page_subtitle=page.subtitle
+    header_icon=page.header_icon
+  %}
+
+  <!-- Content -->
+  <div class="p-8 lg:p-12 [&_a]:hyperlinks">
+    {{ content }}
+  </div>
+</div>

@@ -1,0 +1,32 @@
+---
+section: "Here's some of what I write about."
+subheader: "These essays represent my approach to nonprofit technology strategy and the challenges I often encounter in my work."
+icon: pen
+order: 20
+icon_bg_color: from-blue-500 to-purple-600
+---
+
+<!-- Recent Posts List -->
+<div class="text-xl [&_a]:hyperlinks">
+    {% assign recent_posts = site.posts | where: 'landing_featured', true | sort: 'date' | reverse | slice: 0, 3 %}
+    <nav aria-label="Recent blog posts">
+        <ul role="list">
+            {% for post in recent_posts %}
+            <li class="mb-8 lg:mb-8">
+                <article>
+                    <a href="{{ post.url | relative_url }}" class="block" aria-describedby="post-{{ forloop.index }}-date">
+                      <div class="flex justify-between items-baseline gap-4 leading-tight md:leading-normal">
+                        <h3 class="uppercase text-black dark:text-slate-200 hover:font-bold hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-300">{{ post.title }}</h3>
+                        <time id="post-{{ forloop.index }}-date" datetime="{{ post.date | date_to_xmlschema }}" class="text-muted italic whitespace-nowrap transition-colors duration-300">{{ post.date | date: "%B %Y" }}</time>
+                      </div>
+                      <div class="italic text-body mb-4">{{ post.excerpt }}</div>
+                    </a>
+                </article>
+              </li>
+            {% endfor %}
+        </ul>
+    </nav>
+    <div class="mt-5 flex justify-center">
+        <a href="/writing" class="btn-primary inline-flex items-center gap-2 px-6 py-2 font-semibold" aria-label="View all blog posts"><i class="bi bi-pen"></i> Explore the full archive here.</a>
+    </div>
+</div>

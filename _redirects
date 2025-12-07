@@ -1,0 +1,6 @@
+---
+layout: none
+---
+{% for item in site.data.redirects %}{{ item.source }} {{ item.destination }} {{ item.type }}
+{% endfor %}{% for item in site.data.old-ejnet-posts %}{{ item.url }} /archive/landing?post={{ item.slug }} 301
+{% endfor %}

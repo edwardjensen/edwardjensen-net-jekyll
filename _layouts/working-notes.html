@@ -1,0 +1,95 @@
+---
+layout: content-wrapper
+---
+<div class="article-container">
+  <!-- Page Header -->
+  {% capture icon %}{{ page.header_icon | default: 'bi-pencil-square' }}{% endcapture %}
+  {% capture gradient %}{{ page.header_gradient | default: 'from-amber-500 to-amber-600' }}{% endcapture %}
+
+  {% include components/page-header.html
+    page_title=page.title
+    page_subtitle=page.subtitle
+    header_icon=icon
+    header_gradient=gradient
+  %}
+
+  <!-- Content -->
+  <div class="p-8 lg:p-12 [&_a]:hyperlinks">
+    <!-- Working Notes List -->
+    <div class="space-y-4">
+      {% if paginator.posts.size > 0 %}
+        {% for note in paginator.posts %}
+          {% if note.date <= site.time %}
+            {% include components/working-note.html note=note index=forloop.index %}
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <p class="text-center text-muted py-8">
+          No working notes found.
+        </p>
+      {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    {% if paginator.total_pages > 1 %}
+    <nav class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-700" role="navigation" aria-label="Pagination">
+      <div class="flex flex-wrap gap-2 justify-center items-center">
+        <!-- Previous Page Link -->
+        {% if paginator.previous_page %}
+          <a href="{{ paginator.previous_page_path | relative_url }}" class="btn-primary" aria-label="Go to previous page">
+            ← Previous
+          </a>
+        {% else %}
+          <span class="px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed">
+            ← Previous
+          </span>
+        {% endif %}
+
+        <!-- Page Numbers -->
+        <div class="flex flex-wrap gap-1 justify-center">
+          {% for page_num in (1..paginator.total_pages) %}
+            {% if page_num == paginator.page %}
+              <span class="px-3 py-2 rounded-lg bg-amber-600 text-white font-bold" aria-current="page">
+                {{ page_num }}
+              </span>
+            {% else %}
+              {% if page_num == 1 %}
+                <a href="{{ '/working-notes/' | relative_url }}" class="btn-secondary">
+                  {{ page_num }}
+                </a>
+              {% else %}
+                <a href="{{ '/working-notes/page/' | relative_url }}{{ page_num }}/" class="btn-secondary">
+                  {{ page_num }}
+                </a>
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+        </div>
+
+        <!-- Next Page Link -->
+        {% if paginator.next_page %}
+          <a href="{{ paginator.next_page_path | relative_url }}" class="btn-primary" aria-label="Go to next page">
+            Next →
+          </a>
+        {% else %}
+          <span class="px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed">
+            Next →
+          </span>
+        {% endif %}
+      </div>
+    </nav>
+    {% endif %}
+
+    <!-- Feed Links Footer -->
+    <div class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-700 flex flex-wrap gap-6 justify-center items-center">
+      <a href="{{ '/feeds/notes.xml' | relative_url }}" class="inline-flex items-center gap-2 link-accent font-medium" title="Subscribe to Working Notes RSS feed">
+        <i class="bi bi-rss text-lg" aria-hidden="true"></i>
+        <span>RSS Feed</span>
+      </a>
+      <a href="{{ '/feeds/notes.json' | relative_url }}" class="inline-flex items-center gap-2 link-accent font-medium" title="Subscribe to Working Notes JSON feed">
+        <i class="bi bi-braces text-lg" aria-hidden="true"></i>
+        <span>JSON Feed</span>
+      </a>
+    </div>
+  </div>
+</div>

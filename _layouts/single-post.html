@@ -1,0 +1,72 @@
+---
+layout: content-wrapper
+content_for_head: |
+  {% if page.has_youtube_video %}
+  <link rel="stylesheet" href="{{ '/assets/css/lite-yt-embed.css' | relative_url }}" />
+  <script src="{{ '/assets/js/lite-yt-embed.js' | relative_url }}"></script>
+  {% endif %}
+  <link rel="stylesheet" href="{{ '/assets/css/syntax.css' | relative_url }}" type="text/css" />
+---
+<article class="article-container">
+  <!-- Article Header -->
+  {% capture post_metadata %}
+  <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-3 text-base">
+    <div class="flex flex-wrap items-center gap-3 justify-center lg:justify-start">
+      <span class="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full font-bold text-white" role="note" aria-label="Category">
+        {{ page.categories }}
+      </span>
+      <time datetime="{{ page.date | date_to_xmlschema }}" class="text-slate-200">
+        {{ page.date | date: "%-d %B %Y" }}
+      </time>
+    </div>
+    {% if page.tags and page.tags.size > 0 %}
+    <div class="flex flex-wrap gap-2 justify-center lg:justify-end" role="list" aria-label="Post tags">
+      {% for tag in page.tags %}
+      <span class="bg-amber-500/20 backdrop-blur-sm text-amber-100 px-2 py-1 rounded-md text-sm font-medium border border-amber-400/30" role="listitem">
+        #{{ tag }}
+      </span>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  {% endcapture %}
+
+  <header class="bg-gradient-to-r from-slate-800 to-slate-700 dark:from-slate-900 dark:to-slate-800 text-white px-8 lg:px-12 pt-8 lg:pt-12 pb-6 lg:pb-8 transition-colors duration-300">
+    <div class="space-y-4 text-center lg:text-left">
+      <h1 class="font-header font-bold text-3xl lg:text-5xl leading-tight tracking-wide">
+        {{ page.title }}
+      </h1>
+      {{ post_metadata }}
+      {% if page.excerpt or page.description %}
+      <p class="text-slate-200 text-base lg:text-lg leading-relaxed max-w-3xl italic text-center lg:text-left">
+        {{ page.excerpt | default: page.description }}
+      </p>
+      {% endif %}
+    </div>
+  </header>
+
+  <!-- Featured Image -->
+  {% if page.show_image or page.show_image == nil %}
+  <figure class="relative" role="doc-illustration">
+    <img class="w-full h-auto object-contain"
+         src="{{ page.image | relative_url }}"
+         alt="{% if page.image_alt %}{{ page.image_alt }}{% else %}Featured image for {{ page.title }}{% endif %}"
+         loading="lazy">
+  </figure>
+  {% endif %}
+
+  <!-- Article Content -->
+  <div class="p-8 lg:p-12">
+    {% include components/prose-content.html %}
+
+    <!-- Post Credits -->
+    <aside class="text-[16px] section-bg rounded-md text-center p-1 my-2 transition-colors duration-300" role="complementary" aria-label="Post credits">
+      {% include components/post-credits.html %}
+    </aside>
+
+    <!-- Navigation Footer -->
+    <nav role="navigation" aria-label="Post navigation">
+      {% include components/post-navigation.html %}
+    </nav>
+  </div>
+</article>

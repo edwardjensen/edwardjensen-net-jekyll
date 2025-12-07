@@ -1,0 +1,65 @@
+<!-- Search interface -->
+<div 
+  x-data="searchHandler()"
+  class="bg-slate-50 dark:bg-slate-900 rounded-lg p-6 mb-12"
+>
+  <!-- Search input -->
+  <div class="relative">
+    <input
+      type="text"
+      x-model="queryInput"
+      @input="performSearch()"
+      @keydown.escape="queryInput = ''"
+      placeholder="search posts, pages, and photos..."
+      aria-label="Search site content"
+      class="input-default"
+    />
+    <!-- Search icon -->
+    <svg 
+      class="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-600 pointer-events-none"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+    </svg>
+    
+    <!-- Clear button -->
+    <button
+      x-show="queryInput.length > 0"
+      @click="queryInput = ''"
+      aria-label="Clear search"
+      class="absolute right-12 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-400 transition-colors"
+    >
+      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Search status -->
+  <div class="mt-4 flex items-center gap-2 text-sm text-muted">
+    <span x-show="isSearching" class="flex items-center gap-1">
+      <span class="inline-block w-2 h-2 bg-amber-600 dark:bg-amber-400 rounded-full animate-pulse"></span>
+      searching...
+    </span>
+    <span x-show="!isSearching && queryInput.length === 0">
+      enter a search query to begin
+    </span>
+  </div>
+
+  <!-- Results section -->
+  <div x-show="queryInput.length > 0" class="mt-8">
+    {% include components/search-results.html %}
+  </div>
+</div>
+
+<!-- Help text -->
+<div x-data="searchHandler()" x-show="queryInput.length === 0" class="info-box text-center">
+  <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-2">search tips</h2>
+  <ul class="text-sm text-body space-y-1">
+    <li>• search for keywords, titles, or topics</li>
+    <li>• results include posts, pages, and photography</li>
+    <li>• press <kbd class="px-2 py-1 bg-slate-200 dark:bg-slate-800 rounded text-xs">esc</kbd> to clear the search box</li>
+  </ul>
+</div>
