@@ -4,12 +4,12 @@ permissions:
   contents: read
   
 on:
-  push:
-    branches:
-      - main
+#   push:
+#     branches:
+#       - main
   workflow_dispatch:
-#   repository_dispatch:
-#     types: [staging_cms_publish]
+  repository_dispatch:
+    types: [staging_cms_publish]
 
 jobs:
   build-and-deploy-site:
