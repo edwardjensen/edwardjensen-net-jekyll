@@ -55,8 +55,45 @@ function Get-ProcessedMicroPhotos {
         # Force TLS 1.2 or higher for compatibility
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls13
         
-        # Fetch JSON from URI
-        $response = Invoke-RestMethod -Uri $Uri -Method Get -ContentType "application/json"
+        # Fetch JSON from URI with retry logic
+        $maxRetries = 3
+        $retryDelay = 5
+        $response = $null
+        
+        for ($i = 1; $i -le $maxRetries; $i++) {
+            try {
+                Write-Host "Attempt $i of $maxRetries..." -ForegroundColor Cyan
+                
+                # Use Invoke-WebRequest for better error diagnostics
+                $webResponse = Invoke-WebRequest -Uri $Uri -Method Get -UseBasicParsing -Headers @{
+                    "User-Agent" = "EdwardJensenNetSite/1.0 (GitHub Actions)"
+                    "Accept" = "application/json"
+                }
+                
+                Write-Host "HTTP Status: $($webResponse.StatusCode)" -ForegroundColor Green
+                $response = $webResponse.Content | ConvertFrom-Json
+                break
+            }
+            catch {
+                Write-Host "Attempt $i failed: $($_.Exception.Message)" -ForegroundColor Yellow
+                
+                if ($_.Exception.Response) {
+                    Write-Host "Status Code: $($_.Exception.Response.StatusCode.value__)" -ForegroundColor Yellow
+                    Write-Host "Status Description: $($_.Exception.Response.StatusDescription)" -ForegroundColor Yellow
+                }
+                
+                if ($i -lt $maxRetries) {
+                    Write-Host "Waiting $retryDelay seconds before retry..." -ForegroundColor Yellow
+                    Start-Sleep -Seconds $retryDelay
+                } else {
+                    throw
+                }
+            }
+        }
+        
+        if (-not $response) {
+            throw "Failed to fetch data after $maxRetries attempts"
+        }
         
         $processedItems = @()
         $itemCount = 0
