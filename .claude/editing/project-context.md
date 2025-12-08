@@ -8,7 +8,7 @@ Use American English spelling and terminology in responses and in editorial sugg
 
 ## Folder Specifics
 
-The `_posts` folder contains blog posts in Markdown format. This will help you get a sense of my writing style.
+There are five sample posts in the `.claude/editing/` folder. These are **representative samples only** — the actual blog content now lives in **Payload CMS** and is pulled dynamically at build time via GraphQL. These sample posts remain here to help you understand my writing style, tone, and typical content structure.
 
 ## Author Background
 

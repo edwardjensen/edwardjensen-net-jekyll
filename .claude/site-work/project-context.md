@@ -18,7 +18,7 @@ Technical advice context for edwardjensen.net, a modern personal portfolio and b
 
 **Distribution**: Site as primary hub, with links to Bluesky and LinkedIn
 
-**Content Management**: Transitioning from Markdown-in-Git to **Payload CMS** for streamlined content operations (see Content Schema Documentation)
+**Content Management**: Payload CMS (headless CMS) as single source of truth; Jekyll pulls content via GraphQL at build time
 
 ---
 
@@ -32,7 +32,84 @@ Technical advice context for edwardjensen.net, a modern personal portfolio and b
 | **Color Scheme** | Amber/Slate | Warm | Amber accents (`text-amber-600` light, `dark:text-amber-400` dark), slate backgrounds/text |
 | **Hosting** | Cloudflare Pages | — | Deployed via GitHub Actions |
 | **Runtime** | Ruby 3.4.5 + Node 24.8 | — | Bundler for gems, npm for CSS tooling |
-| **CMS** | Payload CMS | Latest | Headless CMS for content management (in development) |
+| **CMS** | Payload CMS | 3.65.0 | Headless CMS (single source of truth for content) |
+| **CMS Database** | PostgreSQL | — | Payload content storage |
+| **Media Storage** | Cloudflare R2 | — | S3-compatible object storage for images/assets |
+
+---
+
+## 🏗 Content Infrastructure Architecture
+
+### Payload CMS + Jekyll Integration
+
+The site uses a **headless CMS architecture** where content is managed in Payload CMS and consumed by Jekyll at build time:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        Payload CMS                              │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐  │
+│  │ PostgreSQL  │  │ Cloudflare  │  │ Content Collections     │  │
+│  │ Database    │  │ R2 Assets   │  │ (posts, notes, etc.)    │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────────┘  │
+│                            │                                    │
+│                            │ Webhook on publish                 │
+└────────────────────────────┼────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    GitHub Actions                               │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │ repository_dispatch triggers Jekyll build               │    │
+│  └─────────────────────────────────────────────────────────┘    │
+└────────────────────────────┼────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│              Jekyll (edwardjensen-net-jekyll)                   │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │ GraphQL plugin queries Payload at build time            │    │
+│  │ Renders static HTML → Deploys to Cloudflare Pages       │    │
+│  └─────────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Key Components**:
+
+1. **Payload CMS** (`edwardjensencms-payload` repository):
+   - Next.js 15 + Payload 3.x application
+   - PostgreSQL database for content storage
+   - Cloudflare R2 for media/asset storage
+   - Accessible via Tailscale VPN (network-level security)
+   - GraphQL API endpoint for content delivery
+   - Webhook system triggers Jekyll builds on publish
+
+2. **Jekyll Site** (`edwardjensen-net-jekyll` repository):
+   - Code and templates only (no content)
+   - GraphQL plugin fetches content from Payload at build time
+   - Builds static HTML from CMS data
+   - Deploys to Cloudflare Pages
+
+3. **GitHub Actions**:
+   - Listens for `repository_dispatch` events from CMS
+   - Triggers Jekyll build on content publish/unpublish
+   - Also triggers on Git push (for code/template changes)
+   - Scheduled daily builds for time-based publishing
+
+**Content Flow**:
+1. Author creates/edits content in Payload CMS web UI
+2. On publish, CMS fires webhook to GitHub Actions
+3. GitHub Actions runs Jekyll build
+4. Jekyll's GraphQL plugin queries Payload API
+5. Jekyll renders static HTML from CMS data
+6. Site deploys to Cloudflare Pages (~45-60 seconds total)
+
+**Benefits of This Architecture**:
+- ✅ Decoupled content from code repository
+- ✅ Mobile-friendly content creation (CMS web UI)
+- ✅ Draft/publish workflow with scheduling
+- ✅ Media storage in Cloudflare R2 (scalable, CDN-backed)
+- ✅ Fast static site delivery (Jekyll output)
+- ✅ Network-secured admin access (Tailscale VPN)
 
 ---
 
@@ -86,8 +163,10 @@ Technical advice context for edwardjensen.net, a modern personal portfolio and b
 
 ## 📁 Project Structure
 
+**Important**: This repository contains **code and templates only**. All content (posts, working notes, media) lives in Payload CMS and is fetched via GraphQL at build time.
+
 ```
-edwardjensen2025/
+edwardjensen-net-jekyll/
 ├── _config.yml                  # Main Jekyll config
 ├── _config.staging.yml          # Staging overlay config
 ├── tailwind.config.js           # Tailwind CSS config (content scanning, safelist)
@@ -97,9 +176,7 @@ edwardjensen2025/
 ├── _data/                       # Static data files (YAML/JSON)
 │   ├── navbar.yml              # Navigation structure + dropdown items
 │   ├── social.yml              # Social media links for footer
-│   ├── layout-defaults.yml     # Default YAML front matter
-│   ├── microphotos.json        # Micro.blog API photos (processed)
-│   └── ejnet-posts.json        # Legacy WordPress posts reference
+│   └── a11y-check-urls.yml     # Accessibility testing URL list
 │
 ├── _includes/                  # Reusable Jekyll includes
 │   ├── components/             # UI components
@@ -115,15 +192,13 @@ edwardjensen2025/
 │   │   └── working-note.html           # Working note card component (for list views)
 │   ├── core/                   # Core layout components
 │   │   ├── header-includes.html        # <head> includes (CSS, meta, SEO)
-│   │   ├── footer.html                 # Site footer
-│   │   └── sidebar.html                # (May be unused after Oct redesign)
+│   │   └── footer.html                 # Site footer
 │   └── sections/               # Page sections (reusable content blocks)
 │
 ├── _layouts/                   # Jekyll layouts (use via front matter)
 │   ├── base.html               # Root layout (sticky header, footer)
 │   ├── content-wrapper.html    # Content centering (max-w-4xl)
-│   ├── default.html            # (Legacy or fallback layout)
-│   ├── home-page.html          # Homepage with hero + sections
+│   ├── landing-page.html       # Homepage with hero + sections
 │   ├── page.html               # Standard page layout
 │   ├── single-post.html        # Individual blog post
 │   ├── gallery-page.html       # Photo gallery
@@ -138,53 +213,53 @@ edwardjensen2025/
 │   ├── about.md
 │   ├── biography.md
 │   ├── portfolio.md
-│   ├── photography.md / photos.md
+│   ├── photos.md
 │   ├── writing.md
-│   ├── writing-archive.md
 │   ├── working-notes.html
 │   ├── search.html
 │   ├── uses.md
 │   ├── privacy-policy.md
 │   └── [others]
 │
-├── _posts/                     # Blog posts (YYYY-MM-DD-slug.md)
-│   └── [20+ posts from 2020+]
+├── _posts/                     # 🚫 LEGACY: Content now in CMS (placeholder folder only)
+├── _working_notes/             # 🚫 LEGACY: Content now in CMS (placeholder folder only)
+├── _historic_posts/            # 🚫 LEGACY: Content now in CMS (placeholder folder only)
 │
-├── _photography/               # Photography portfolio entries
+├── _photography/               # Photography portfolio entries (still file-based)
 │   └── [photography collection items with images]
 │
-├── _portfolio/                 # Project portfolio entries
+├── _portfolio/                 # Project portfolio entries (still file-based)
 │   └── [civic/design projects]
-│
-├── _working_notes/             # Working notes/reflections collection
-│   └── [working note entries]
-│
-├── _drafts/                    # Draft posts (not published)
 │
 ├── _homepage_sections/         # Homepage component partials
 │   ├── recent-posts.html       # Featured posts section
 │   └── recent-photos.html      # Recent photos section
 │
-├── _feeds/                     # RSS/JSON feeds
+├── _landing_sections/          # Landing page sections
+│   └── [landing page components]
+│
+├── _plugins/                   # Jekyll plugins
+│   └── graphql_fetch.rb        # 🔑 Fetches content from Payload CMS at build time
+│
+├── _feeds/                     # RSS/JSON feeds (generated from CMS data)
 │   ├── feed-essays.xml
 │   ├── feed-notes.json / .xml
 │   ├── site-feed.json / .xml
 │   └── [others]
 │
 ├── assets/                     # Static assets
-│   ├── images/                 # PNG, WebP, JPEG images
-│   ├── photography/            # Photography portfolio images
 │   ├── css/                    # Tailwind output, custom CSS
 │   └── fonts/                  # Web fonts
 │
 ├── scripts/                    # Build & utility scripts
-│   └── [micro.blog sync, etc.]
+│   └── a11y-check.js           # Accessibility testing CLI
 │
 ├── .github/
 │   ├── workflows/
-│   │   ├── deploy-main-site.yml    # Production deploy workflow
-│   │   └── staging-build.yml       # Staging environment build
-│   └── copilot-instructions.md    # Copilot context (architecture guide)
+│   │   ├── deploy-main-site.yml           # Production deploy workflow
+│   │   ├── deploy-on-cms-trigger.yml      # CMS webhook listener
+│   │   └── pa11y-checks-on-staging-pr.yml # Automated accessibility testing
+│   └── copilot-instructions.md            # Copilot context (architecture guide)
 │
 ├── .claude/
 │   ├── site-work/
@@ -198,16 +273,18 @@ edwardjensen2025/
 │   ├── ACCESSIBILITY.md       # Accessibility guidelines
 │   ├── SEARCH_IMPLEMENTATION.md # Search feature docs
 │   └── [other docs]
+│
 ├── test-reports/               # Test output
 ├── _site/                      # Build output (excluded from git)
 │
 ├── README.md                   # Project overview
-├── CLAUDE.md                   # Claude-specific notes
 ├── Gemfile & Gemfile.lock     # Ruby dependencies
 ├── package.json & package-lock.json # Node dependencies
 └── 404.md                      # 404 page
 
 ```
+
+**Content Source**: Posts, working notes, and historic posts are fetched from Payload CMS via the GraphQL plugin during Jekyll build. Media assets are served from Cloudflare R2.
 
 ---
 
@@ -470,28 +547,28 @@ tags:
 
 ### Creating Blog Posts
 
-**Location**: `_posts/YYYY-MM-DD-slug.md`
-
-**YAML Front Matter**:
-```yaml
----
-title: "Post Title"
-date: "2025-10-21"
-layout: single-post
-excerpt: "Optional excerpt for feeds"
-featured: true          # Optional: shows on homepage featured section
-categories: [tech, nonprofit]
-tags: [strategy, systems]
----
-```
+**CMS Workflow** (Current):
+1. Log into Payload CMS admin panel
+2. Navigate to Posts collection
+3. Click "Create New"
+4. Fill in post fields (title, slug, content, categories, tags, etc.)
+5. Upload header image via Media upload field (stored in R2)
+6. Set publication date (can be future date for scheduling)
+7. Save as draft or publish immediately
+8. On publish, CMS fires webhook → GitHub Actions → Site rebuild
 
 **Output URL**: `/writing/YYYY/YYYY-MM/slug`
 
-**Workflow**:
-1. Write in Obsidian (with template)
-2. Copy Markdown + images to `_posts/` and `assets/images/` respectively
-3. Commit to `main` (or `[skip ci]` if future-dated)
-4. GitHub Actions builds & deploys to production
+**Content Fields** (in CMS):
+- Title, slug, date, excerpt
+- Categories (array), tags (array)
+- Header image (upload), image alt text, show image toggle
+- Rich text content (Lexical editor)
+- Landing featured toggle, post credits, redirect from (legacy URLs)
+- Draft/published status
+
+**Legacy Method** (deprecated):
+Creating `.md` files in `_posts/` directory is no longer the primary workflow. The repository still supports this for backward compatibility, but all new content should be created in the CMS.
 
 ### Creating Pages
 
@@ -513,7 +590,17 @@ layout: page
 
 ### Creating Working Notes
 
-**Location**: `_working_notes/YYYY-MM-DD-slug.md`
+**CMS Workflow** (Current):
+1. Log into Payload CMS admin panel
+2. Navigate to Working Notes collection
+3. Click "Create New"
+4. Fill in note fields (title, content, tags)
+5. Set publication date
+6. Save as draft or publish immediately
+7. On publish, CMS fires webhook → GitHub Actions → Site rebuild
+
+**Legacy Method** (deprecated):
+Creating `.md` files in `_working_notes/` directory is no longer recommended. Use the CMS for all new working notes.
 
 ---
 
@@ -560,47 +647,56 @@ JEKYLL_ENV=production bundle exec jekyll build
 
 ## � GitHub Repository & Content Workflow
 
-**Repository**: [`edwardjensen/edwardjensen2025`](https://github.com/edwardjensen/edwardjensen2025) (Public)
+**Repository**: [`edwardjensen/edwardjensen-net-jekyll`](https://github.com/edwardjensen/edwardjensen-net-jekyll) (Public)
 
-### Repository Structure for Content
+### Repository Structure (Code-Only)
 
-The repository is the **source of truth** for all site content. Every blog post, page, working note, and image must be committed to this repo for publication. This is a fundamental limitation of the static site generator approach:
+The repository is now **code and templates only**. Content lives in Payload CMS and is pulled via GraphQL at build time.
 
-**Content Directories** (must be in repo for publishing):
-- `_posts/` — Blog posts
-- `_working_notes/` — Working notes (NEW)
-- `_pages/` — Static pages
-- `_photography/` — Photography portfolio entries
-- `_portfolio/` — Project portfolio entries
-- `assets/images/` — Post images
-- `assets/photography/` — Photography images
+**What's in the Repository**:
+- `_layouts/`, `_includes/`, `_data/` — Jekyll templates and configuration
+- `.github/workflows/` — GitHub Actions automation (build + deploy)
+- `tailwind.config.js`, `postcss.config.js` — CSS build pipeline
+- `_plugins/` — Jekyll plugins (including GraphQL content fetcher)
+- `assets/` — Static assets (fonts, some images)
+- `site-docs/`, `.claude/` — Documentation
 
-**Configuration/Build Directories** (also in repo):
-- `_layouts/`, `_includes/`, `_data/` — Templates and config
-- `.github/workflows/` — GitHub Actions automation
-- `tailwind.config.js`, `postcss.config.js` — Build pipeline
+**What's NOT in the Repository** (Lives in CMS):
+- Blog posts (`_posts/`) — Now in Payload CMS `posts` collection
+- Working notes (`_working_notes/`) — Now in Payload CMS `working-notes` collection
+- Historic posts (`_historic_posts/`) — Now in Payload CMS `historic-posts` collection
+- Media assets — Stored in Cloudflare R2 via Payload
+
+**Legacy Content Directories**: The `_posts/`, `_working_notes/`, and `_historic_posts/` directories still exist in the repository with placeholder files for backward compatibility, but new content is created exclusively in Payload CMS.
 
 ### Content Publishing Workflow
 
-**Desktop Workflow** (Primary):
-1. Write/edit content in Obsidian (local note-taking app)
-2. Copy Markdown files to appropriate `_posts/`, `_pages/`, etc. directories
-3. Copy associated images to `assets/images/` or `assets/photography/`
-4. Commit and push to `main` branch (or feature branch for staging testing)
-5. GitHub Actions automatically detects changes and triggers build
-6. Site deploys to production within 45-60 seconds
+**CMS-First Workflow** (Primary for all content):
+1. Log into Payload CMS admin panel (accessible via Tailscale VPN)
+2. Create/edit content in web interface (posts, working notes, etc.)
+3. Upload images directly to Cloudflare R2 via CMS
+4. Set publication status (draft or published)
+5. On publish, CMS fires webhook to GitHub Actions `repository_dispatch`
+6. GitHub Actions triggers Jekyll build, pulls content via GraphQL
+7. Site rebuilds and deploys to production within 45-60 seconds
+
+**Code/Template Workflow** (for design/functionality changes):
+1. Make changes to layouts, includes, styles in local Git repository
+2. Commit and push to `main` branch (or feature branch for testing)
+3. GitHub Actions detects changes and triggers build
+4. Site deploys with updated templates/styles
 
 **Branching Strategy**:
-- `main` — Production branch; any commit triggers auto-build & deploy
-- `staging` — Pre-production testing environment; synced daily from `main`
-- `feature/*` — Feature branches for development work (build changes, layouts, etc.)
+- `main` — Production branch; code changes trigger auto-build & deploy
+- Feature branches — For testing template/design changes locally
 
-**Commit Message Conventions**:
-- Regular commits: Changes trigger immediate build
-- `[skip ci]` — Skips GitHub Actions build (useful for future-dated content or documentation-only commits)
-- Example: `Add new blog post on nonprofit tech [skip ci]` (if post date is in future)
+**Build Triggers**:
+- CMS webhook on content publish/unpublish
+- Git push to `main` branch (for code/template changes)
+- Manual dispatch from GitHub Actions UI
+- Scheduled daily build (for time-based content like scheduled posts)
 
-### Mobile Content Creation Challenge → Payload CMS Solution ✅
+### Mobile Content Creation: Solved via Payload CMS ✅
 
 **The Previous Problem** (Markdown-in-Git):
 Since all content had to live in the GitHub repository, mobile content creation was cumbersome:
@@ -611,52 +707,57 @@ Since all content had to live in the GitHub repository, mobile content creation 
 - Uploading images + Markdown simultaneously is friction-heavy
 - Mobile editing happens in plaintext; no real-time preview
 
-**The Solution: Payload CMS**
-We are currently building out an instance of **Payload CMS** to replace Markdown-in-Git as the primary content management system. This provides:
+**The Solution: Payload CMS (Now Deployed)**
+Payload CMS has successfully replaced Markdown-in-Git as the primary content management system:
 
-**Advantages**:
-- **Unified Content Interface**: Web-based admin dashboard for creating/editing all content types
-- **Mobile-Friendly**: Responsive UI works on tablets and mobile devices
-- **Image Management**: Built-in image upload and asset library
-- **Real-Time Preview**: See content changes as you make them
-- **Role-Based Access**: Future support for collaborative publishing workflows
-- **Versioning & Drafts**: Content versioning, scheduling, and draft workflows
-- **API-First**: Flexible content delivery; can integrate with multiple frontends
+**Current Benefits**:
+- ✅ **Unified Content Interface**: Web-based admin dashboard for creating/editing all content types
+- ✅ **Mobile-Friendly**: Responsive UI accessible from tablets and mobile devices
+- ✅ **Image Management**: Built-in upload to Cloudflare R2 with asset library
+- ✅ **Versioning & Drafts**: Full draft/publish workflow with version history
+- ✅ **Scheduled Publishing**: Set future publication dates; CMS auto-publishes and triggers rebuild
+- ✅ **API-First**: GraphQL API for flexible content delivery
+- ✅ **Secure Access**: Network-level security via Tailscale VPN
 
-**Migration Path**:
-1. Build Payload CMS instance (in-progress)
-2. Implement content schema based on existing Jekyll collections
-3. Migrate existing Markdown posts to Payload
-4. Update Jekyll build to pull from Payload API instead of file-based collections
-5. Phase out Markdown-in-Git approach
+**Current Content Collections in CMS**:
+- **Posts** — Full-length blog essays (migrated from `_posts/`)
+- **Working Notes** — Short-form microblog entries (migrated from `_working_notes/`)
+- **Historic Posts** — Legacy WordPress archive (migrated from `_historic_posts/`)
+- **Media** — All images and assets (stored in Cloudflare R2)
 
 **Content Schema Documentation**:
-All content types have been consolidated into `content-schema.md` with comprehensive field definitions:
-- **Posts** (`_posts/`): Full-length essays with categories, tags, images, credits
-- **Working Notes** (`_working_notes/`): Short-form microblog entries
-- **Photography** (`_photography/`): Photo essays with captions and alt text
-- **Portfolio** (`_portfolio/`): Project showcase entries
-- **Pages** (`_pages/`): Static content (About, Contact, Privacy Policy, etc.)
+See `.claude/site-work/content-schema.md` for complete field reference and CMS implementation details.
 
-See `.claude/site-work/content-schema.md` for complete field reference and CMS migration notes.
+**Migration Status**: ✅ Complete
+- All existing posts migrated to CMS
+- All working notes migrated to CMS
+- Legacy archive posts migrated to CMS
+- Jekyll GraphQL plugin fetches content at build time
+- Webhook integration triggers rebuilds on publish
 
 ### GitHub Actions Automation
 
 **Build Triggers**:
-- Manual commits to `main` or `staging` branches
-- Scheduled daily builds (ensures future-dated posts publish on schedule)
-- Manual dispatch from GitHub Actions dashboard
+- **CMS Webhook**: `repository_dispatch` event fired by Payload CMS on content publish/unpublish
+- **Git Push**: Commits to `main` branch (for code/template changes)
+- **Scheduled Daily Build**: Ensures future-dated posts publish on schedule
+- **Manual Dispatch**: From GitHub Actions dashboard
 
 **Build Process**:
-1. Check for changed files
-2. Skip build if only `.claude/` or `.github/` folders modified (no content changes)
-3. Install Ruby gems, Node dependencies
+1. Trigger received (webhook, push, schedule, or manual)
+2. Install Ruby gems, Node dependencies
+3. **Fetch content from CMS**: Jekyll GraphQL plugin queries Payload API
 4. Run Jekyll build: `JEKYLL_ENV=production bundle exec jekyll build`
-5. Deploy artifact to Cloudflare Pages production or preview environment
+5. Deploy artifact to Cloudflare Pages production environment
 
 **Workflow Files**:
-- `deploy-main-site.yml` — Production deployments
-- `staging-build.yml` — Preview environment (staging branch)
+- `deploy-main-site.yml` — Production deployments (webhook + Git push triggers)
+- `staging-build.yml` — Preview environment (not currently used with CMS)
+
+**CMS Integration**:
+- Payload CMS sends `repository_dispatch` with `event_type: cms_publish`
+- Workflow listens for this event and triggers build
+- No content in Git repository; all pulled from CMS GraphQL API at build time
 
 ---
 
@@ -803,37 +904,46 @@ node scripts/a11y-check.js staging --report test-reports/staging-a11y.json
 
 ## ⚠️ Known Challenges & Limitations
 
-1. **No Built-in CMS**: Uses Obsidian for content creation; mobile workflow is cumbersome
+1. ~~**No Built-in CMS**~~ ✅ **SOLVED**: Payload CMS now handles all content creation and management
 2. **Jekyll + Tailwind Integration**: Both designed independently; tension between Ruby (Jekyll) and Node (Tailwind) ecosystems
 3. **Limited Interactivity**: SSG limitations; dynamic content requires workarounds
-4. **Content Publishing Frequency**: Goal is 1-2 posts/week; currently below target
+4. **Content Publishing Frequency**: Goal is 1-2 posts/week; working to establish regular cadence
 5. **Social Media Integration**: No automatic cross-posting to Bluesky/LinkedIn; manual sharing required
-6. **Content Organization**: Categories/tags stored in YAML but no aggregation pages yet
+6. **Content Organization**: Categories/tags displayed but no aggregation/filter pages yet
 7. **Google Indexing**: Occasional warnings; unclear if site or Cloudflare issue
-8. **Mobile Content Creation**: Jekyll workflow not optimized for mobile editing/publishing
+8. ~~**Mobile Content Creation**~~ ✅ **SOLVED**: CMS web interface works on mobile devices
 
 ---
 
 ## 🎯 Development Goals & Future Work
 
+### Completed ✅
+
+- ✅ Complete Payload CMS migration (Posts, Working Notes, Historic Posts)
+- ✅ Implement webhook-driven builds
+- ✅ Migrate all legacy content to CMS
+- ✅ Solve mobile content creation workflow
+
 ### Short Term (Next 1-3 months)
 
-- Increase publishing frequency to 1-2 posts/week
+- Increase publishing frequency to 1-2 posts/week (now easier with CMS)
 - Implement category/tag archive pages (aggregate posts by topic)
-- Improve mobile content creation workflow
+- Add Photography and Portfolio collections to CMS
+- Enhance CMS admin dashboard with custom analytics
 
-### Medium Term (By end of 2025)
+### Medium Term (Q1-Q2 2026)
 
-- Complete migration of WordPress archive to new site
 - Review & curate old content; remove outdated/irrelevant posts
 - Enhance search functionality and discoverability
+- Consider adding comment system or webmentions
+- Explore social media cross-posting automation via CMS hooks
 
 ### Long Term
 
 - Consider migration to JavaScript-based SSG (Next.js, Astro) if Jekyll becomes limiting
-- Build pre-staging environment on homelab (Tailscale VPN + GitHub Actions integration)
-- Automate social media cross-posting where possible
-- Expand photography portfolio integration with micro.blog
+- Expand photography portfolio with better galleries and metadata
+- Build out Pages collection in CMS for static content management
+- Explore additional content types (bookmarks, links, quotes)
 
 ---
 
@@ -842,7 +952,8 @@ node scripts/a11y-check.js staging --report test-reports/staging-a11y.json
 ### Live Site & Repositories
 
 - **Live Site**: [edwardjensen.net](https://www.edwardjensen.net)
-- **GitHub Repo**: [edwardjensen/edwardjensen2025](https://github.com/edwardjensen/edwardjensen2025)
+- **Jekyll Site Repo**: [edwardjensen/edwardjensen-net-jekyll](https://github.com/edwardjensen/edwardjensen-net-jekyll) (Public)
+- **Payload CMS Repo**: [edwardjensen/edwardjensencms-payload](https://github.com/edwardjensen/edwardjensencms-payload) (Public)
 - **Old Site Archive**: [old.edwardjensen.net](https://old.edwardjensen.net/)
 
 ### Social Profiles
