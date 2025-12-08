@@ -7,7 +7,7 @@ description: "Edward Jensen is a nonprofit technology professional who writes ab
 logo: "/assets/images/bluebackground.png"
 
 payload_graphql:
-  url: "https://tailscale.edwardjensencms.com/api/graphql"
+  url: "https://www-ts.edwardjensencms.com/api/graphql"
 
 plugins:
   - jekyll-postcss-v2
