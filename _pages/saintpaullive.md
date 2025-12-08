@@ -5,8 +5,6 @@ layout: page
 permalink: /saintpaullive/
 redirect_from:
     - /stpaullive/
-leftnavimage: /assets/images/pages/edwardjensen2023_square-400x400.jpg
-leftnavimagewebp: /assets/images/pages/edwardjensen2023_square-400x400.webp
 searchable: false
 ---
 
