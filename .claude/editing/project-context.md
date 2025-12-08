@@ -1,10 +1,35 @@
 # Project Context
 
-You are helping develop, refine, and edit blog posts for my blog. The principal purpose of the blog is to share thoughts at the intersection of information technology and nonprofit organizations. While previously the focus was on urban design and central-city Phoenix issues, it's moving toward IT matters.
+You are helping develop, refine, and edit blog posts for my blog. The principal purpose of the blog is to position myself as a voice worth knowing in the nonprofit IT space — someone whose perspective is valued by peers even when not seeking employment or consulting engagements.
+
+This is **reputational visibility**, not lead generation. The aim is to be recognized as a thoughtful practitioner who contributes meaningfully to professional discourse in this sector.
 
 It's a personal blog, so I am the only author of posts. There is not a formal editorial process. It's OK to talk about work items, but any specific information about my employer or clients should be avoided, only speaking in generalities.
 
 Use American English spelling and terminology in responses and in editorial suggestions.
+
+## Primary Audience
+
+**Nonprofit IT leaders and CxOs** — peers who share my professional context and vocabulary. These are people who:
+
+- Lead technology functions at mission-driven organizations
+- Grapple with similar challenges: limited budgets, institutional resilience, strategic alignment, vendor relationships, change management
+- Do not need fundamentals explained; can engage at practitioner level
+- Value direct, substantive perspective over polished thought-leadership performance
+
+Secondary audiences (not primary focus, but welcome): funders interested in nonprofit capacity, vendors/consultants serving the sector.
+
+## Positioning
+
+**The practitioner's perspective, delivered directly.**
+
+Core differentiators:
+
+- **15+ years in nonprofit IT** across two distinctly different environments (Phoenix and Minnesota), providing breadth of context
+- **Phoenix directness in a Minnesota-nice sector** — willingness to name tensions and challenges that others dance around
+- **Operational credibility** — currently doing this work, not advising from the outside
+
+This is not an academic or consultant perspective. It is the view from inside the work.
 
 ## Folder Specifics
 
@@ -21,6 +46,38 @@ There are five sample posts in the `.claude/editing/` folder. These are **repres
 - **Speaking/Writing**: Author of *A Brief History of Midtown Phoenix* lecture series (debuted 2019); photographer whose work has appeared in books on central-city Phoenix history
 
 This background informs the blog's perspective: pragmatic nonprofit IT leadership, urban design/civic engagement history, and cross-sector collaboration experience.
+
+## Content Pillars
+
+The recurring themes that anchor content:
+
+| Pillar | Description |
+|--------|-------------|
+| **AI in nonprofit contexts** | Practical, middle-ground approach to AI adoption in mission-driven organizations. Skeptical but engaged. Avoiding hype and doom. |
+| **Nonprofit IT leadership** | The strategic and operational realities of leading technology functions in nonprofits. IT as mission multiplier, team building, cross-functional work. |
+| **Professional resilience** | Navigating uncertainty, soft skills, career development for IT professionals. The human dimension of working in this field. |
+| **Building and learning** | Technical experiments, side projects, learning through doing. Shows technical credibility while remaining accessible. The "seriously unserious" thread. |
+| **Place-based reflections** | The urbanist thread — occasional, not primary. "Once an urbanist, always an urbanist." |
+
+## Content Boundaries
+
+### What is generally shareable:
+- General principles, frameworks, and mental models
+- Industry trends and my perspective on them
+- Questions I am wrestling with (without revealing specific answers or decisions)
+- Lessons learned, abstracted from specific situations
+- Responses to others' published work
+- Historical examples from previous roles (with appropriate distance)
+- Book/resource recommendations and commentary
+
+### What is generally not shareable:
+- Specific current projects or initiatives at my organization
+- Vendor evaluations or procurement decisions in progress
+- Internal organizational challenges or dynamics
+- Anything that would require organizational approval to discuss publicly
+
+### Handling ambiguity:
+The boundary between shareable and not-shareable is a judgment call made post-by-post. When I am being deliberately vague due to confidentiality, I may signal this to Claude. Claude should not press for specifics when I indicate something is sensitive, and should help me find ways to discuss topics at an appropriate level of abstraction.
 
 ## Current Blog Themes & Recent Posts (Oct-Nov 2025)
 
