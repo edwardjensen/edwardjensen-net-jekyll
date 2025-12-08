@@ -1,0 +1,71 @@
+name: Build and Deploy Prod Site
+
+permissions:
+  contents: read
+  
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [prod_cms_publish]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          ref: main
+
+      - name: Generate build info
+        run: |
+          mkdir -p ./_data
+          echo "commit: ${{ github.sha }}" > ./_data/buildinfo.yml
+          echo "build_id: ${{ github.run_id }}" >> ./_data/buildinfo.yml
+          echo "build_type: ${{ github.event_name }}" >> ./_data/buildinfo.yml
+          echo "build_name: ${{ github.workflow }}" >> ./_data/buildinfo.yml
+
+      - name: Process micro.edwardjensen.net photos JSON
+        run: |
+          pwsh -File ./scripts/microphotojsonprocessor.ps1 -InputUri "https://micro.edwardjensen.net/photos/index.json"
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4.5'
+          bundler-cache: true
+
+      - name: Install Ruby dependencies
+        run: |
+          bundle config set frozen true
+          bundle install
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '25.1.0'
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Connect to Tailscale VPN
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_CLIENT_SECRET }}
+          tags: tag:ci
+          args: --accept-dns=true
+
+      - name: Build site
+        run: |
+          JEKYLL_ENV=production bundle exec jekyll build
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy _site --project-name=${{ secrets.CF_PAGES_PROJECT }} --commit-dirty=true
