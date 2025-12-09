@@ -1,0 +1,40 @@
+name: PR Checks
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  a11y-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4.5'
+          bundler-cache: true
+
+      - name: Install Ruby dependencies
+        run: |
+          bundle config set frozen true
+          bundle install
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '25.1.0'
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Run accessibility check
+        run: npm run a11y:local

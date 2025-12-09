@@ -4,12 +4,12 @@ permissions:
   contents: read
   
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
-  repository_dispatch:
-    types: [staging_cms_publish]
 
 jobs:
-  build-and-deploy:
+  build-site:
     runs-on: ubuntu-latest
     environment: staging
     steps:
@@ -61,6 +61,27 @@ jobs:
       - name: Build site
         run: |
           JEKYLL_ENV=staging bundle exec jekyll build --config _config.yml,_config.staging.yml
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: staging-site
+          path: ./_site/
+          retention-days: 1
+
+  deploy-site:
+    runs-on: ubuntu-latest
+    environment: staging
+    needs: build-site
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: staging-site
+          path: ./_site/
 
       - name: Setup SSH key
         run: |
