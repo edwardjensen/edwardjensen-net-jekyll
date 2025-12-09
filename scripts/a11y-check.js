@@ -156,7 +156,7 @@ function startServer() {
       }
     });
 
-    server.listen(8000, 'localhost', () => {
+    server.listen(8000, '0.0.0.0', () => {
       console.log('🚀 Local server running on http://localhost:8000\n');
       resolve(server);
     });

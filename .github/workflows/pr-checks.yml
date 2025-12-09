@@ -54,15 +54,15 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v5
         with:
-          name: site-build
+          name: test-site-build
           path: ./_site
           retention-days: 1
 
-  a11y-test:
+  a11y-check:
+    name: Run Accessibility Checks
     runs-on: ubuntu-latest
     container:
       image: node:25-bookworm
-      
     needs: build-site
     steps:
       - name: Checkout repository
@@ -74,8 +74,8 @@ jobs:
       - name: Download built site
         uses: actions/download-artifact@v4
         with:
-          name: site-build
+          name: test-site-build
           path: ./_site
 
-      - name: Run accessibility check
+      - name: Run accessibility tests
         run: npm run a11y:ci
