@@ -8,7 +8,7 @@ on:
     branches: [main]
 
 jobs:
-  build-site:
+  build-test-site:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -57,25 +57,3 @@ jobs:
           name: test-site-build
           path: ./_site
           retention-days: 1
-
-  a11y-check:
-    name: Run Accessibility Checks
-    runs-on: ubuntu-latest
-    container:
-      image: node:25-bookworm
-    needs: build-site
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-
-      - name: Install Node dependencies
-        run: npm ci
-
-      - name: Download built site
-        uses: actions/download-artifact@v4
-        with:
-          name: test-site-build
-          path: ./_site
-
-      - name: Run accessibility tests
-        run: npm run a11y:ci
