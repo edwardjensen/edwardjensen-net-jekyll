@@ -48,7 +48,7 @@ jobs:
         run: npm run build
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v5
         with:
           name: site-build
           path: ./_site
@@ -62,7 +62,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Download built site
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v6
         with:
           name: site-build
           path: ./_site
