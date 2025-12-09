@@ -65,6 +65,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '25.1.0'
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: npm ci
+
       - name: Download built site
         uses: actions/download-artifact@v6
         with:
