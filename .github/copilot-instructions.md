@@ -1,10 +1,12 @@
-# Copilot Instructions for edwardjensen2025
+# Copilot Instructions for edwardjensen-net-jekyll
 
 ## Tech Stack
 - **Framework**: Jekyll 4.4.1 (Ruby static site generator)
 - **Styling**: Tailwind CSS 4.0.x with custom amber/slate color scheme + reusable CSS classes
 - **Interactivity**: AlpineJS v3 (lightweight component state/transitions)
-- **Deployment**: Cloudflare Pages via GitHub Actions
+- **Runtime**: Ruby 3.4.5 + Node 25.1.0
+- **Content Source**: Payload CMS (headless, content via GraphQL at build time)
+- **Deployment**: Environment promotion model (staging → production)
 
 ## Reusable CSS Classes (Oct 2025)
 
@@ -88,11 +90,42 @@ Screenshot of website header with site title on left, navigation menu center, so
 
 **Note on rebuilding**: Edits to files in `site-docs/`, `.github/`, or `.claude/` folders do NOT require rebuilding the Jekyll site, as these folders are not processed by Jekyll. Only changes to layouts, includes, posts, pages, assets, or config files require a rebuild.
 
+## Content Source
+
+This repository is **code and templates only**. All content (posts, working notes, historic posts) lives in **Payload CMS** and is fetched via GraphQL at build time.
+
+**Content workflow**: CMS publish → webhook → GitHub Actions → Jekyll build → Deploy
+
 ## Post YAML for Homepage
-Posts can be marked featured with:
+Posts pulled from CMS can be marked featured with:
 ```yaml
 featured: true  # Shows in homepage featured section
 ```
+
+## Environment Promotion Workflow
+
+This project uses an **environment promotion model** for deployments:
+
+| Environment | Trigger | Destination | URL |
+|-------------|---------|-------------|-----|
+| **Staging** | Push to `main` branch | Self-hosted server (rsync/SSH) | staging.edwardjensen.net |
+| **Production** | Push `v*` tag | Cloudflare Pages | edwardjensen.net |
+
+### Workflow
+
+1. **Feature Development**: Create `feature/*` branch from `main`, develop locally
+2. **Code Review**: Open PR to merge `feature/*` into `main` (must pass PR checks)
+3. **Staging Deployment**: Merge to `main` triggers automatic deployment to staging
+4. **Production Promotion**: After validation, create version tag `git tag v1.2.3 && git push --tags`
+
+### GitHub Actions Workflows
+
+| Workflow | Trigger | Purpose |
+|----------|---------|--------|
+| `pr-checks.yml` | Pull request to `main` | Build validation |
+| `deploy-staging-site.yml` | Push to `main` | Deploy to staging server |
+| `deploy-prod-site.yml` | Push `v*` tag | Deploy to Cloudflare Pages |
+| `republish-prod-site.yml` | CMS webhook / manual | Rebuild production from CMS content |
 
 ## Key Patterns
 - Use `.lowercase` class for all header text
@@ -105,3 +138,20 @@ featured: true  # Shows in homepage featured section
 - **Primary reference**: `site-docs/LAYOUTS_AND_STYLES.md` - Layout system + CSS class reference
 - **Quick lookup**: See "Quick Reference (Cheat Sheet)" section at top of LAYOUTS_AND_STYLES.md
 - **Context file**: `.claude/site-work/project-context.md` - Comprehensive project overview
+
+## Documentation Requirements
+
+**Any major changes to the code structure must be documented** in the following files:
+
+- **`.github/copilot-instructions.md`** (this file) - Architecture overview, key patterns, deployment workflow
+- **`CLAUDE.md`** - Build commands, site architecture, layouts, includes, deployment
+- **`.claude/site-work/project-context.md`** - Comprehensive project context and content workflows
+
+This includes but is not limited to:
+- New layouts or significant layout changes
+- New includes or component patterns
+- Changes to the deployment workflow or GitHub Actions
+- New collections or content types
+- Changes to the CSS class system
+- New npm scripts or build commands
+- Changes to the GraphQL/CMS integration

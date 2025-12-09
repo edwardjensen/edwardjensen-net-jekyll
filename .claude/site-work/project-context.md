@@ -22,7 +22,7 @@ Technical advice context for edwardjensen.net, a modern personal portfolio and b
 
 ---
 
-## 🛠 Technical Stack (Current as of Nov 2025)
+## 🛠 Technical Stack (Current as of Dec 2025)
 
 | Component | Technology | Version | Notes |
 |-----------|-----------|---------|-------|
@@ -30,9 +30,10 @@ Technical advice context for edwardjensen.net, a modern personal portfolio and b
 | **Styling** | Tailwind CSS | 4.0.x | PostCSS workflow, custom amber/slate palette |
 | **Interactivity** | AlpineJS | v3 | Lightweight DOM state, no build step required |
 | **Color Scheme** | Amber/Slate | Warm | Amber accents (`text-amber-600` light, `dark:text-amber-400` dark), slate backgrounds/text |
-| **Hosting** | Cloudflare Pages | — | Deployed via GitHub Actions |
-| **Runtime** | Ruby 3.4.5 + Node 24.8 | — | Bundler for gems, npm for CSS tooling |
-| **CMS** | Payload CMS | 3.65.0 | Headless CMS (single source of truth for content) |
+| **Staging** | Self-hosted | — | Deployed via rsync/SSH to staging server |
+| **Production** | Cloudflare Pages | — | Deployed via Wrangler on version tags |
+| **Runtime** | Ruby 3.4.5 + Node 25.1.0 | — | Bundler for gems, npm for CSS tooling |
+| **CMS** | Payload CMS | 3.67.0 | Headless CMS (single source of truth for content) |
 | **CMS Database** | PostgreSQL | — | Payload content storage |
 | **Media Storage** | Cloudflare R2 | — | S3-compatible object storage for images/assets |
 
@@ -256,9 +257,10 @@ edwardjensen-net-jekyll/
 │
 ├── .github/
 │   ├── workflows/
-│   │   ├── deploy-main-site.yml           # Production deploy workflow
-│   │   ├── deploy-on-cms-trigger.yml      # CMS webhook listener
-│   │   └── pa11y-checks-on-staging-pr.yml # Automated accessibility testing
+│   │   ├── deploy-prod-site.yml           # Production deploy (version tags)
+│   │   ├── deploy-staging-site.yml        # Staging deploy (push to main)
+│   │   ├── pr-checks.yml                  # PR build validation
+│   │   └── republish-prod-site.yml        # CMS webhook listener
 │   └── copilot-instructions.md            # Copilot context (architecture guide)
 │
 ├── .claude/
@@ -606,6 +608,22 @@ Creating `.md` files in `_working_notes/` directory is no longer recommended. Us
 
 ## 🔄 Build & Deployment Workflows
 
+### Environment Promotion Model
+
+This project uses an **environment promotion workflow** for deployments:
+
+| Environment | Trigger | Destination | URL |
+|-------------|---------|-------------|-----|
+| **Staging** | Push to `main` branch | Self-hosted server (rsync/SSH) | staging.edwardjensen.net |
+| **Production** | Push `v*` tag | Cloudflare Pages | edwardjensen.net |
+
+### Workflow
+
+1. **Feature Development**: Create `feature/*` branch from `main`, develop locally
+2. **Code Review**: Open PR to merge `feature/*` into `main` (must pass PR checks)
+3. **Staging Deployment**: Merge to `main` triggers automatic deployment to staging
+4. **Production Promotion**: After validation, create version tag `git tag v1.2.3 && git push --tags`
+
 ### Local Development
 
 ```bash
@@ -624,30 +642,42 @@ JEKYLL_ENV=production bundle exec jekyll build
 
 ### GitHub Actions Workflows
 
-**`deploy-main-site.yml`**:
-- Triggered by pushes to `main` or manual dispatch
+**`deploy-staging-site.yml`**:
+- Triggered by pushes to `main` branch
+- Builds site with staging config overlay
+- Connects to Tailscale VPN for CMS GraphQL access
+- Deploys to self-hosted staging server via rsync/SSH
+
+**`deploy-prod-site.yml`**:
+- Triggered by version tags (`v*`)
+- Validates tag is on `main` branch
 - Builds production site (`JEKYLL_ENV=production`)
-- Deploys to Cloudflare Pages production
-- Intelligent change detection skips builds if only `.claude` / `.github` folders modified
+- Deploys to Cloudflare Pages via Wrangler
+- Creates GitHub Release with auto-generated notes
 
-**`staging-build.yml`**:
-- Builds `staging` branch content
-- Uses `_config.staging.yml` overlay
-- Deploys to Cloudflare Pages preview environment
-- Enables testing of new features without affecting production
+**`pr-checks.yml`**:
+- Triggered on pull requests to `main`
+- Builds site to validate no build errors
+- Connects to Tailscale for CMS access during build
 
-### Content/Feature Branches
-
-1. Feature branches (`feature/*`) for design/functionality work
-2. Test locally with `bundle exec jekyll serve`
-3. Merge to `staging` when ready for pre-production review
-4. If staging looks good, merge `staging` → `main` for production
+**`republish-prod-site.yml`**:
+- Triggered by CMS webhook (`repository_dispatch`) or manual dispatch
+- Rebuilds production site with latest CMS content
+- Used when content changes but code doesn't
 
 ---
 
-## � GitHub Repository & Content Workflow
+## 📦 GitHub Repository & Content Workflow
 
 **Repository**: [`edwardjensen/edwardjensen-net-jekyll`](https://github.com/edwardjensen/edwardjensen-net-jekyll) (Public)
+
+### Environment Promotion Strategy
+
+The project uses an **environment promotion model**:
+
+- `main` branch → Automatically deploys to **staging** environment
+- Version tags (`v*`) → Deploy to **production** (Cloudflare Pages)
+- Feature branches → Local development only (no automatic deployment)
 
 ### Repository Structure (Code-Only)
 
@@ -686,9 +716,10 @@ The repository is now **code and templates only**. Content lives in Payload CMS 
 3. GitHub Actions detects changes and triggers build
 4. Site deploys with updated templates/styles
 
-**Branching Strategy**:
-- `main` — Production branch; code changes trigger auto-build & deploy
-- Feature branches — For testing template/design changes locally
+**Branching Strategy** (Environment Promotion):
+- `main` — Integration branch; pushes auto-deploy to staging
+- `feature/*` — Feature branches for local development
+- Version tags (`v*`) — Production releases (e.g., `v1.2.3`)
 
 **Build Triggers**:
 - CMS webhook on content publish/unpublish
@@ -751,8 +782,10 @@ See `.claude/site-work/content-schema.md` for complete field reference and CMS i
 5. Deploy artifact to Cloudflare Pages production environment
 
 **Workflow Files**:
-- `deploy-main-site.yml` — Production deployments (webhook + Git push triggers)
-- `staging-build.yml` — Preview environment (not currently used with CMS)
+- `deploy-staging-site.yml` — Staging deployments (push to main)
+- `deploy-prod-site.yml` — Production deployments (version tags)
+- `pr-checks.yml` — PR build validation
+- `republish-prod-site.yml` — CMS-triggered production rebuilds
 
 **CMS Integration**:
 - Payload CMS sends `repository_dispatch` with `event_type: cms_publish`
@@ -779,7 +812,7 @@ The site now features a **modernized, Node.js-based accessibility testing system
 1. **Multi-Environment Support**:
    - `dev` — Local development server (localhost:4000)
    - `local-staging` — Local staging build with embedded HTTP server (localhost:8000)
-   - `staging` — Staging environment (staging edwardjensen2025 jekyll pages dev)
+   - `staging` — Staging environment (staging.edwardjensen.net)
    - `prod` — Production site (edwardjensen.net)
 
 2. **Intelligent Server Management**:
@@ -820,35 +853,13 @@ node scripts/a11y-check.js staging --report test-reports/staging-a11y.json
 
 ### GitHub Actions Integration
 
-**Workflow**: `.github/workflows/pa11y-checks-on-staging-pr.yml`
+**Note**: The pa11y workflow has been deprecated with the move to environment promotion. Accessibility checks can be run manually using the `a11y-check.js` script.
 
-**Triggers**: Automatically on pull requests to `staging` branch (feature branches only)
+**Process** (manual):
 
-**Process**:
-
-1. Check if PR is from a feature branch (`feature/*`)
-2. If yes, proceed with accessibility checks (otherwise skip)
-3. Install Ruby gems (Jekyll) and Node dependencies (pa11y-ci)
-4. Build site with `JEKYLL_ENV=staging`
-5. Start local HTTP server on port 8000
-6. Load URLs from `_data/a11y-check-urls.yml`
-7. Run pa11y checks with `--config .pa11yci.json`
-8. Parse results and post PR comment with summary:
-   - ✅ **Pass**: "Accessibility Check Passed — zero violations"
-   - ❌ **Fail**: "Accessibility Check Failed — lists total issues with per-page breakdown"
-   - ⚠️ **Error**: "Could not parse results — check workflow logs"
-
-**PR Comment Format**:
-
-- Shows total issue count
-- Lists issues by page with element selectors
-- Indicates issue type (error vs. warning)
-- Notes that check is strict (blocks merge if violations found)
-
-**Exit Behavior**:
-
-- Success: Workflow passes; allows merge
-- Failure: Workflow fails; blocks merge until issues resolved
+1. Build site locally or use staging environment
+2. Run accessibility checks with `node scripts/a11y-check.js staging`
+3. Review results and fix any issues before tagging for production
 
 ### Pa11y Configuration
 

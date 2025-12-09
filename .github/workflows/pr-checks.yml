@@ -1,0 +1,64 @@
+name: PR Checks
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - '.claude/**'
+      - 'assets/images/**'
+      - 'CLAUDE.md'
+      - '*.code-workspace'
+
+jobs:
+  build-test-site:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      - name: Process micro.edwardjensen.net photos JSON
+        run: |
+          pwsh -File ./scripts/microphotojsonprocessor.ps1 -InputUri "https://micro.edwardjensen.net/photos/index.json"
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4.5'
+          bundler-cache: true
+
+      - name: Install Ruby dependencies
+        run: |
+          bundle config set frozen true
+          bundle install
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '25.1.0'
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Connect to Tailscale VPN
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_CLIENT_SECRET }}
+          tags: tag:ci
+          args: --accept-dns=true
+
+      - name: Build site
+        run: npm run build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v5
+        with:
+          name: test-site-build
+          path: ./_site
+          retention-days: 1
