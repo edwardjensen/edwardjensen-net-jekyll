@@ -6,6 +6,11 @@ permissions:
 on:
   pull_request:
     branches: [main]
+    paths-ignore:
+      - '.claude/**'
+      - 'assets/images/**'
+      - 'CLAUDE.md'
+      - '*.code-workspace'
 
 jobs:
   build-test-site:
