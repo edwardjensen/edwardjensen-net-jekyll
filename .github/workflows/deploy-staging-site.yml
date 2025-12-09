@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-site:
+  build-staging-site:
     runs-on: ubuntu-latest
     environment: staging
     steps:
@@ -69,10 +69,10 @@ jobs:
           path: ./_site/
           retention-days: 1
 
-  deploy-site:
+  deploy-staging-site:
     runs-on: ubuntu-latest
     environment: staging
-    needs: build-site
+    needs: build-staging-site
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5

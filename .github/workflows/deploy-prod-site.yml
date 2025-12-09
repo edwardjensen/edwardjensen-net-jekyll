@@ -71,7 +71,7 @@ jobs:
             exit 1
           fi
 
-  build-and-deploy:
+  build-prod-site:
     runs-on: ubuntu-latest
     environment: production
     needs: validate-tag
@@ -126,18 +126,39 @@ jobs:
       - name: Build site
         run: |
           JEKYLL_ENV=production bundle exec jekyll build
-
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
+      
+      - name: Create built site artifact
+        uses: actions/upload-artifact@v5
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy _site --project-name=${{ secrets.CF_PAGES_PROJECT }} --commit-dirty=true
+          name: prod-site
+          path: ./_site/
+          retention-days: 1
+
+  deploy-prod-site:
+    runs-on: ubuntu-latest
+    environment: production
+    needs: ['build-prod-site', 'validate-tag']
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+
+    - name: Download built site artifact
+      uses: actions/download-artifact@v6
+      with:
+        name: prod-site
+        path: ./_site/
+
+    - name: Deploy to Cloudflare Pages
+      uses: cloudflare/wrangler-action@v3
+      with:
+        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        command: pages deploy _site --project-name=${{ secrets.CF_PAGES_PROJECT }} --commit-dirty=true
 
   create-release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
-    needs: [validate-tag, build-and-deploy]
+    needs: [validate-tag, build-prod-site, deploy-prod-site]
     if: success()
     
     permissions:
