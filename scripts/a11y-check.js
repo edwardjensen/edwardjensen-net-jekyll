@@ -26,6 +26,12 @@ const config = {
     requiresBuild: true,
     requiresServer: true,
   },
+  ci: {
+    name: 'CI Pre-built Site',
+    baseUrl: 'http://localhost:8000',
+    requiresBuild: false,
+    requiresServer: true,
+  },
   staging: {
     name: 'Staging Server',
     baseUrl: 'https://staging.edwardjensen2025-jekyll.pages.dev',
@@ -150,7 +156,7 @@ function startServer() {
       }
     });
 
-    server.listen(8000, 'localhost', () => {
+    server.listen(8000, '0.0.0.0', () => {
       console.log('🚀 Local server running on http://localhost:8000\n');
       resolve(server);
     });

@@ -4,7 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Jekyll-based personal website/portfolio for Edward Jensen, built with Ruby and Jekyll 4.4.1. The site uses Tailwind CSS 4.x for styling and is deployed to Cloudflare Pages. The architecture follows a traditional Jekyll pattern with collections for posts, photography, and portfolio items.
+This is a Jekyll-based personal website/portfolio for Edward Jensen, built with Ruby and Jekyll 4.4.1. The site uses Tailwind CSS 4.x for styling and follows an **environment promotion deployment model**. All content (posts, working notes, historic posts) is managed in **Payload CMS** and fetched via GraphQL at build time.
+
+**Content Source**: Payload CMS (headless CMS)  
+**Staging**: Self-hosted server (staging.edwardjensen.net)  
+**Production**: Cloudflare Pages (edwardjensen.net)
 
 ## Build Commands
 
@@ -152,29 +156,50 @@ npm run a11y:report       # Generate JSON report
 
 ## Deployment
 
-The site deploys to Cloudflare Pages via GitHub Actions:
+The site uses an **environment promotion model**:
+
+### Environment Promotion Workflow
+
+| Environment | Trigger | Destination | URL |
+|-------------|---------|-------------|-----|
+| **Staging** | Push to `main` branch | Self-hosted server (rsync/SSH) | staging.edwardjensen.net |
+| **Production** | Push `v*` tag | Cloudflare Pages | edwardjensen.net |
+
+### Workflow
+
+1. **Feature Development**: Create `feature/*` branch from `main`, develop locally
+2. **Code Review**: Open PR to merge feature branch into `main`
+3. **Staging Deployment**: Merge to `main` triggers automatic deployment to staging
+4. **Production Promotion**: After validation, create version tag `git tag v1.2.3 && git push --tags`
+
+### GitHub Actions Workflows
+
+- **[deploy-staging-site.yml](.github/workflows/deploy-staging-site.yml)**: Triggered on push to `main`, deploys to staging server
+- **[deploy-prod-site.yml](.github/workflows/deploy-prod-site.yml)**: Triggered on version tags (`v*`), deploys to Cloudflare Pages
+- **[pr-checks.yml](.github/workflows/pr-checks.yml)**: Build validation on pull requests
+- **[republish-prod-site.yml](.github/workflows/republish-prod-site.yml)**: CMS webhook listener for content updates
 
 ### Production Site ([.github/workflows/deploy-prod-site.yml](.github/workflows/deploy-prod-site.yml))
 
-- Triggers on push to `main` branch, daily schedule (13:55 UTC), or manual dispatch
-- Generates build info (commit SHA, run ID, build type)
+- Triggers on version tags (`v*`) or manual dispatch
+- Validates tag is on `main` branch before deploying
+- Generates build info (commit SHA, run ID, version)
 - Processes microphotos from micro.blog
 - Builds with `JEKYLL_ENV=production`
 - Deploys to Cloudflare Pages using Wrangler
+- Creates GitHub Release with auto-generated notes
 
 ### Staging Site ([.github/workflows/deploy-staging-site.yml](.github/workflows/deploy-staging-site.yml))
 
-- Triggers on push to `staging` branch or manual dispatch
-- Similar workflow using `_config.staging.yml` for staging-specific configuration
-- Deploys to separate Cloudflare Pages staging environment
+- Triggers on push to `main` branch or manual dispatch
+- Uses `_config.staging.yml` for staging-specific configuration
+- Connects to Tailscale VPN for CMS GraphQL access
+- Deploys to self-hosted staging server via rsync/SSH
 
-### Content Sync ([.github/workflows/sync-prod-content-to-staging.yml](.github/workflows/sync-prod-content-to-staging.yml))
+### Content Sync ([.github/workflows/republish-prod-site.yml](.github/workflows/republish-prod-site.yml))
 
-- Syncs content from `main` to `staging` branch when content folders change
-
-### Accessibility Checks ([.github/workflows/pa11y-checks-on-staging-pr.yml](.github/workflows/pa11y-checks-on-staging-pr.yml))
-
-- Runs accessibility checks on staging pull requests
+- Triggered by CMS webhook (`repository_dispatch`) when content is published
+- Rebuilds production site with latest CMS content
 
 ## Environment Variables
 
@@ -226,3 +251,20 @@ The site uses custom Tailwind classes defined in `assets/css/main.css` (@layer c
 - **Colors**: Warm amber/slate palette (not blue) - amber-600/400 for accents, slate-900/50 for text
 - **Typography**: `basic-sans` for body, `museo-slab` for headers, lowercase class for header text
 - **Content Container**: max-w-4xl, centered with proper spacing
+
+## Documentation Requirements
+
+**Any major changes to the code structure must be documented** in the following files:
+
+- **`CLAUDE.md`** (this file) - Build commands, site architecture, layouts, includes, deployment
+- **`.github/copilot-instructions.md`** - Architecture overview, key patterns, deployment workflow
+- **`.claude/site-work/project-context.md`** - Comprehensive project context and content workflows
+
+This includes but is not limited to:
+- New layouts or significant layout changes
+- New includes or component patterns
+- Changes to the deployment workflow or GitHub Actions
+- New collections or content types
+- Changes to the CSS class system
+- New npm scripts or build commands
+- Changes to the GraphQL/CMS integration

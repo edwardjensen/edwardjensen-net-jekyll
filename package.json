@@ -3,6 +3,7 @@
     "a11y": "node ./scripts/a11y-check.js dev",
     "a11y:dev": "node ./scripts/a11y-check.js dev",
     "a11y:local": "node ./scripts/a11y-check.js local-staging",
+    "a11y:ci": "node ./scripts/a11y-check.js ci",
     "a11y:staging": "node ./scripts/a11y-check.js staging",
     "a11y:prod": "node ./scripts/a11y-check.js prod",
     "a11y:report": "node ./scripts/a11y-check.js dev --json --report accessibility-report.json",

@@ -19,13 +19,15 @@ Edward Jensen is a technology leader at the intersection of IT and nonprofit org
 ## 🛠 Tech Stack
 
 | Component | Technology | Version |
-|-----------|-----------|---------|
+|-----------|-----------|--------|
 | **Static Site Generator** | Jekyll | 4.4.1 |
 | **Styling** | Tailwind CSS | 4.0.x |
 | **Interactivity** | AlpineJS | v3 |
 | **Color Scheme** | Amber/Slate (warm palette) | Custom |
-| **Deployment** | Cloudflare Pages | via GitHub Actions |
-| **Runtime** | Ruby | 3.x |
+| **Content Source** | Payload CMS | Headless |
+| **Staging** | Self-hosted server | rsync/SSH |
+| **Production** | Cloudflare Pages | via Wrangler |
+| **Runtime** | Ruby 3.4.5 + Node 25.1.0 | — |
 
 ---
 
@@ -41,8 +43,8 @@ Edward Jensen is a technology leader at the intersection of IT and nonprofit org
 
 ```bash
 # Clone and navigate to the directory
-git clone https://github.com/edwardjensen/edwardjensen2025.git
-cd edwardjensen2025
+git clone https://github.com/edwardjensen/edwardjensen-net-jekyll.git
+cd edwardjensen-net-jekyll
 
 # Install Ruby dependencies
 bundle install
@@ -242,22 +244,37 @@ Comprehensive documentation is available in the `site-docs/` directory:
 
 ---
 
-## 🚢 Deployment
+## 🚀 Deployment
 
-The site is automatically deployed to **Cloudflare Pages** via GitHub Actions on every push to `main`.
+The site uses an **environment promotion model** for deployments.
+
+### Environment Promotion Workflow
+
+This project uses a promotion-based deployment strategy:
+
+1. **Feature Development**: Create `feature/*` branch from `main`, develop locally
+2. **Code Review**: Open PR to merge feature branch into `main`
+3. **Staging Deployment**: Merge to `main` triggers automatic deployment to staging
+4. **Production Promotion**: After validation, create version tag `git tag v1.2.3 && git push --tags`
 
 ### Deployment Environments
 
-| Environment | URL | Branch |
-|-------------|-----|--------|
-| **Production** | [edwardjensen.net](https://www.edwardjensen.net) | main |
-| **Staging** | [staging.edwardjensen2025-jekyll.pages.dev](https://staging.edwardjensen2025-jekyll.pages.dev) | main |
+| Environment | Trigger | Destination | URL |
+|-------------|---------|-------------|-----|
+| **Staging** | Push to `main` | Self-hosted server (rsync/SSH) | [staging.edwardjensen.net](https://staging.edwardjensen.net) |
+| **Production** | Push `v*` tag | Cloudflare Pages | [edwardjensen.net](https://www.edwardjensen.net) |
+
+### Content Source
+
+This repository contains **code and templates only**. All content (posts, working notes, historic posts) lives in **Payload CMS** and is fetched via GraphQL at build time.
+
+**Content Workflow**: CMS publish → webhook → GitHub Actions → Jekyll build → Deploy
 
 ### Build Settings in Cloudflare Pages
 
 - **Build command**: `bundle exec jekyll build && npm run build:css`
 - **Output directory**: `_site/`
-- **Ruby version**: 3.x (via `.ruby-version`)
+- **Ruby version**: 3.4.5 (via `.ruby-version`)
 
 ---
 
@@ -368,5 +385,6 @@ Edward Jensen is the Director of Information Technology at [MEDA](https://www.me
 
 ---
 
-**Last updated**: October 2025  
-**Site redesign**: October 2025 (full-width layout, sticky header, warm color palette)
+**Last updated**: December 2025  
+**Site redesign**: October 2025 (full-width layout, sticky header, warm color palette)  
+**Deployment model**: Environment promotion (staging → production)
