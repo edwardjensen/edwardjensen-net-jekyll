@@ -60,10 +60,11 @@ jobs:
         echo ""
         
         # Filter and delete old deployments
+        # Use process substitution to avoid subshell issue with counters
         DELETED_COUNT=0
         SKIPPED_COUNT=0
         
-        echo "$DEPLOYMENTS" | jq -r '.result[] | @json' | while read -r deployment; do
+        while read -r deployment; do
           DEPLOYMENT_ID=$(echo "$deployment" | jq -r '.id')
           CREATED_ON=$(echo "$deployment" | jq -r '.created_on')
           ENVIRONMENT=$(echo "$deployment" | jq -r '.environment')
@@ -81,7 +82,7 @@ jobs:
             echo "🗑️  Deleting preview deployment: $DEPLOYMENT_ID (created: $CREATED_ON)"
             
             DELETE_RESPONSE=$(curl -s -X DELETE \
-              "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/$CF_PAGES_PROJECT/deployments/$DEPLOYMENT_ID" \
+              "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/$CF_PAGES_PROJECT/deployments/$DEPLOYMENT_ID?force=true" \
               -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
               -H "Content-Type: application/json")
             
@@ -100,7 +101,7 @@ jobs:
             echo "🗑️  Deleting old deployment: $DEPLOYMENT_ID (env: $ENVIRONMENT, created: $CREATED_ON)"
             
             DELETE_RESPONSE=$(curl -s -X DELETE \
-              "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/$CF_PAGES_PROJECT/deployments/$DEPLOYMENT_ID" \
+              "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/$CF_PAGES_PROJECT/deployments/$DEPLOYMENT_ID?force=true" \
               -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
               -H "Content-Type: application/json")
             
@@ -115,7 +116,7 @@ jobs:
             echo "⏭️  Skipping recent deployment: $DEPLOYMENT_ID (created: $CREATED_ON)"
             SKIPPED_COUNT=$((SKIPPED_COUNT + 1))
           fi
-        done
+        done < <(echo "$DEPLOYMENTS" | jq -r '.result[] | @json')
         
         echo ""
         echo "=== Cleanup Summary ==="
