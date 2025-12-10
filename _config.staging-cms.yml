@@ -1,0 +1,7 @@
+# CMS STAGING CONFIGURATION
+
+url: "https://stagingsite.edwardjensencms.com"
+title: "Edward Jensen [CMS STAGING]"
+
+payload_graphql:
+  url: "https://staging-tailscale.edwardjensencms.com/api/graphql"
