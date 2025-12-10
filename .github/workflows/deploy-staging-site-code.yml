@@ -61,7 +61,7 @@ jobs:
 
       - name: Build site
         run: |
-          JEKYLL_ENV=staging bundle exec jekyll build --config _config.yml,_config.staging.yml
+          JEKYLL_ENV=staging bundle exec jekyll build --config _config.yml,_config.staging-code.yml
       
       - name: Upload artifact
         uses: actions/upload-artifact@v5
