@@ -102,30 +102,59 @@ Posts pulled from CMS can be marked featured with:
 featured: true  # Shows in homepage featured section
 ```
 
-## Environment Promotion Workflow
+## Deployment Workflows
 
-This project uses an **environment promotion model** for deployments:
+This project uses **four distinct deployment workflows** to handle different scenarios:
 
-| Environment | Trigger | Destination | URL |
-|-------------|---------|-------------|-----|
-| **Staging** | Push to `main` branch | Self-hosted server (rsync/SSH) | staging.edwardjensen.net |
-| **Production** | Push `v*` tag | Cloudflare Pages | edwardjensen.net |
+### 1. Production Site (`edwardjensen.net`)
+**Workflow**: `deploy-prod-site.yml`  
+**Trigger**: Push `v*` tag  
+**Purpose**: Environment promotion from `main` branch on new tag  
+**Destination**: Cloudflare Pages  
+**CMS Data**: Production CMS  
+**Site Code**: Tagged production code (vX.Y.Z)
 
-### Workflow
+### 2. Staging Site for Site Code Revisions
+**Workflow**: `deploy-staging-site-code.yml`  
+**Trigger**: Push to `main` branch  
+**Purpose**: Test site code changes before production  
+**Destination**: `stagingsite.edwardjensencms.com` (self-hosted server via rsync/SSH)  
+**CMS Data**: Production CMS  
+**Site Code**: Current `main` branch (may be ahead of latest tag)
+
+### 3. Staging Site for CMS Changes
+**Workflow**: `deploy-staging-cms.yml`  
+**Trigger**: `repository_dispatch` event type `staging_cms_publish` / manual  
+**Purpose**: Test CMS content changes with production site code  
+**Destination**: `stagingsite.edwardjensencms.com` (self-hosted server via rsync/SSH)  
+**CMS Data**: Staging CMS  
+**Site Code**: Latest production tag (vX.Y.Z)
+
+### 4. Republish Production Site
+**Workflow**: `republish-prod-site.yml`  
+**Trigger**: `repository_dispatch` event type `prod_cms_publish` / manual  
+**Purpose**: Rebuild production site with latest CMS content (no code changes)  
+**Destination**: Cloudflare Pages  
+**CMS Data**: Production CMS  
+**Site Code**: Latest production tag (vX.Y.Z)
+
+### Workflow Summary Table
+
+| Workflow | Trigger | Site Code | CMS Data | Destination |
+|----------|---------|-----------|----------|-------------|
+| `pr-checks.yml` | Pull request to `main` | PR branch | Production | N/A (build validation only) |
+| `deploy-staging-site-code.yml` | Push to `main` | `main` branch | Production | stagingsite.edwardjensencms.com |
+| `deploy-staging-cms.yml` | `staging_cms_publish` webhook | Latest `v*` tag | Staging | stagingsite.edwardjensencms.com |
+| `deploy-prod-site.yml` | Push `v*` tag | Tagged version | Production | edwardjensen.net |
+| `republish-prod-site.yml` | `prod_cms_publish` webhook | Latest `v*` tag | Production | edwardjensen.net |
+
+### Development Workflow
 
 1. **Feature Development**: Create `feature/*` branch from `main`, develop locally
 2. **Code Review**: Open PR to merge `feature/*` into `main` (must pass PR checks)
 3. **Staging Deployment**: Merge to `main` triggers automatic deployment to staging
 4. **Production Promotion**: After validation, create version tag `git tag v1.2.3 && git push --tags`
-
-### GitHub Actions Workflows
-
-| Workflow | Trigger | Purpose |
-|----------|---------|--------|
-| `pr-checks.yml` | Pull request to `main` | Build validation |
-| `deploy-staging-site.yml` | Push to `main` | Deploy to staging server |
-| `deploy-prod-site.yml` | Push `v*` tag | Deploy to Cloudflare Pages |
-| `republish-prod-site.yml` | CMS webhook / manual | Rebuild production from CMS content |
+5. **CMS Changes**: Publish in CMS triggers automatic production rebuild with latest tag
 
 ## Key Patterns
 - Use `.lowercase` class for all header text
