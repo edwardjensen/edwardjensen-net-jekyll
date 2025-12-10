@@ -1,4 +1,4 @@
-name: Republish Production Site on CMS Webhook
+name: Republish Production Site (CMS Changes)
 
 permissions:
   contents: read
