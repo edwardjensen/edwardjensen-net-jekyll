@@ -141,6 +141,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v6
+      with:
+        ref: main
 
     - name: Download built site artifact
       uses: actions/download-artifact@v6
