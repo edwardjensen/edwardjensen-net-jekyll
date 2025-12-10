@@ -1,0 +1,93 @@
+name: Clean up Cloudflare Pages deployments
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * 0'  # Run weekly on Sunday at 3am UTC
+
+jobs:
+  cloudflare-cleanup:
+    runs-on: ubuntu-latest
+    name: Clean up old Cloudflare Pages deployments
+    environment: production
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+      with:
+        ref: main
+
+    - name: Clean up old Cloudflare Pages deployments
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        CF_PAGES_PROJECT: ${{ secrets.CF_PAGES_PROJECT }}
+      run: |
+        #!/bin/bash
+        set -e
+        
+        echo "=== Cleaning up Cloudflare Pages deployments older than 1 week ==="
+        
+        # Calculate cutoff date (1 week ago)
+        CUTOFF_DATE=$(date -u -d '7 days ago' +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u -v-7d +%Y-%m-%dT%H:%M:%SZ)
+        echo "Cutoff date: $CUTOFF_DATE"
+        
+        # Fetch all deployments
+        echo "Fetching deployments for project: $CF_PAGES_PROJECT"
+        DEPLOYMENTS=$(curl -s -X GET \
+          "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/$CF_PAGES_PROJECT/deployments" \
+          -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+          -H "Content-Type: application/json")
+        
+        # Check if API call was successful
+        if ! echo "$DEPLOYMENTS" | jq -e '.success' > /dev/null; then
+          echo "❌ Error fetching deployments"
+          echo "$DEPLOYMENTS" | jq '.errors'
+          exit 1
+        fi
+        
+        echo "Total deployments found: $(echo "$DEPLOYMENTS" | jq '.result | length')"
+        
+        # Filter and delete old deployments
+        DELETED_COUNT=0
+        SKIPPED_COUNT=0
+        
+        echo "$DEPLOYMENTS" | jq -r '.result[] | @json' | while read -r deployment; do
+          DEPLOYMENT_ID=$(echo "$deployment" | jq -r '.id')
+          CREATED_ON=$(echo "$deployment" | jq -r '.created_on')
+          ENVIRONMENT=$(echo "$deployment" | jq -r '.environment')
+          ALIAS=$(echo "$deployment" | jq -r '.aliases[0] // "none"')
+          
+          # Skip production deployments (those with production aliases)
+          if [ "$ENVIRONMENT" = "production" ] || [[ "$ALIAS" == *"edwardjensen.net"* ]]; then
+            echo "⏭️  Skipping production deployment: $DEPLOYMENT_ID (created: $CREATED_ON)"
+            SKIPPED_COUNT=$((SKIPPED_COUNT + 1))
+            continue
+          fi
+          
+          # Check if deployment is older than cutoff date
+          if [[ "$CREATED_ON" < "$CUTOFF_DATE" ]]; then
+            echo "🗑️  Deleting deployment: $DEPLOYMENT_ID (created: $CREATED_ON)"
+            
+            DELETE_RESPONSE=$(curl -s -X DELETE \
+              "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/$CF_PAGES_PROJECT/deployments/$DEPLOYMENT_ID" \
+              -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+              -H "Content-Type: application/json")
+            
+            if echo "$DELETE_RESPONSE" | jq -e '.success' > /dev/null; then
+              echo "✅ Successfully deleted deployment: $DEPLOYMENT_ID"
+              DELETED_COUNT=$((DELETED_COUNT + 1))
+            else
+              echo "❌ Failed to delete deployment: $DEPLOYMENT_ID"
+              echo "$DELETE_RESPONSE" | jq '.errors'
+            fi
+          else
+            echo "⏭️  Skipping recent deployment: $DEPLOYMENT_ID (created: $CREATED_ON)"
+            SKIPPED_COUNT=$((SKIPPED_COUNT + 1))
+          fi
+        done
+        
+        echo ""
+        echo "=== Cleanup Summary ==="
+        echo "Deleted: $DELETED_COUNT deployments"
+        echo "Skipped: $SKIPPED_COUNT deployments"
+        echo "✨ Cleanup complete!"
