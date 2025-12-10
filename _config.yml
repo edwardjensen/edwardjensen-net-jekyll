@@ -5,6 +5,7 @@ title: "Edward Jensen"
 tagline: "Exploring the Nonprofit IT Landscape: Insights and Reflections"
 description: "Edward Jensen is a nonprofit technology professional who writes about the intersection of technology and mission-driven impact work."
 logo: "/assets/images/bluebackground.png"
+timezone: "America/Chicago"
 
 payload_graphql:
   url: "https://www-ts.edwardjensencms.com/api/graphql"
