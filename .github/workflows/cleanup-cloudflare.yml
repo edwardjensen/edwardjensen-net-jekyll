@@ -47,6 +47,18 @@ jobs:
         
         echo "Total deployments found: $(echo "$DEPLOYMENTS" | jq '.result | length')"
         
+        # Find the most recent production deployment (to protect it)
+        LATEST_PROD_ID=$(echo "$DEPLOYMENTS" | jq -r '[.result[] | select(.environment == "production" or (.aliases[0] // "" | contains("edwardjensen.net")))] | sort_by(.created_on) | reverse | .[0].id // "none"')
+        
+        if [ "$LATEST_PROD_ID" != "none" ]; then
+          LATEST_PROD_DATE=$(echo "$DEPLOYMENTS" | jq -r --arg id "$LATEST_PROD_ID" '.result[] | select(.id == $id) | .created_on')
+          echo "🔒 Protecting most recent production deployment: $LATEST_PROD_ID (created: $LATEST_PROD_DATE)"
+        else
+          echo "⚠️  No production deployments found"
+        fi
+        
+        echo ""
+        
         # Filter and delete old deployments
         DELETED_COUNT=0
         SKIPPED_COUNT=0
@@ -57,16 +69,35 @@ jobs:
           ENVIRONMENT=$(echo "$deployment" | jq -r '.environment')
           ALIAS=$(echo "$deployment" | jq -r '.aliases[0] // "none"')
           
-          # Skip production deployments (those with production aliases)
-          if [ "$ENVIRONMENT" = "production" ] || [[ "$ALIAS" == *"edwardjensen.net"* ]]; then
-            echo "⏭️  Skipping production deployment: $DEPLOYMENT_ID (created: $CREATED_ON)"
+          # Always protect the most recent production deployment
+          if [ "$DEPLOYMENT_ID" = "$LATEST_PROD_ID" ]; then
+            echo "🔒 Skipping current production deployment: $DEPLOYMENT_ID (created: $CREATED_ON)"
             SKIPPED_COUNT=$((SKIPPED_COUNT + 1))
+            continue
+          fi
+          
+          # Delete all preview builds immediately (regardless of age)
+          if [ "$ENVIRONMENT" = "preview" ]; then
+            echo "🗑️  Deleting preview deployment: $DEPLOYMENT_ID (created: $CREATED_ON)"
+            
+            DELETE_RESPONSE=$(curl -s -X DELETE \
+              "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/$CF_PAGES_PROJECT/deployments/$DEPLOYMENT_ID" \
+              -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+              -H "Content-Type: application/json")
+            
+            if echo "$DELETE_RESPONSE" | jq -e '.success' > /dev/null; then
+              echo "✅ Successfully deleted preview deployment: $DEPLOYMENT_ID"
+              DELETED_COUNT=$((DELETED_COUNT + 1))
+            else
+              echo "❌ Failed to delete preview deployment: $DEPLOYMENT_ID"
+              echo "$DELETE_RESPONSE" | jq '.errors'
+            fi
             continue
           fi
           
           # Check if deployment is older than cutoff date
           if [[ "$CREATED_ON" < "$CUTOFF_DATE" ]]; then
-            echo "🗑️  Deleting deployment: $DEPLOYMENT_ID (created: $CREATED_ON)"
+            echo "🗑️  Deleting old deployment: $DEPLOYMENT_ID (env: $ENVIRONMENT, created: $CREATED_ON)"
             
             DELETE_RESPONSE=$(curl -s -X DELETE \
               "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/$CF_PAGES_PROJECT/deployments/$DEPLOYMENT_ID" \
