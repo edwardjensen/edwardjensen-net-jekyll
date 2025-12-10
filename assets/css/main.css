@@ -271,6 +271,24 @@
             @apply text-amber-600 dark:text-amber-400 underline hover:no-underline;
         }
 
+        ul, ol {
+            @apply my-4 ml-6;
+            list-style-position: outside;
+        }
+
+        ul {
+            @apply list-disc;
+        }
+
+        ol {
+            @apply list-decimal;
+        }
+
+        li {
+            @apply text-slate-900 dark:text-slate-50 mb-2;
+            margin-left: 0;
+        }
+
         blockquote {
             @apply border-l-4 border-amber-500 pl-4 italic text-slate-700 dark:text-slate-200;
         }
