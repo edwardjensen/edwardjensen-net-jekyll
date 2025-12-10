@@ -1,4 +1,4 @@
-name: Deploy Production Site (Code Release)
+name: Deploy Prod Site (Code Release)
 
 on:
   push:

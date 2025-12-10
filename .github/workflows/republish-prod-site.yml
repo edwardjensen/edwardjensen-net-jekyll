@@ -1,4 +1,4 @@
-name: Republish Production Site (CMS Changes)
+name: Republish Prod Site (CMS Changes)
 
 permissions:
   contents: read
