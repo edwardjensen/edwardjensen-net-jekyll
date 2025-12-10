@@ -58,6 +58,7 @@ exclude:
 
 include:
   - _pages
+  - _site_pages
   - _redirects
 
 collections:
