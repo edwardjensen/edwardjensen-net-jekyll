@@ -11,6 +11,7 @@ on:
       - 'assets/images/**'
       - 'CLAUDE.md'
       - '*.code-workspace'
+      - '.github/copilot-instructions.md'
 
 jobs:
   build-test-site:
