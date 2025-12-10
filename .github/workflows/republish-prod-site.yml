@@ -1,4 +1,4 @@
-name: Republish Production Site
+name: Republish Production Site on CMS Webhook
 
 permissions:
   contents: read
@@ -39,7 +39,7 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.4.5'
+          ruby-version: ${{ vars.RUBY_VERSION }}
           bundler-cache: true
 
       - name: Install Ruby dependencies
@@ -48,9 +48,9 @@ jobs:
           bundle install
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '25.1.0'
+          node-version: ${{ vars.NODE_VERSION }}
           cache: 'npm'
 
       - name: Install Node dependencies
