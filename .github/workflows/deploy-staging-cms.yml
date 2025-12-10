@@ -1,22 +1,36 @@
-name: Deploy Staging Site
+name: Deploy Staging Site (CMS Changes)
 
 permissions:
   contents: read
   
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+  repository_dispatch:
+    types: [staging_cms_publish]
 
 jobs:
-  build-staging-site:
+  build-cms-staging-site:
     runs-on: ubuntu-latest
     environment: staging
+    name: Build Staging (CMS) Site
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
-          fetch-depth: 1
+          fetch-depth: 0
+
+      - name: Checkout latest production tag
+        run: |
+          # Get the latest production tag (vX.Y.Z format)
+          LATEST_TAG=$(git describe --tags --abbrev=0 --match "v*" 2>/dev/null || echo "")
+          
+          if [[ -z "${LATEST_TAG}" ]]; then
+            echo "::error::No production tag found. Cannot build staging site without a production tag."
+            exit 1
+          fi
+          
+          echo "Checking out latest production tag: ${LATEST_TAG}"
+          git checkout "${LATEST_TAG}"
 
       - name: Generate build info
         run: |
@@ -25,6 +39,11 @@ jobs:
           echo "build_id: ${{ github.run_id }}" >> ./_data/buildinfo.yml
           echo "build_type: ${{ github.event_name }}" >> ./_data/buildinfo.yml
           echo "build_name: ${{ github.workflow }}" >> ./_data/buildinfo.yml
+          # Get the latest version tag for the footer
+          LATEST_TAG=$(git describe --tags --abbrev=0 --match "v*" 2>/dev/null || echo "")
+          if [[ -n "${LATEST_TAG}" ]]; then
+            echo "build_version: ${LATEST_TAG}" >> ./_data/buildinfo.yml
+          fi
 
       - name: Process micro.edwardjensen.net photos JSON
         run: |
@@ -69,10 +88,11 @@ jobs:
           path: ./_site/
           retention-days: 1
 
-  deploy-staging-site:
+  deploy-cms-staging-site:
     runs-on: ubuntu-latest
     environment: staging
-    needs: build-staging-site
+    needs: build-cms-staging-site
+    name: Deploy Staging (CMS) Site
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5

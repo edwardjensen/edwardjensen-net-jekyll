@@ -1,0 +1,129 @@
+name: Deploy Staging Site (Code Changes)
+
+permissions:
+  contents: read
+  
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-code-staging-site:
+    runs-on: ubuntu-latest
+    environment: staging
+    name: Build Staging (Code) Site
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      - name: Generate build info
+        run: |
+          mkdir -p ./_data
+          echo "commit: ${{ github.sha }}" > ./_data/buildinfo.yml
+          echo "build_id: ${{ github.run_id }}" >> ./_data/buildinfo.yml
+          echo "build_type: ${{ github.event_name }}" >> ./_data/buildinfo.yml
+          echo "build_name: ${{ github.workflow }}" >> ./_data/buildinfo.yml
+
+      - name: Process micro.edwardjensen.net photos JSON
+        run: |
+          pwsh -File ./scripts/microphotojsonprocessor.ps1 -InputUri "https://micro.edwardjensen.net/photos/index.json"
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ vars.RUBY_VERSION }}
+          bundler-cache: true
+
+      - name: Install Ruby dependencies
+        run: |
+          bundle config set frozen true
+          bundle install
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ vars.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Connect to Tailscale VPN
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_CLIENT_SECRET }}
+          tags: tag:ci
+          args: --accept-dns=true
+
+      - name: Build site
+        run: |
+          JEKYLL_ENV=staging bundle exec jekyll build --config _config.yml,_config.staging.yml
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: staging-site
+          path: ./_site/
+          retention-days: 1
+
+  deploy-code-staging-site:
+    runs-on: ubuntu-latest
+    environment: staging
+    needs: build-code-staging-site
+    name: Deploy Staging (Code) Site
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Download artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: staging-site
+          path: ./_site/
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          cat >> ~/.ssh/config << EOF
+          Host ${{ secrets.DEPLOY_HOST }}
+            StrictHostKeyChecking no
+            UserKnownHostsFile=/dev/null
+            ConnectionAttempts 3
+            ConnectTimeout 30
+            ServerAliveInterval 15
+            ServerAliveCountMax 3
+          EOF
+          chmod 600 ~/.ssh/config
+      
+      - name: Connect to Tailscale VPN
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_CLIENT_SECRET }}
+          tags: tag:ci
+
+      - name: Deploy to staging server
+        run: |
+          for i in 1 2 3; do
+            rsync -avz --no-times --no-perms --no-owner --no-group --delete ./_site/ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_PATH }}/sitedata/ && exit 0
+            echo "Attempt $i failed"
+            [ $i -lt 3 ] && echo "Retrying in 10 seconds..." && sleep 10
+          done
+          echo "All attempts failed"
+          exit 1
+
+      - name: Restart web server on staging
+        run: |
+          for i in 1 2 3; do
+            ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'docker compose -f ${{ secrets.DEPLOY_PATH }}/docker-compose.yml restart' && exit 0
+            echo "Attempt $i failed"
+            [ $i -lt 3 ] && echo "Retrying in 10 seconds..." && sleep 10
+          done
+          echo "All attempts failed"
+          exit 1

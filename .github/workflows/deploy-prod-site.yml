@@ -75,6 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     needs: validate-tag
+    name: Build Production Site
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -138,6 +139,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     needs: ['build-prod-site', 'validate-tag']
+    name: Deploy Production Site
     steps:
     - name: Checkout repository
       uses: actions/checkout@v6
