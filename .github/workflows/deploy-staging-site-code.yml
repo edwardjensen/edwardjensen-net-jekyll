@@ -1,4 +1,4 @@
-name: Deploy Staging Site
+name: Deploy Staging Site (Code Changes)
 
 permissions:
   contents: read
@@ -9,9 +9,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-staging-site:
+  build-code-staging-site:
     runs-on: ubuntu-latest
     environment: staging
+    name: Build Staging (Code) Site
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -60,7 +61,7 @@ jobs:
 
       - name: Build site
         run: |
-          JEKYLL_ENV=staging bundle exec jekyll build --config _config.yml,_config.staging.yml
+          JEKYLL_ENV=staging bundle exec jekyll build --config _config.yml,_config.staging-code.yml
       
       - name: Upload artifact
         uses: actions/upload-artifact@v5
@@ -69,10 +70,11 @@ jobs:
           path: ./_site/
           retention-days: 1
 
-  deploy-staging-site:
+  deploy-code-staging-site:
     runs-on: ubuntu-latest
     environment: staging
-    needs: build-staging-site
+    needs: build-code-staging-site
+    name: Deploy Staging (Code) Site
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5

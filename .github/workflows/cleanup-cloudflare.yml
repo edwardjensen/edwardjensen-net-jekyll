@@ -6,7 +6,7 @@ on:
     - cron: '0 3 * * 0'  # Run weekly on Sunday at 3am UTC
 
 jobs:
-  cloudflare-cleanup:
+  pages-deployment-cleanup:
     runs-on: ubuntu-latest
     name: Clean up old Cloudflare Pages deployments
     environment: production
