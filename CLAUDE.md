@@ -41,10 +41,14 @@ npm run a11y:lenient      # Run without failing on issues
 
 The site uses Jekyll collections defined in [_config.yml](_config.yml):
 
-- **`_posts/`** - Blog posts (permalink: `/posts/YYYY/YYYY-MM/title`)
+**CMS-Managed Collections** (content fetched from Payload CMS via GraphQL):
+- **`posts`** - Blog posts (permalink: `/posts/YYYY/YYYY-MM/title`)
+- **`working_notes`** - Working notes (permalink: `/notes/YYYY-MM-DD/title`)
+- **`historic_posts`** - Archived posts (permalink: `/archive/posts/title`)
+
+**File-Based Collections** (content in repository):
 - **`_photography/`** - Photography posts (permalink: `/photos/YYYY/YYYY-MM/title`)
 - **`_portfolio/`** - Portfolio items (permalink: `/portfolio/title`)
-- **`_working_notes/`** - Working notes (permalink: `/notes/YYYY-MM-DD/title`)
 - **`_feeds/`** - Feed configurations
 - **`_homepage_sections/`** - Homepage section partials (not output)
 - **`_landing_sections/`** - Landing page section partials (not output)
@@ -181,7 +185,7 @@ This project uses **four distinct deployment workflows** to handle different sce
 **CMS Data**: Production CMS  
 **Site Code**: Current `main` branch (may be ahead of latest tag)
 
-- Uses `_config.staging.yml` for staging-specific configuration
+- Uses `_config.staging-code.yml` for staging-specific configuration
 - Connects to Tailscale VPN for CMS GraphQL access
 - Deploys to self-hosted staging server via rsync/SSH
 
@@ -194,7 +198,7 @@ This project uses **four distinct deployment workflows** to handle different sce
 **Site Code**: Latest production tag (vX.Y.Z)
 
 - Checks out latest production tag (not `main` branch)
-- Uses `_config.staging.yml` for staging-specific configuration
+- Uses `_config.staging-cms.yml` for staging-specific configuration
 - Connects to Tailscale VPN for CMS GraphQL access
 - Deploys to self-hosted staging server via rsync/SSH
 
@@ -285,7 +289,8 @@ The site uses custom Tailwind classes defined in `assets/css/main.css` (@layer c
 
 - **`CLAUDE.md`** (this file) - Build commands, site architecture, layouts, includes, deployment
 - **`.github/copilot-instructions.md`** - Architecture overview, key patterns, deployment workflow
-- **`.claude/site-work/project-context.md`** - Comprehensive project context and content workflows
+- **`context-docs/site-work/project-context.md`** - Comprehensive project context and content workflows
+- **`context-docs/site-work/content-schema.md`** - Content types and CMS schema documentation
 
 This includes but is not limited to:
 - New layouts or significant layout changes
