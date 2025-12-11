@@ -14,6 +14,8 @@ Edward Jensen is a technology leader at the intersection of IT and nonprofit org
 - **Photography**: Urban and documentary photography portfolio
 - **Portfolio**: Notable projects and civic leadership work
 
+**Content Architecture**: This repository contains **code and templates only**. All blog posts, working notes, and historic posts are managed in [Payload CMS](https://github.com/edwardjensen/edwardjensencms-payload) and fetched via GraphQL at build time.
+
 ---
 
 ## 🛠 Tech Stack
@@ -25,8 +27,8 @@ Edward Jensen is a technology leader at the intersection of IT and nonprofit org
 | **Interactivity** | AlpineJS | v3 |
 | **Color Scheme** | Amber/Slate (warm palette) | Custom |
 | **Content Source** | Payload CMS | Headless |
-| **Staging** | Self-hosted server | rsync/SSH |
-| **Production** | Cloudflare Pages | via Wrangler |
+| **Staging** | Self-hosted server | stagingsite.edwardjensencms.com |
+| **Production** | Cloudflare Pages | edwardjensen.net |
 | **Runtime** | Ruby 3.4.5 + Node 25.1.0 | — |
 
 ---
@@ -99,7 +101,7 @@ JEKYLL_ENV=production bundle exec jekyll build
 │   ├── home-page.html     # Homepage layout
 │   └── gallery-page.html  # Photo gallery layout
 ├── _pages/                # Static pages (about, contact, etc.)
-├── _posts/                # Blog posts (YYYY-MM-DD-slug.md)
+├── _plugins/              # Jekyll plugins (including CMS content fetcher)
 ├── _photography/          # Photography portfolio entries
 ├── _portfolio/            # Project portfolio entries
 ├── assets/                # Static assets (images, fonts, etc.)
@@ -115,10 +117,11 @@ JEKYLL_ENV=production bundle exec jekyll build
 
 - **`_layouts/`**: Jekyll layout templates (use `layout: layout-name` in front matter)
 - **`_includes/components/`**: Reusable UI components
-- **`_posts/`**: Blog posts in Markdown format (outputs to `/writing/YYYY/YYYY-MM/slug`)
-- **`_photography/`**: Photography portfolio entries
+- **`_plugins/`**: Jekyll plugins including `payload_cms.rb` for CMS content fetching
+- **`_photography/`**: Photography portfolio entries (file-based)
 - **`_pages/`**: Static pages (about, contact, etc.)
 - **`site-docs/`**: Comprehensive developer documentation
+- **`context-docs/`**: Claude AI context files for development assistance
 
 ---
 
@@ -261,14 +264,27 @@ This project uses a promotion-based deployment strategy:
 
 | Environment | Trigger | Destination | URL |
 |-------------|---------|-------------|-----|
-| **Staging** | Push to `main` | Self-hosted server (rsync/SSH) | [staging.edwardjensen.net](https://staging.edwardjensen.net) |
+| **Staging** | Push to `main` | Self-hosted server (rsync/SSH) | [stagingsite.edwardjensencms.com](https://stagingsite.edwardjensencms.com) |
 | **Production** | Push `v*` tag | Cloudflare Pages | [edwardjensen.net](https://www.edwardjensen.net) |
 
 ### Content Source
 
-This repository contains **code and templates only**. All content (posts, working notes, historic posts) lives in **Payload CMS** and is fetched via GraphQL at build time.
+This repository contains **code and templates only**. All dynamic content is managed in Payload CMS:
+
+| Content Type | Source | Status |
+|--------------|--------|--------|
+| Blog Posts | Payload CMS | ✅ Migrated |
+| Working Notes | Payload CMS | ✅ Migrated |
+| Historic Posts | Payload CMS | ✅ Migrated |
+| Photography | File-based (`_photography/`) | Repository |
+| Portfolio | File-based (`_portfolio/`) | Repository |
+| Pages | File-based (`_pages/`) | Repository |
 
 **Content Workflow**: CMS publish → webhook → GitHub Actions → Jekyll build → Deploy
+
+**CMS URLs**:
+- Production: `edwardjensencms.com`
+- Staging: `staging.edwardjensencms.com`
 
 ### Build Settings in Cloudflare Pages
 
@@ -387,4 +403,5 @@ Edward Jensen is the Director of Information Technology at [MEDA](https://www.me
 
 **Last updated**: December 2025  
 **Site redesign**: October 2025 (full-width layout, sticky header, warm color palette)  
+**CMS Integration**: December 2025 (Payload CMS with GraphQL content delivery)  
 **Deployment model**: Environment promotion (staging → production)

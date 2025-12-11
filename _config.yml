@@ -46,7 +46,7 @@ exclude:
   - _config.staging.yml
   - _config.dev.yml
   - scripts
-  - .claude
+  - context-docs
   - site-docs
   - CLAUDE.md
   - README.md
