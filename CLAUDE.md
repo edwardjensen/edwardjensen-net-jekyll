@@ -6,9 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a Jekyll-based personal website/portfolio for Edward Jensen, built with Ruby and Jekyll 4.4.1. The site uses Tailwind CSS 4.x for styling and follows an **environment promotion deployment model**. All content (posts, working notes, historic posts) is managed in **Payload CMS** and fetched via GraphQL at build time.
 
-**Content Source**: Payload CMS (headless CMS)  
-**Staging**: Self-hosted server (staging.edwardjensen.net)  
-**Production**: Cloudflare Pages (edwardjensen.net)
+**Content Source**: Payload CMS (`edwardjensencms.com` / `staging.edwardjensencms.com`)  
+**Staging**: Self-hosted server (`stagingsite.edwardjensencms.com`)  
+**Production**: Cloudflare Pages (`edwardjensen.net`)
 
 ## Build Commands
 

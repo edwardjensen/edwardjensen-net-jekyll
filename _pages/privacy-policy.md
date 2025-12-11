@@ -6,7 +6,6 @@ permalink: /about/privacy/
 redirect_from:
     - /privacy-policy/
     - /privacy/
-leftnavimage: /assets/images/pages/edwardjensen2023_square-400x400.jpg
 searchable: false
 ---
 # edwardjensen.net Privacy Policy
