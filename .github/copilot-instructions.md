@@ -166,15 +166,16 @@ This project uses **four distinct deployment workflows** to handle different sce
 ## Documentation
 - **Primary reference**: `site-docs/LAYOUTS_AND_STYLES.md` - Layout system + CSS class reference
 - **Quick lookup**: See "Quick Reference (Cheat Sheet)" section at top of LAYOUTS_AND_STYLES.md
-- **Context file**: `.claude/site-work/project-context.md` - Comprehensive project overview
+- **Context files**: `context-docs/site-work/` - Project context and content schema documentation
 
 ## Documentation Requirements
 
-**Any major changes to the code structure must be documented** in the following files:
+**Any major changes to the site code must be documented** in the following files:
 
 - **`.github/copilot-instructions.md`** (this file) - Architecture overview, key patterns, deployment workflow
 - **`CLAUDE.md`** - Build commands, site architecture, layouts, includes, deployment
-- **`.claude/site-work/project-context.md`** - Comprehensive project context and content workflows
+- **`context-docs/site-work/project-context.md`** - Comprehensive project context and content workflows
+- **`context-docs/site-work/content-schema.md`** - Content types and CMS schema documentation
 
 This includes but is not limited to:
 - New layouts or significant layout changes
@@ -184,3 +185,4 @@ This includes but is not limited to:
 - Changes to the CSS class system
 - New npm scripts or build commands
 - Changes to the GraphQL/CMS integration
+- Updates to the Payload CMS schema or content fields
