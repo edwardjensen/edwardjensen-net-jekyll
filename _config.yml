@@ -117,7 +117,7 @@ collections:
   pages:
     output: true
     cms:
-      collection: "Pages"
+      collection: "pages"
       layout: "page"
       sort: "title"
       fields:
