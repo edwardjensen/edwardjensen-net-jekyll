@@ -58,8 +58,10 @@ module PayloadCMS
           collection.docs << doc if doc
         end
 
-        # Re-sort by date
-        collection.docs.sort_by! { |doc| -(doc.data['date']&.to_i || 0) }
+        # Re-sort by date only if documents have dates
+        if collection.docs.any? { |doc| doc.data['date'] }
+          collection.docs.sort_by! { |doc| -(doc.data['date']&.to_i || 0) }
+        end
 
         Jekyll.logger.info 'PayloadCMS:', "Added #{docs.length} #{cms_collection} to #{name}"
       rescue StandardError => e
@@ -72,10 +74,14 @@ module PayloadCMS
       # Build a dynamic query based on the fields specified in config
       # or use a sensible default for common fields
       fields = cms_config['fields'] || default_fields
+      
+      # Allow custom sort field (default to -date for backward compatibility)
+      # Use 'title' for collections without dates like pages
+      sort_field = cms_config['sort'] || '-date'
 
       <<~GRAPHQL
         query GetPublished($limit: Int) {
-          #{cms_collection}(where: { _status: { equals: published } }, limit: $limit, sort: "-date") {
+          #{cms_collection}(where: { _status: { equals: published } }, limit: $limit, sort: "#{sort_field}") {
             docs {
               #{fields.join("\n              ")}
             }
@@ -168,10 +174,13 @@ module PayloadCMS
 
       # Set common front matter data
       doc.data['title'] = doc_data['title']
-      doc.data['date'] = parse_date(doc_data['date'])
+      doc.data['date'] = parse_date(doc_data['date']) if doc_data['date']
       doc.data['slug'] = slug
       doc.data['permalink'] = permalink
       doc.data['cms_id'] = doc_data['id']
+      
+      # Searchable - for pages collection
+      doc.data['searchable'] = doc_data['searchable'] unless doc_data['searchable'].nil?
 
       # Categories - extract from array of objects
       if doc_data['categories']
