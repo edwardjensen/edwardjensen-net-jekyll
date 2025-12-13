@@ -54,10 +54,10 @@ exclude:
   - _posts
   - _working_notes
   - _historic_posts
+  - _pages
   - assets/images/posts
 
 include:
-  - _pages
   - _site_pages
   - _redirects
 
@@ -114,6 +114,25 @@ collections:
         - permalink
         - updatedAt
         - createdAt
+  pages:
+    output: true
+    cms:
+      collection: "Pages"
+      layout: "page"
+      sort: "title"
+      fields:
+        - id
+        - title
+        - slug
+        - permalink
+        - searchable
+        - image { url alt filename }
+        - imageAlt
+        - content
+        - markdown
+        - redirectFrom { path }
+        - updatedAt
+        - createdAt
 
 defaults:
   -
@@ -137,6 +156,11 @@ defaults:
       path: "_historic_posts"
     values:
       layout: single-post
+  -
+    scope:
+      path: "_pages"
+    values:
+      layout: page
 
 social:
   name: Edward Jensen
