@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -78,7 +78,7 @@ jobs:
     name: Build Production Site
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1
           ref: main
@@ -157,7 +157,7 @@ jobs:
       with:
         apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        command: pages deploy _site --project-name=${{ secrets.CF_PAGES_PROJECT }} --commit-dirty=true
+        command: pages deploy _site --project-name=${{ secrets.CF_PAGES_PROJECT }} --branch=main --commit-dirty=true
 
   create-release:
     name: Create GitHub Release
