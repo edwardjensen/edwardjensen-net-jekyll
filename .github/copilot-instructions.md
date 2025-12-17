@@ -50,10 +50,10 @@ The site uses **custom Tailwind classes** defined in `assets/css/main.css` (@lay
 **New pattern**: Full-width stacked layout with sticky top header
 
 **Key files**:
-- `_layouts/base.html` - Now includes sticky header-nav component at top
-- `_layouts/main.html` - New full-width layout (max-width 4xl, centered)
-- `_layouts/with-sidebar.html` - Refactored to use full-width (sidebar removed)
-- `_includes/components/header-nav.html` - NEW: Sticky header with responsive nav
+- `_layouts/base.html` - Root layout with HTML boilerplate, sticky header nav, footer
+- `_layouts/content-wrapper.html` - Content wrapper with max-w-4xl centered container
+- `_includes/components/header-nav.html` - Sticky header with responsive nav
+- `_includes/components/seo.html` - Custom SEO meta tags (Open Graph, Twitter Cards)
 
 **Header behavior**:
 - Sticky position (z-40) with 80% opacity + backdrop blur
@@ -170,14 +170,16 @@ This project uses **four distinct deployment workflows** to handle different sce
 
 ## Documentation Requirements
 
-**Any major changes to the site code must be documented** in the following files:
+**IMPORTANT: When making changes to this codebase, you (GitHub Copilot or Claude Code) must update the relevant documentation files as part of your changes.** Documentation should not drift from the actual code.
+
+**Documentation files to update:**
 
 - **`.github/copilot-instructions.md`** (this file) - Architecture overview, key patterns, deployment workflow
 - **`CLAUDE.md`** - Build commands, site architecture, layouts, includes, deployment
 - **`context-docs/site-work/project-context.md`** - Comprehensive project context and content workflows
 - **`context-docs/site-work/content-schema.md`** - Content types and CMS schema documentation
 
-This includes but is not limited to:
+**When to update documentation** (includes but is not limited to):
 - New layouts or significant layout changes
 - New includes or component patterns
 - Changes to the deployment workflow or GitHub Actions
@@ -185,4 +187,6 @@ This includes but is not limited to:
 - Changes to the CSS class system
 - New npm scripts or build commands
 - Changes to the GraphQL/CMS integration
-- Updates to the Payload CMS schema or content fields
+- Removing or renaming files referenced in documentation
+
+**Related repository**: The Payload CMS application lives in a separate repository (`edwardjensen/edwardjensencms-payload`). Changes to CMS collections, fields, or content schema should be documented in that repository's `.github/copilot-instructions.md`.
