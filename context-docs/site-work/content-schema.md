@@ -11,9 +11,10 @@ The site uses multiple content sources:
 | **Posts** | Payload CMS | `/posts/:year/:year-:month/:slug` | Full essays, articles, and longer-form writing |
 | **Working Notes** | Payload CMS | `/notes/:year-:month-:day/:slug` | Short-form updates, micro-thoughts, less polished ideas |
 | **Historic Posts** | Payload CMS | `/archive/posts/:slug` | Preserved legacy WordPress archive (read-only) |
+| **Pages** | Payload CMS | Custom (defaults to `/:slug`) | Static pages like About, Biography, Uses |
 | **Photography** | File-based | `/photos/:year/:year-:month/:slug` | Photo essays and image galleries with captions |
 | **Portfolio** | File-based | `/portfolio/:slug` | Showcase of projects, presentations, and publications |
-| **Pages** | File-based | Custom (varies) | Static content like About, Biography, Writing archive |
+| **Special Layout Pages** | File-based | Custom (varies) | Landing pages, archive pages with special layouts |
 
 ---
 
@@ -36,7 +37,7 @@ These content types are managed in Payload CMS and fetched via GraphQL at build 
 | `title` | text | Yes | Post title, used as admin display |
 | `slug` | text | Yes | URL slug, auto-generated from title, unique |
 | `date` | date | Yes | Publication date with time picker |
-| `publishStatus` | select | Yes | Publishing state: `draft`, `scheduled`, or `published` |
+| `_status` | internal | Auto | Payload's built-in draft/published status |
 | `categories` | array | No | Array of category strings |
 | `tags` | array | No | Array of tag strings |
 | `image` | upload | No | Header image (references Media collection in R2) |
@@ -53,11 +54,14 @@ These content types are managed in Payload CMS and fetched via GraphQL at build 
 
 #### Publishing States
 
+Posts use Payload's built-in `_status` field with automatic date-based scheduling:
+
 | State | Behavior |
 |-------|----------|
-| **Draft** | Internal only, not visible to Jekyll, remains draft until manually changed |
-| **Scheduled** | Auto-publishes when `date <= now` via Payload Jobs Queue |
-| **Published** | Live on site via Jekyll, triggers webhook on publish/unpublish |
+| **Draft** | Internal only, not visible to Jekyll |
+| **Published** | Live on site via Jekyll, triggers webhook |
+
+**Scheduled Publishing**: When you publish a post with a future `date`, the `beforeChange` hook automatically keeps it as a draft and queues a `schedulePublish` job. The post auto-publishes when the scheduled time arrives.
 
 #### Jekyll Template Fields
 
@@ -98,11 +102,13 @@ When content is fetched via GraphQL, these fields are available in Jekyll templa
 | `title` | text | Yes | Note title |
 | `slug` | text | Yes | URL slug, unique |
 | `date` | date | Yes | Publication date |
-| `publishStatus` | select | Yes | Publishing state: `draft`, `scheduled`, or `published` |
+| `_status` | internal | Auto | Payload's built-in draft/published status |
 | `tags` | array | No | Array of tag strings |
 | `content` | richText | No | Note body content (Lexical editor) |
 | `markdown` | textarea | Hidden | Virtual field for markdown conversion |
 | `permalink` | text | Computed | `/notes/:year-:month-:day/:slug` |
+
+**Note**: Working Notes support the same automatic date-based scheduling as Posts.
 
 #### Comparison to Posts
 
@@ -122,11 +128,11 @@ When content is fetched via GraphQL, these fields are available in Jekyll templa
 
 **CMS Collection**: `HistoricPosts`  
 **Jekyll Collection**: `historic_posts`  
-**Default Layout**: `retired-post`  
+**Default Layout**: `single-post`  
 **Permalink**: `/archive/posts/:slug`  
 **Purpose**: Archived posts preserved for historical reference (legacy WordPress content).
 
-**Note**: Unlike Posts and Working Notes, Historic Posts does **not** have a `publishStatus` field. These use only Payload's built-in `_status` (draft/published) without scheduled publishing.
+**Note**: Unlike Posts and Working Notes, Historic Posts does **not** have scheduled publishing. They use only Payload's built-in `_status` (draft/published).
 
 #### CMS Field Reference
 
@@ -161,11 +167,38 @@ Media files are uploaded via the Payload admin UI and automatically stored in Cl
 
 ---
 
+### 5. Pages
+
+**CMS Collection**: `Pages`  
+**Jekyll Collection**: `pages`  
+**Default Layout**: `page`  
+**Permalink**: Custom (defaults to `/:slug`)  
+**Purpose**: Static pages for evergreen content like About, Biography, Uses, etc.
+
+**Note**: Unlike Posts and Working Notes, Pages does **not** have scheduled publishing. They use only Payload's built-in `_status` (draft/published).
+
+#### CMS Field Reference
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `title` | text | Yes | Page title, used as admin display |
+| `slug` | text | Yes | URL slug, auto-generated from title, unique |
+| `permalink` | text | No | Custom URL path (auto-defaults to `/:slug` if blank) |
+| `_status` | internal | Auto | Payload's built-in draft/published status |
+| `searchable` | checkbox | No | Include in site search (default: true) |
+| `image` | upload | No | Header/featured image (references Media) |
+| `imageAlt` | text | No | Alt text for header image |
+| `content` | richText | No | Page body content (Lexical editor) |
+| `markdown` | textarea | Hidden | Virtual field for markdown conversion |
+| `redirectFrom` | array | No | Array of legacy URLs that redirect to this page |
+
+---
+
 ## File-Based Content (Jekyll Repository)
 
 These content types are still managed as files in the Jekyll repository.
 
-### 4. Photography (`_photography/`)
+### 6. Photography (`_photography/`)
 
 **Directory**: `_photography/`  
 **Permalink**: `/photos/:year/:year-:month/:slug`  
@@ -202,7 +235,7 @@ Caption or description of the photograph.
 
 ---
 
-### 5. Portfolio (`_portfolio/`)
+### 7. Portfolio (`_portfolio/`)
 
 **Directory**: `_portfolio/`  
 **Permalink**: `/portfolio/:slug`  
@@ -234,11 +267,13 @@ Description of the project or work.
 
 ---
 
-### 6. Pages (`_pages/`)
+### 8. Special Layout Pages (File-Based)
 
-**Directory**: `_pages/`  
+**Directory**: `_site_pages/`  
 **Permalink**: Custom per page  
-**Purpose**: Static content like About, Biography, Portfolio overview, Writing archive, Search, Privacy Policy.
+**Purpose**: Pages with special layouts (landing pages, archive pages) that may still be file-based for layout flexibility.
+
+**Note**: Standard content pages (About, Biography, etc.) are now managed in the CMS. File-based pages are used for special layouts like `landing-page` and `writing-base` that require specific front matter configurations.
 
 #### YAML Front Matter Examples
 

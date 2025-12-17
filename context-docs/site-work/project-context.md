@@ -145,7 +145,7 @@ The site uses a **headless CMS architecture** where content is managed in Payloa
 - `_layouts/page.html` — Standard page layout
 - `_layouts/gallery-page.html` — Photo gallery layout
 - `_includes/components/header-nav.html` — Sticky header navigation (responsive)
-- `_includes/components/hamburger-menu.html` — Mobile hamburger toggle
+- `_includes/components/seo.html` — Custom SEO meta tags (Open Graph, Twitter Cards)
 
 **Header Behavior**:
 - Fixed/sticky position (z-40) with 80% opacity + backdrop blur
@@ -199,14 +199,15 @@ edwardjensen-net-jekyll/
 ├── _includes/                  # Reusable Jekyll includes
 │   ├── components/             # UI components
 │   │   ├── header-nav.html             # Sticky header with responsive nav
-│   │   ├── hamburger-menu.html         # Mobile menu toggle
 │   │   ├── page-header.html            # Page title sections
 │   │   ├── photo-modal.html            # Gallery modal (AlpineJS)
 │   │   ├── post-navigation.html        # Post prev/next links
 │   │   ├── post-credits.html           # Author/meta info
+│   │   ├── privacy-modal.html          # Privacy policy modal
 │   │   ├── prose-content.html          # Typography/markdown styling
 │   │   ├── search-interface.html       # Search UI
 │   │   ├── search-results.html         # Search results display
+│   │   ├── seo.html                    # Custom SEO meta tags (Open Graph, Twitter)
 │   │   └── working-note.html           # Working note card component (for list views)
 │   ├── core/                   # Core layout components
 │   │   ├── header-includes.html        # <head> includes (CSS, meta, SEO)
@@ -442,10 +443,10 @@ These content types are managed in Payload CMS and fetched via GraphQL at build 
 **CMS Collection**: `HistoricPosts`  
 **Jekyll Collection**: `historic_posts`  
 **URL Pattern**: `/archive/posts/:slug`  
-**Layout**: `retired-post`  
+**Layout**: `single-post`  
 **Purpose**: Preserved legacy WordPress archive (read-only)
 
-**Note**: Historic posts do not have the `publishStatus` field like Posts and Working Notes. They use only Payload's built-in `_status` (draft/published) since they don't need scheduled publishing.
+**Note**: Unlike Posts and Working Notes, Historic Posts does **not** have scheduled publishing. They use only Payload's built-in `_status` (draft/published).
 
 ### File-Based Content (Still in Repository)
 
@@ -552,13 +553,14 @@ All content is created and managed in Payload CMS:
 
 ### Scheduled Publishing
 
-Payload CMS handles scheduled publishing via its Jobs Queue:
+Payload CMS handles scheduled publishing automatically based on the post's `date` field:
 
-1. Author sets `publishStatus` to **Scheduled** with a future `date`
-2. Payload queues a job with `waitUntil` set to the scheduled date
-3. Job executes when scheduled time arrives
-4. Post is published, webhook fires, site rebuilds
-5. Content appears on production site automatically
+1. Author sets the `date` field to a future date/time
+2. Author clicks "Publish" (the `beforeChange` hook detects the future date)
+3. Payload keeps the document as a draft and queues a `schedulePublish` job
+4. Job executes when scheduled time arrives
+5. Post is published, webhook fires, site rebuilds
+6. Content appears on production site automatically
 
 **Important**: Scheduled posts do NOT trigger webhooks when saved—only when the job runs at the scheduled time.
 
@@ -569,9 +571,9 @@ Payload CMS handles scheduled publishing via its Jobs Queue:
 | Posts | ✅ Complete | All posts in CMS |
 | Working Notes | ✅ Complete | All notes in CMS |
 | Historic Posts | ✅ Complete | Legacy archive in CMS |
+| Pages | ✅ Complete | Static pages in CMS |
 | Photography | ❌ File-based | Still in `_photography/` directory |
 | Portfolio | ❌ File-based | Still in `_portfolio/` directory |
-| Pages | ❌ File-based | Still in `_pages/` directory |
 
 ---
 
