@@ -1,6 +1,6 @@
 {% comment %}
   SEO Meta Tags Include
-  Place in _includes/core/seo-meta.html
+  Place in _includes/components/seo.html
   Include in header-includes.html: {% include components/seo.html %}
 {% endcomment %}
 
@@ -45,7 +45,7 @@
 
 <!-- Twitter/X Cards -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="{{ page_title }}">
+<meta name="twitter:title" content="{{ page_title | escape}}">
 <meta name="twitter:description" content="{{ page_description | escape }}">
 <meta name="twitter:image" content="{{ page_image | escape }}">
 <meta name="twitter:image:alt" content="{{ page_image_alt | escape }}">
@@ -100,6 +100,16 @@
   "name": {{ page_title | jsonify }},
   "description": {{ page_description | jsonify }},
   "url": {{ page_url | jsonify }},
+  "author": {
+    "@type": "Person",
+    "name": {{ site.social.name | jsonify }}
+    {%- if site.social.url %},
+    "url": {{ site.social.url | jsonify }}
+    {%- endif %}
+    {%- if site.social.links %},
+    "sameAs": {{ site.social.links | jsonify }}
+    {%- endif %}
+  },
   "publisher": {
     "@type": "Organization",
     "name": {{ site.title | jsonify }},
