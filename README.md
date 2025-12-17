@@ -98,7 +98,7 @@ JEKYLL_ENV=production bundle exec jekyll build
 │   ├── content-wrapper.html # Content spacing/max-width
 │   ├── page.html          # Standard page layout
 │   ├── single-post.html   # Blog post layout
-│   ├── home-page.html     # Homepage layout
+│   ├── landing-page.html  # Landing page layout
 │   └── gallery-page.html  # Photo gallery layout
 ├── _pages/                # Static pages (about, contact, etc.)
 ├── _plugins/              # Jekyll plugins (including CMS content fetcher)

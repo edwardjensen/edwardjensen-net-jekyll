@@ -14,7 +14,6 @@ plugins:
   - jekyll-postcss-v2
   - jekyll-sitemap
   - jekyll-paginate-v2
-  - jekyll-seo-tag
   - jekyll-redirect-from
 
 markdown: kramdown
@@ -164,6 +163,7 @@ defaults:
 
 social:
   name: Edward Jensen
+  url: https://www.edwardjensen.net/about/
   links:
     - https://www.linkedin.com/in/edwardjensen
     - https://github.com/edwardjensen
