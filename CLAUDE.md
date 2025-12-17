@@ -62,7 +62,6 @@ The site uses a two-tier layout inheritance pattern (refactored Oct 2025 to full
 - **[content-wrapper.html](_layouts/content-wrapper.html)** - Extends base, adds full-width main with max-w-4xl centered container
 
 **Content Layouts** (all extend content-wrapper):
-- **[default.html](_layouts/default.html)** - Simple content wrapper
 - **[page.html](_layouts/page.html)** - Standard page with header styling
 - **[single-post.html](_layouts/single-post.html)** - Blog post with article header, metadata, featured image, navigation
 - **[single-working-note.html](_layouts/single-working-note.html)** - Working notes layout
@@ -86,8 +85,7 @@ Includes are organized into three logical subdirectories in [_includes/](_includ
 
 **`core/`** - Infrastructure used by base layouts:
 
-- **[header-includes.html](_includes/core/header-includes.html)** - HTML `<head>` content (meta tags, CSS, fonts)
-- **[sidebar.html](_includes/core/sidebar.html)** - Site navigation sidebar (legacy, replaced by header-nav in main layout)
+- **[header-includes.html](_includes/core/header-includes.html)** - HTML `<head>` content (meta tags, CSS, fonts, SEO)
 - **[footer.html](_includes/core/footer.html)** - Site footer
 
 **`components/`** - Reusable UI elements:
@@ -98,6 +96,7 @@ Includes are organized into three logical subdirectories in [_includes/](_includ
 - **[privacy-modal.html](_includes/components/privacy-modal.html)** - Privacy policy modal
 - **[working-note.html](_includes/components/working-note.html)** - Working note component
 - **[prose-content.html](_includes/components/prose-content.html)** - Formatted prose content wrapper
+- **[seo.html](_includes/components/seo.html)** - Custom SEO meta tags (title, description, Open Graph, Twitter Cards)
 
 **`sections/`** - Content sections and list views:
 
@@ -255,7 +254,7 @@ Key settings in [_config.yml](_config.yml):
 
 - URL: `https://www.edwardjensen.net`
 - Uses jekyll-postcss-v2 for Tailwind integration
-- Plugins: jekyll-postcss-v2, jekyll-sitemap, jekyll-paginate-v2, jekyll-seo-tag, jekyll-redirect-from
+- Plugins: jekyll-postcss-v2, jekyll-sitemap, jekyll-paginate-v2, jekyll-redirect-from
 - Excludes: package files, node_modules, postcss/tailwind configs, .vscode, .github, _config.staging.yml, scripts, .claude, site-docs, CLAUDE.md, README.md
 - Kramdown with GFM input for markdown processing
 - Permalinks follow pattern: `/:collection/:year/:year-:month/:title`
@@ -285,14 +284,16 @@ The site uses custom Tailwind classes defined in `assets/css/main.css` (@layer c
 
 ## Documentation Requirements
 
-**Any major changes to the code structure must be documented** in the following files:
+**IMPORTANT: When making changes to this codebase, you (GitHub Copilot or Claude Code) must update the relevant documentation files as part of your changes.** Documentation should not drift from the actual code.
+
+**Documentation files to update:**
 
 - **`CLAUDE.md`** (this file) - Build commands, site architecture, layouts, includes, deployment
 - **`.github/copilot-instructions.md`** - Architecture overview, key patterns, deployment workflow
 - **`context-docs/site-work/project-context.md`** - Comprehensive project context and content workflows
 - **`context-docs/site-work/content-schema.md`** - Content types and CMS schema documentation
 
-This includes but is not limited to:
+**When to update documentation** (includes but is not limited to):
 - New layouts or significant layout changes
 - New includes or component patterns
 - Changes to the deployment workflow or GitHub Actions
@@ -300,3 +301,6 @@ This includes but is not limited to:
 - Changes to the CSS class system
 - New npm scripts or build commands
 - Changes to the GraphQL/CMS integration
+- Removing or renaming files referenced in documentation
+
+**Related repository**: The Payload CMS application lives in a separate repository (`edwardjensen/edwardjensencms-payload`). Changes to CMS collections, fields, or content schema should be documented in that repository's `.github/copilot-instructions.md`.
