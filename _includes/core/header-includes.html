@@ -12,7 +12,7 @@
 {% if page.has_youtube_video %}
 <script src="{{ '/assets/js/lite-yt-embed.js' | relative_url }}"></script>
 {% endif %}
-{% seo %}
+{% include components/seo.html %}
 {% if page.image %}
 <meta name="image" property="og:image" content="{{ page.image | absolute_url }}">
 {% else %}
