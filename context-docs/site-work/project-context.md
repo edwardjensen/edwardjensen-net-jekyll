@@ -255,9 +255,13 @@ edwardjensen-net-jekyll/
 │
 ├── _plugins/                   # Jekyll plugins
 │   ├── payload_cms.rb          # 🔑 Fetches content from Payload CMS at build time
+│   ├── featured_tag_feeds.rb   # Auto-generates RSS feeds for featured tags
 │   ├── copy_vendor_assets.rb   # Copies vendor JS files
 │   ├── json_escape_filter.rb   # JSON escaping for feeds
 │   └── youtube_embed.rb        # YouTube embed handling
+│
+├── _featured-tags/             # Featured tag landing pages (file-based)
+│   └── [tag].md               # Tag with hero image, summary, filtered posts
 │
 ├── _feeds/                     # RSS/JSON feeds (generated from CMS data)
 │   ├── feed-essays.xml
@@ -452,7 +456,26 @@ These content types are managed in Payload CMS and fetched via GraphQL at build 
 
 These content types are still managed as files in the Jekyll repository:
 
-#### 4. Photography
+#### 4. Featured Tags
+
+**Directory**: `_featured-tags/`
+**URL Pattern**: `/tags/:slug`
+**Layout**: `featured-tag`
+**Purpose**: Curated landing pages for specific tags with hero images, summary content, and filtered post listings
+
+**Front Matter Fields**:
+
+- `title` — Display name for the tag
+- `tag` — Tag slug (matches post tags for filtering)
+- `image` — Hero image URL
+- `image_alt` — Hero image alt text
+- `sort_ascending` — Sort order (default: false = newest first)
+
+**Auto-Generated RSS Feeds**: Each featured tag automatically gets an RSS feed at `/feeds/{tag-slug}.xml` via a Jekyll plugin (`_plugins/featured_tag_feeds.rb`). The feed description uses the markdown body content from the featured tag file.
+
+**Index Page**: `/tags/` lists all featured tags with thumbnails, descriptions, and post counts.
+
+#### 5. Photography
 
 **Directory**: `_photography/`  
 **URL Pattern**: `/photos/:year/:year-:month/:slug`  
