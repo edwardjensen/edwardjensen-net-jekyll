@@ -334,7 +334,14 @@ module PayloadCMS
       when 'link'
         # Payload CMS Lexical stores link properties in a 'fields' object
         fields = node['fields'] || {}
-        url = fields['url'] || node['url'] || '#'
+        # Handle both internal links (linkType: "internal") and custom/external links
+        url = if fields['linkType'] == 'internal'
+                # Internal links store the URL in doc.value.permalink
+                fields.dig('doc', 'value', 'permalink') || '#'
+              else
+                # Custom/external links store URL directly in fields.url
+                fields['url'] || node['url'] || '#'
+              end
         content = convert_children(node['children'])
         new_tab = fields['newTab'] || node['newTab']
         target = new_tab ? ' target="_blank" rel="noopener"' : ''

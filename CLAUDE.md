@@ -161,6 +161,23 @@ npm run a11y:report       # Generate JSON report
 
 - **[copy-vendor-assets.js](scripts/copy-vendor-assets.js)** - Copies vendor assets (Alpine.js, Bootstrap Icons) from node_modules to assets directory
 
+## CMS Integration Plugin
+
+The `_plugins/payload_cms.rb` plugin fetches content from Payload CMS via GraphQL at build time.
+
+### Lexical Rich Text Conversion
+
+Payload CMS uses the Lexical editor for rich text content. The plugin converts Lexical JSON to HTML:
+
+- **Paragraphs, headings, lists, blockquotes, code blocks** - Standard HTML conversion
+- **Text formatting** - Bold, italic, strikethrough, underline, inline code (uses bitmask: 1=bold, 2=italic, 4=strikethrough, 8=underline, 16=code)
+- **Images** - Converted from `upload` nodes with `value.url` and `value.alt`
+- **Links** - Handles both internal and external links:
+  - **External/Custom links**: `linkType: "custom"` - URL in `node.fields.url`
+  - **Internal links**: `linkType: "internal"` - URL in `node.fields.doc.value.permalink`
+
+**Note**: The `markdown` virtual field (server-side Lexical-to-Markdown conversion) is preferred when available. The HTML conversion is a fallback for the `content` field.
+
 ## Deployment
 
 This project uses **four distinct deployment workflows** to handle different scenarios:

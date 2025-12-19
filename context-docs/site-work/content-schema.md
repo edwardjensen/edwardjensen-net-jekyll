@@ -482,7 +482,22 @@ query GetPublished($limit: Int) {
 
 ### Content Conversion
 
-- Rich text content is converted from Lexical JSON to markdown via the `markdown` virtual field
+The `_plugins/payload_cms.rb` plugin handles two types of content conversion:
+
+**Markdown Field (preferred for Posts/Working Notes/Pages):**
+- CMS provides a `markdown` virtual field that converts Lexical to Markdown server-side
+- Jekyll uses markdown content directly when available
+
+**Lexical JSON to HTML (fallback for `content` field):**
+- When `markdown` field is not available, plugin converts Lexical JSON to HTML
+- Supports: paragraphs, headings, lists, blockquotes, code blocks, links, images
+- **Link handling** (Dec 2025 fix):
+  - **External links**: URL stored in `node.fields.url` with `linkType: "custom"`
+  - **Internal links**: URL stored in `node.fields.doc.value.permalink` with `linkType: "internal"`
+  - The plugin checks `linkType` to determine which path to extract the URL from
+- Text formatting: bold, italic, strikethrough, underline, inline code (via bitmask)
+
+**Other Field Conversions:**
 - Images reference Cloudflare R2 URLs
 - Dates are parsed and used for sorting
 - Categories and tags are arrays of strings
