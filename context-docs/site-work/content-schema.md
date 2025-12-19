@@ -198,7 +198,48 @@ Media files are uploaded via the Payload admin UI and automatically stored in Cl
 
 These content types are still managed as files in the Jekyll repository.
 
-### 6. Photography (`_photography/`)
+### 6. Featured Tags (`_featured-tags/`)
+
+**Directory**: `_featured-tags/`
+**Permalink**: `/tags/:slug`
+**Layout**: `featured-tag`
+**Purpose**: Curated landing pages for specific tags with hero images, summary content, and filtered post listings.
+
+#### YAML Front Matter
+
+```yaml
+---
+title: "The Build"
+tag: the-build
+image: https://assets.edwardjensen.net/media/202512-thebuild.jpeg
+image_alt: "Descriptive alt text for the hero image"
+sort_ascending: true
+---
+
+Summary description of this tag/series rendered as bold text above the post list.
+```
+
+#### Field Reference
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `title` | Yes | Display name for the tag |
+| `tag` | Yes | Tag slug (matches post tags for filtering) |
+| `image` | No | Hero image URL |
+| `image_alt` | No | Alt text for hero image |
+| `sort_ascending` | No | Sort order (default: false = newest first) |
+
+#### Auto-Generated RSS Feeds
+
+Each featured tag automatically gets an RSS feed at `/feeds/{tag-slug}.xml` via the Jekyll plugin `_plugins/featured_tag_feeds.rb`. The feed description uses the markdown body content from the featured tag file.
+
+#### Index Page
+
+The featured tags index page at `/tags/` (defined in `_site_pages/tags.md`) lists all featured tags with thumbnails, descriptions, and post counts.
+
+---
+
+### 7. Photography (`_photography/`)
 
 **Directory**: `_photography/`  
 **Permalink**: `/photos/:year/:year-:month/:slug`  
@@ -235,7 +276,7 @@ Caption or description of the photograph.
 
 ---
 
-### 7. Portfolio (`_portfolio/`)
+### 8. Portfolio (`_portfolio/`)
 
 **Directory**: `_portfolio/`  
 **Permalink**: `/portfolio/:slug`  
@@ -267,7 +308,7 @@ Description of the project or work.
 
 ---
 
-### 8. Special Layout Pages (File-Based)
+### 9. Special Layout Pages (File-Based)
 
 **Directory**: `_site_pages/`  
 **Permalink**: Custom per page  
@@ -483,6 +524,7 @@ query GetPublished($limit: Int) {
 | Essays RSS | `/_feeds/feed-essays.xml` | Blog posts only |
 | Notes RSS | `/_feeds/feed-notes.xml` | Working notes only |
 | Notes JSON | `/_feeds/feed-notes.json` | Working notes only |
+| Featured Tag RSS | `/feeds/{tag-slug}.xml` | Posts with specific tag (auto-generated) |
 
 ---
 
