@@ -11,10 +11,6 @@ jobs:
     name: Clean up old Cloudflare Pages deployments
     environment: production
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v6
-      with:
-        ref: main
 
     - name: Clean up old Cloudflare Pages deployments
       env:
