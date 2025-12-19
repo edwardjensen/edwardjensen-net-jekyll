@@ -332,9 +332,12 @@ module PayloadCMS
         content = node['children']&.first&.dig('text') || ''
         "<pre><code class=\"language-#{language}\">#{escape_html(content)}</code></pre>"
       when 'link'
-        url = node['url'] || '#'
+        # Payload CMS Lexical stores link properties in a 'fields' object
+        fields = node['fields'] || {}
+        url = fields['url'] || node['url'] || '#'
         content = convert_children(node['children'])
-        target = node['newTab'] ? ' target="_blank" rel="noopener"' : ''
+        new_tab = fields['newTab'] || node['newTab']
+        target = new_tab ? ' target="_blank" rel="noopener"' : ''
         "<a href=\"#{escape_html(url)}\"#{target}>#{content}</a>"
       when 'upload'
         # Handle media uploads (images)
