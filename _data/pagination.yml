@@ -1,5 +1,10 @@
-# Global pagination defaults
-# Page-specific settings in front matter override these values
+# Pagination Configuration
+# --------------------------
+# Global defaults and collection-level settings for the pagination plugin.
+#
+# Page-specific settings in front matter override these values, but for
+# CMS-sourced collections, use the 'collections:' section below instead
+# of front matter (since CMS content may not support arbitrary front matter).
 
 defaults:
   per_page: 20

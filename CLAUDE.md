@@ -309,6 +309,10 @@ The `_includes/components/pagination.html` component provides a reusable paginat
 - Current page highlight (amber-600)
 - Accessibility: `aria-current="page"`, proper `role="navigation"`
 
+### CMS Integration Note
+
+**Future consideration**: When content types are managed in the CMS, pagination configuration should be handled via collection-level config in `_data/pagination.yml` rather than front matter, since CMS-sourced content may not support arbitrary front matter fields. The current implementation already supports this pattern for `featured-tags`. If a CMS collection needs pagination, add its config to the `collections:` section of `_data/pagination.yml`.
+
 ## Deployment
 
 This project uses **four distinct deployment workflows** to handle different scenarios:
