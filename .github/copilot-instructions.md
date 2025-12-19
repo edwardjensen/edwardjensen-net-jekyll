@@ -96,6 +96,13 @@ This repository is **code and templates only**. All content (posts, working note
 
 **Content workflow**: CMS publish → webhook → GitHub Actions → Jekyll build → Deploy
 
+**CMS Plugin** (`_plugins/payload_cms.rb`):
+- Fetches content from Payload CMS via GraphQL at build time
+- Converts Lexical rich text JSON to HTML for rendering
+- **Link handling**: Payload uses `fields.linkType` to distinguish link types:
+  - External/custom links: URL in `fields.url`
+  - Internal links: URL in `fields.doc.value.permalink`
+
 ## Post YAML for Homepage
 Posts pulled from CMS can be marked featured with:
 ```yaml
