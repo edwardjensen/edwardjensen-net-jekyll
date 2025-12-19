@@ -49,6 +49,7 @@ The site uses Jekyll collections defined in [_config.yml](_config.yml):
 **File-Based Collections** (content in repository):
 - **`_photography/`** - Photography posts (permalink: `/photos/YYYY/YYYY-MM/title`)
 - **`_portfolio/`** - Portfolio items (permalink: `/portfolio/title`)
+- **`_featured-tags/`** - Featured tag landing pages (permalink: `/tags/title`)
 - **`_feeds/`** - Feed configurations
 - **`_homepage_sections/`** - Homepage section partials (not output)
 - **`_landing_sections/`** - Landing page section partials (not output)
@@ -72,6 +73,7 @@ The site uses a two-tier layout inheritance pattern (refactored Oct 2025 to full
 - **[gallery-page.html](_layouts/gallery-page.html)** - Photo gallery layout
 - **[working-notes.html](_layouts/working-notes.html)** - Working notes archive
 - **[search-page.html](_layouts/search-page.html)** - Search results page
+- **[featured-tag.html](_layouts/featured-tag.html)** - Featured tag landing page with hero image and filtered post list
 
 **Layout Features:**
 - Layouts can inject additional `<head>` content via `content_for_head` front matter variable
@@ -103,6 +105,7 @@ Includes are organized into three logical subdirectories in [_includes/](_includ
 - **[post-list.html](_includes/sections/post-list.html)** - Flexible post listing (supports filtering by year, historical notes)
 - **[photos-grid.html](_includes/sections/photos-grid.html)** - Photography gallery grid
 - **[portfolio-grid.html](_includes/sections/portfolio-grid.html)** - Portfolio items grid
+- **[featured-tags-list.html](_includes/sections/featured-tags-list.html)** - Featured tags index listing with thumbnails and post counts
 
 ### Styling Architecture
 
@@ -281,6 +284,29 @@ The site uses custom Tailwind classes defined in `assets/css/main.css` (@layer c
 - **Colors**: Warm amber/slate palette (not blue) - amber-600/400 for accents, slate-900/50 for text
 - **Typography**: `basic-sans` for body, `museo-slab` for headers, lowercase class for header text
 - **Content Container**: max-w-4xl, centered with proper spacing
+
+## Featured Tags Collection
+
+The `_featured-tags/` collection provides curated landing pages for specific tags, displaying a hero image, summary content, and filtered post listings.
+
+**Front Matter Schema:**
+
+```yaml
+---
+title: "Tag Display Name"           # Required - displayed as page heading
+tag: "tag-slug"                     # Required - matches post tags for filtering
+image: "https://..."                # Optional - hero image URL
+image_alt: "Description..."         # Optional - hero image alt text
+sort_ascending: false               # Optional - default false (newest first), true for oldest first
+pagination: false                   # Reserved for future use (not yet implemented)
+---
+```
+
+**Markdown Body:** Rendered as bold summary text above the post list.
+
+**Index Page:** Available at `/tags/` ([_site_pages/tags.md](_site_pages/tags.md)) - lists all featured tags with thumbnails, descriptions, and post counts.
+
+**Note:** Pagination is not yet implemented. jekyll-paginate-v2 cannot filter posts by a tag specified in front matter. A bespoke pagination engine will be built in the future.
 
 ## Documentation Requirements
 

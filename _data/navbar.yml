@@ -8,11 +8,24 @@
     - title: Retired Posts
       url: /archive
       icon: bi-archive-fill
+- title: Collections
+  url: /tags
+  icon: bi-card-list
+  items:
+    - title: AI
+      url: /tags/ai
+      icon: bi-robot
+    - title: Friday Five
+      url: /tags/friday-five
+      icon: bi-5-square-fill
+    - title: Site Meta
+      url: /tags/site-meta
+      icon: bi-code-slash
 - title: Working Notes
   url: /notes
   icon: bi-journal-text
 - title: Photos
-  url: /photos
+  url: https://micro.edwardjensen.net/
   icon: bi-camera
   newTab: true
 - title: About
