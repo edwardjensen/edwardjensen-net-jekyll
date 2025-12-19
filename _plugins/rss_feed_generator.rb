@@ -10,7 +10,7 @@ module Jekyll
 
     def generate(site)
       @site = site
-      config = site.config['rss_feeds']
+      config = site.data['rss-feeds']
       return unless config
 
       @defaults = config['defaults'] || {}
@@ -211,9 +211,10 @@ module Jekyll
         end
 
         # Add footer text if configured (as escaped HTML)
-        # Matches original: &lt;p&gt;{{ site.feed_footer_text | markdownify }}&lt;/p&gt;
-        if include_footer && @site.config['feed_footer_text']
-          footer_html = Kramdown::Document.new(@site.config['feed_footer_text']).to_html.strip
+        # Footer text is in _data/footer-text.yml
+        footer_text = @site.data.dig('footer-text', 'feed_footer_text')
+        if include_footer && footer_text
+          footer_html = Kramdown::Document.new(footer_text).to_html.strip
           desc_parts << "&lt;p&gt;#{xml_escape(footer_html)}&lt;/p&gt;"
         end
 

@@ -1,0 +1,56 @@
+# RSS Feed Generator Plugin Configuration
+# Used by _plugins/rss_feed_generator.rb
+
+defaults:
+  author: "Edward Jensen"
+  language: "en-US"
+  xsl_stylesheet: "/assets/css/feed-style.xsl"
+
+feeds:
+  # Main site feed (all posts)
+  - id: main
+    title: "Edward Jensen"
+    description: "Edward Jensen is a nonprofit technology professional who writes about the intersection of technology and mission-driven impact work."
+    path: /feed.xml
+    collection: posts
+    limit: 10
+    include_footer: true
+
+  # Essays only (category filter)
+  - id: essays
+    title: "Edward Jensen - essays"
+    description: "Edward Jensen is a nonprofit technology professional who writes about the intersection of technology and mission-driven impact work. - Posts in category: essays"
+    path: /feeds/essays.xml
+    collection: posts
+    filter:
+      field: categories
+      value: essays
+    limit: 10
+    include_footer: false
+
+  # Working notes
+  - id: notes
+    title: "Edward Jensen - Working Notes"
+    description: "Edward Jensen is a nonprofit technology professional who writes about the intersection of technology and mission-driven impact work. - Microblog entries and quick thoughts"
+    path: /feeds/notes.xml
+    collection: working_notes
+    link_path: /notes/
+    limit: 20
+    use_content: true
+    include_footer: true
+    exclude_future: true
+
+dynamic_feeds:
+  # Featured tag feeds
+  - id: featured-tags
+    source_collection: featured-tags
+    title_template: "Edward Jensen - {title}"
+    description_field: content
+    path_template: /feeds/{tag}.xml
+    link_template: /tags/{tag}/
+    target_collection: posts
+    filter_field: tags
+    match_field: tag
+    sort_field: sort_ascending
+    limit: 20
+    include_footer: true
