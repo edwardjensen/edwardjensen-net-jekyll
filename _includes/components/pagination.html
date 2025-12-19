@@ -1,0 +1,73 @@
+{% comment %}
+  Pagination navigation component
+
+  Usage: {% include components/pagination.html %}
+
+  Requires: paginator object in page data with:
+    - paginator.total_pages
+    - paginator.page (current page number)
+    - paginator.previous_page / paginator.previous_page_path
+    - paginator.next_page / paginator.next_page_path
+    - paginator.first_page_path
+    - paginator.page_numbers (array of page numbers)
+{% endcomment %}
+
+{% if paginator and paginator.total_pages > 1 %}
+<nav class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-700" role="navigation" aria-label="Pagination">
+  <div class="flex flex-wrap gap-2 justify-center items-center">
+
+    {%- comment -%} Previous Page Link {%- endcomment -%}
+    {% if paginator.previous_page %}
+      <a href="{{ paginator.previous_page_path | relative_url }}" class="btn-primary" aria-label="Go to previous page">
+        &larr; Previous
+      </a>
+    {% else %}
+      <span class="px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed" aria-hidden="true">
+        &larr; Previous
+      </span>
+    {% endif %}
+
+    {%- comment -%} Page Numbers {%- endcomment -%}
+    <div class="flex flex-wrap gap-1 justify-center">
+      {% for page_num in paginator.page_numbers %}
+        {% if page_num == paginator.page %}
+          {%- comment -%} Current page {%- endcomment -%}
+          <span class="px-3 py-2 rounded-lg bg-amber-600 text-white font-bold" aria-current="page">
+            {{ page_num }}
+          </span>
+        {% else %}
+          {%- comment -%} Calculate page path {%- endcomment -%}
+          {% if page_num == 1 %}
+            {% assign page_url = paginator.first_page_path %}
+          {% else %}
+            {% assign page_url = paginator.first_page_path | append: "page/" | append: page_num | append: "/" %}
+          {% endif %}
+
+          {%- comment -%} Show page number or ellipsis based on distance from current page {%- endcomment -%}
+          {% assign distance = page_num | minus: paginator.page | abs %}
+
+          {% if page_num == 1 or page_num == paginator.total_pages or distance <= 2 %}
+            <a href="{{ page_url | relative_url }}" class="btn-secondary" aria-label="Go to page {{ page_num }}">
+              {{ page_num }}
+            </a>
+          {% elsif distance == 3 %}
+            <span class="px-2 py-2 text-muted" aria-hidden="true">&hellip;</span>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    {%- comment -%} Next Page Link {%- endcomment -%}
+    {% if paginator.next_page %}
+      <a href="{{ paginator.next_page_path | relative_url }}" class="btn-primary" aria-label="Go to next page">
+        Next &rarr;
+      </a>
+    {% else %}
+      <span class="px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed" aria-hidden="true">
+        Next &rarr;
+      </span>
+    {% endif %}
+
+  </div>
+</nav>
+{% endif %}
