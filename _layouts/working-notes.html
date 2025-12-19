@@ -17,11 +17,9 @@ layout: content-wrapper
   <div class="p-8 lg:p-12 [&_a]:hyperlinks">
     <!-- Working Notes List -->
     <div class="space-y-4">
-      {% if paginator.posts.size > 0 %}
-        {% for note in paginator.posts %}
-          {% if note.date <= site.time %}
-            {% include components/working-note.html note=note index=forloop.index %}
-          {% endif %}
+      {% if page.paginator.items.size > 0 %}
+        {% for note in page.paginator.items %}
+          {% include components/working-note.html note=note index=forloop.index %}
         {% endfor %}
       {% else %}
         <p class="text-center text-muted py-8">
@@ -31,54 +29,8 @@ layout: content-wrapper
     </div>
 
     <!-- Pagination -->
-    {% if paginator.total_pages > 1 %}
-    <nav class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-700" role="navigation" aria-label="Pagination">
-      <div class="flex flex-wrap gap-2 justify-center items-center">
-        <!-- Previous Page Link -->
-        {% if paginator.previous_page %}
-          <a href="{{ paginator.previous_page_path | relative_url }}" class="btn-primary" aria-label="Go to previous page">
-            ← Previous
-          </a>
-        {% else %}
-          <span class="px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed">
-            ← Previous
-          </span>
-        {% endif %}
-
-        <!-- Page Numbers -->
-        <div class="flex flex-wrap gap-1 justify-center">
-          {% for page_num in (1..paginator.total_pages) %}
-            {% if page_num == paginator.page %}
-              <span class="px-3 py-2 rounded-lg bg-amber-600 text-white font-bold" aria-current="page">
-                {{ page_num }}
-              </span>
-            {% else %}
-              {% if page_num == 1 %}
-                <a href="{{ '/working-notes/' | relative_url }}" class="btn-secondary">
-                  {{ page_num }}
-                </a>
-              {% else %}
-                <a href="{{ '/working-notes/page/' | relative_url }}{{ page_num }}/" class="btn-secondary">
-                  {{ page_num }}
-                </a>
-              {% endif %}
-            {% endif %}
-          {% endfor %}
-        </div>
-
-        <!-- Next Page Link -->
-        {% if paginator.next_page %}
-          <a href="{{ paginator.next_page_path | relative_url }}" class="btn-primary" aria-label="Go to next page">
-            Next →
-          </a>
-        {% else %}
-          <span class="px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed">
-            Next →
-          </span>
-        {% endif %}
-      </div>
-    </nav>
-    {% endif %}
+    {% assign paginator = page.paginator %}
+    {% include components/pagination.html %}
 
     <!-- Feed Links Footer -->
     <div class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-700 flex flex-wrap gap-6 justify-center items-center">

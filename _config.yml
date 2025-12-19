@@ -13,7 +13,6 @@ payload_graphql:
 plugins:
   - jekyll-postcss-v2
   - jekyll-sitemap
-  - jekyll-paginate-v2
   - jekyll-redirect-from
 
 markdown: kramdown
@@ -25,13 +24,6 @@ postcss:
   cache: false
   script: node_modules/.bin/postcss
   config: postcss.config.js
-
-pagination:
-  enabled: true
-  per_page: 20
-  limit: 0
-  sort_field: 'date'
-  sort_reverse: true
 
 exclude:
   - package-lock.json

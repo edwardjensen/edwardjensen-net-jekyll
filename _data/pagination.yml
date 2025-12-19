@@ -1,0 +1,24 @@
+# Pagination Configuration
+# --------------------------
+# Global defaults and collection-level settings for the pagination plugin.
+#
+# Page-specific settings in front matter override these values, but for
+# CMS-sourced collections, use the 'collections:' section below instead
+# of front matter (since CMS content may not support arbitrary front matter).
+
+defaults:
+  per_page: 20
+  sort_field: date
+  sort_reverse: true  # true = newest first, false = oldest first
+  page_path: /page/:num/
+
+# Collection-level pagination defaults
+# Applied automatically to all documents in a collection
+collections:
+  featured-tags:
+    enabled: true
+    collection: posts
+    per_page: 10
+    filter:
+      field: tags
+      match: tag  # Matches the 'tag' field in each featured-tag document
