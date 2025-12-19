@@ -642,6 +642,12 @@ If issues arise:
 - **Featured Tags CMS Migration**: Should be complete so filtering works with CMS-sourced tags
 - **RSS Plugin**: No dependency, but pagination affects item counts visible on index pages
 
+## CMS Integration Considerations
+
+When content types are managed in the CMS (e.g., featured tags become a CMS collection), pagination configuration should be handled via collection-level config in `_data/pagination.yml` rather than front matter. The CMS may not support arbitrary front matter fields for pagination.
+
+**Current approach**: The `featured-tags` collection uses collection-level config in `_data/pagination.yml` with `filter.match: tag` to dynamically filter posts based on each featured tag's `tag` field. This pattern should be replicated for any future CMS-sourced collections that need pagination.
+
 ---
 
 ## Estimated Effort
