@@ -156,6 +156,21 @@ This project uses **four distinct deployment workflows** to handle different sce
 4. **Production Promotion**: After validation, create version tag `git tag v1.2.3 && git push --tags`
 5. **CMS Changes**: Publish in CMS triggers automatic production rebuild with latest tag
 
+## Featured Tags Collection
+
+The `_featured-tags/` collection provides curated landing pages for specific tags with hero images, summary content, and filtered post listings.
+
+**Key files**:
+- `_layouts/featured-tag.html` - Featured tag landing page layout
+- `_layouts/featured-tag-feed.xml` - RSS feed layout for featured tags
+- `_plugins/featured_tag_feeds.rb` - Jekyll plugin that auto-generates RSS feeds
+- `_includes/sections/featured-tags-list.html` - Index listing component
+- `_site_pages/tags.md` - Index page at `/tags/`
+
+**Front matter**: `title`, `tag` (slug), `image`, `image_alt`, `sort_ascending` (optional)
+
+**Auto-generated RSS feeds**: Each featured tag automatically gets an RSS feed at `/feeds/{tag-slug}.xml` via the Jekyll plugin. The feed description uses the markdown body from the featured tag file.
+
 ## Key Patterns
 - Use `.lowercase` class for all header text
 - Use `gap-2` for tight social icon spacing

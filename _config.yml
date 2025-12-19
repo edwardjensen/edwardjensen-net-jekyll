@@ -132,6 +132,9 @@ collections:
         - redirectFrom { path }
         - updatedAt
         - createdAt
+  featured-tags:
+    output: true
+    permalink: /tags/:title
 
 defaults:
   -
@@ -160,6 +163,12 @@ defaults:
       path: "_pages"
     values:
       layout: page
+  -
+    scope:
+      path: "_featured-tags"
+      type: "featured-tags"
+    values:
+      layout: featured-tag
 
 social:
   name: Edward Jensen
