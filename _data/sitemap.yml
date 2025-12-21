@@ -1,0 +1,9 @@
+# Sitemap generator configuration
+# See _plugins/sitemap_generator.rb
+
+output_path: /sitemap.xml
+
+# Patterns to exclude (in addition to sitemap: false front matter)
+# Uses glob matching (File.fnmatch)
+exclude_patterns:
+  - "/feeds/*.json"   # Exclude JSON feed files from sitemap
