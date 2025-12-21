@@ -255,7 +255,9 @@ edwardjensen-net-jekyll/
 │
 ├── _plugins/                   # Jekyll plugins
 │   ├── payload_cms.rb          # 🔑 Fetches content from Payload CMS at build time
-│   ├── rss_feed_generator.rb   # 🔑 Generates all RSS feeds from _config.yml
+│   ├── rss_feed_generator.rb   # 🔑 Generates all RSS feeds from _data/rss-feeds.yml
+│   ├── sitemap_generator.rb    # 🔑 Generates sitemap.xml and robots.txt
+│   ├── pagination_generator.rb # 🔑 Collection-agnostic pagination
 │   ├── copy_vendor_assets.rb   # Copies vendor JS files
 │   ├── json_escape_filter.rb   # JSON escaping for feeds
 │   └── youtube_embed.rb        # YouTube embed handling
@@ -727,6 +729,9 @@ npm run a11y:report       # Generate JSON report
 - **`.github/copilot-instructions.md`** — GitHub Copilot context (architecture, patterns, color scheme)
 - **`context-docs/site-work/project-context.md`** — This file (comprehensive project overview)
 - **`context-docs/site-work/content-schema.md`** — Content types & CMS schema documentation
+- **`context-docs/site-work/sitemap-generator.md`** — Sitemap generator plugin documentation
+- **`context-docs/site-work/pagination-plugin.md`** — Pagination plugin documentation
+- **`context-docs/site-work/rss-feed-consolidation.md`** — RSS feed generator documentation
 - **`CLAUDE.md`** — Claude AI context for development
 
 ### Payload CMS Documentation

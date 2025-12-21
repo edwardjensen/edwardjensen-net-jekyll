@@ -3,6 +3,7 @@ title: "Let's Connect"
 layout: landing-page
 image: "/assets/images/bluebackground.png"
 searchable: false
+sitemap: true
 permalink: /hi
 collection: landing_sections
 ---

@@ -12,7 +12,6 @@ payload_graphql:
 
 plugins:
   - jekyll-postcss-v2
-  - jekyll-sitemap
   - jekyll-redirect-from
 
 markdown: kramdown
