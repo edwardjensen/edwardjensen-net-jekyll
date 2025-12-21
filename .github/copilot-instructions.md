@@ -214,6 +214,29 @@ Collection-agnostic pagination with dynamic filtering, replacing `jekyll-paginat
 
 **CMS consideration**: For CMS-sourced collections, use collection-level config in `_data/pagination.yml` rather than front matter (since CMS may not support arbitrary front matter fields).
 
+## Sitemap Generator Plugin
+
+Custom sitemap generator replacing the abandoned `jekyll-sitemap` gem.
+
+**Key files**:
+- `_plugins/sitemap_generator.rb` - Sitemap generator plugin
+- `_data/sitemap.yml` - Configuration (output path, exclude patterns)
+- `robots.txt` - Static file with sitemap URL reference
+
+**Generates**:
+- `/sitemap.xml` - sitemaps.org-compliant XML with `<loc>` and `<lastmod>` elements
+- `/robots.txt` - References the sitemap URL
+
+**Exclusions** (automatically excluded from sitemap):
+- Entries with `sitemap: false` in front matter
+- Entries with `searchable: false` in front matter (unless `sitemap: true` is also set)
+- Pagination pages (URLs containing `/page/`)
+- Draft/unpublished CMS content (`_status == 'draft'`)
+- Non-HTML files (CSS, JS, JSON, XML, images, fonts)
+- Special files (404.html, _redirects, robots.txt)
+
+**Override behavior**: An explicit `sitemap: true` overrides the `searchable: false` exclusion, allowing pages to appear in the sitemap while remaining excluded from site search.
+
 ## Key Patterns
 - Use `.lowercase` class for all header text
 - Use `gap-2` for tight social icon spacing
