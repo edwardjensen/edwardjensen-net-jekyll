@@ -117,7 +117,11 @@ JEKYLL_ENV=production bundle exec jekyll build
 
 - **`_layouts/`**: Jekyll layout templates (use `layout: layout-name` in front matter)
 - **`_includes/components/`**: Reusable UI components
-- **`_plugins/`**: Jekyll plugins including `payload_cms.rb` for CMS content fetching
+- **`_plugins/`**: Jekyll plugins:
+  - `payload_cms.rb` - CMS content fetching via GraphQL
+  - `rss_feed_generator.rb` - RSS feed generation
+  - `sitemap_generator.rb` - Sitemap and robots.txt generation
+  - `pagination_generator.rb` - Collection-agnostic pagination
 - **`_photography/`**: Photography portfolio entries (file-based)
 - **`_pages/`**: Static pages (about, contact, etc.)
 - **`site-docs/`**: Comprehensive developer documentation
