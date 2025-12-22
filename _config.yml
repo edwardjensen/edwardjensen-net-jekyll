@@ -30,9 +30,7 @@ exclude:
   - node_modules
   - postcss.config.js
   - tailwind.config.js
-  - .vscode
   - '*.code-workspace'
-  - .github
   - _config.staging.yml
   - _config.dev.yml
   - scripts
@@ -41,11 +39,6 @@ exclude:
   - CLAUDE.md
   - README.md
   - .pa11yci.json
-  - _posts
-  - _working_notes
-  - _historic_posts
-  - _pages
-  - assets/images/posts
   - _data/old
 
 include:
@@ -164,6 +157,12 @@ defaults:
       type: "featured-tags"
     values:
       layout: featured-tag
+  -
+    scope:
+      path: "_photography"
+      type: "photography"
+    values:
+      layout: single-photo
 
 social:
   name: Edward Jensen

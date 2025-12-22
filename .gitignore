@@ -36,11 +36,12 @@ Temporary Items
 
 # Other files not to be included
 _data/microphotos.json
+_config.local.yml
 
 # Content Types
 _posts
 _working_notes
 _historic_posts
 assets/images/posts
-assets/photography
+assets/photography/*.txt
 _pages
