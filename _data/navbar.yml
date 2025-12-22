@@ -25,7 +25,7 @@
   url: /notes
   icon: bi-journal-text
 - title: Photos
-  url: https://micro.edwardjensen.net/
+  url: /photos
   icon: bi-camera
   newTab: true
 - title: About

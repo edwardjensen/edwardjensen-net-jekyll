@@ -9,7 +9,6 @@ window.photoGallery = function() {
       image: '',
       alt: '',
       caption: '',
-      link: '',
       date: '',
       captionVisible: true,
     },
@@ -25,7 +24,6 @@ window.photoGallery = function() {
             image: button.dataset.image,
             alt: button.dataset.alt,
             caption: button.dataset.caption,
-            link: button.dataset.link,
             date: button.dataset.date,
           });
         });
@@ -37,7 +35,6 @@ window.photoGallery = function() {
             image: button.dataset.image,
             alt: button.dataset.alt,
             caption: button.dataset.caption,
-            link: button.dataset.link,
             date: button.dataset.date,
           });
         });
@@ -122,27 +119,8 @@ window.photoGallery = function() {
               </div>
             </div>
 
-            <div class="p-4 border-t border-slate-700 bg-black/80 hidden md:block">
-              <p class="text-xs text-slate-400">
-                <a id="modal-link" 
-                   target="_blank" 
-                   rel="noopener noreferrer"
-                   class="text-amber-400 hover:text-amber-300 underline">
-                  View on micro.edwardjensen.net
-                </a>
-              </p>
-            </div>
-
             <!-- Mobile footer section -->
-            <div class="md:hidden p-4 border-t border-slate-700 bg-black/80 flex flex-col gap-2">
-              <p class="text-xs text-slate-400">
-                <a id="modal-link-mobile" 
-                   target="_blank" 
-                   rel="noopener noreferrer"
-                   class="text-amber-400 hover:text-amber-300 underline">
-                  View on micro.edwardjensen.net
-                </a>
-              </p>
+            <div class="md:hidden p-4 border-t border-slate-700 bg-black/80">
               <!-- Mobile navigation -->
               <div class="flex gap-2 justify-between">
                 <button @click="window.photoGalleryInstance?.previous()"
@@ -170,15 +148,12 @@ window.photoGallery = function() {
       const image = buttonElement.dataset.image;
       const alt = buttonElement.dataset.alt;
       const caption = buttonElement.dataset.caption;
-      const link = buttonElement.dataset.link;
       const date = buttonElement.dataset.date;
-      
-      
+
       this.photoModal.isOpen = true;
       this.photoModal.image = image;
       this.photoModal.alt = alt;
       this.photoModal.caption = caption;
-      this.photoModal.link = link;
       this.photoModal.date = date;
       
       // Find current photo index
@@ -199,36 +174,28 @@ window.photoGallery = function() {
       const captionMobile = document.getElementById('modal-caption-mobile');
       const dateEl = document.getElementById('modal-date');
       const dateMobile = document.getElementById('modal-date-mobile');
-      const link = document.getElementById('modal-link');
-      const linkMobile = document.getElementById('modal-link-mobile');
       const modalDiv = document.querySelector('[x-show*="photoGalleryInstance"]');
-      
-      
+
       // Update desktop image
       if (img) {
         img.src = this.photoModal.image;
         img.alt = this.photoModal.alt;
       }
-      
+
       // Update mobile image
       if (imgMobile) {
         imgMobile.src = this.photoModal.image;
         imgMobile.alt = this.photoModal.alt;
       }
-      
+
       // Update desktop caption
       if (caption) caption.textContent = this.photoModal.caption;
       if (dateEl) dateEl.textContent = this.formatDate(this.photoModal.date);
-      
+
       // Update mobile caption
       if (captionMobile) captionMobile.textContent = this.photoModal.caption;
       if (dateMobile) dateMobile.textContent = this.formatDate(this.photoModal.date);
-      
-      
-      // Update links
-      if (link) link.href = this.photoModal.link;
-      if (linkMobile) linkMobile.href = this.photoModal.link;
-      
+
       if (modalDiv) modalDiv.style.display = this.photoModal.isOpen ? '' : 'none';
       
       // Update button states (desktop)
@@ -308,7 +275,6 @@ window.photoGallery = function() {
         this.photoModal.image = photo.image;
         this.photoModal.alt = photo.alt;
         this.photoModal.caption = photo.caption;
-        this.photoModal.link = photo.link;
         this.photoModal.date = photo.date;
         this.photoModal.captionVisible = true;
         this.updateModalUI();
@@ -322,7 +288,6 @@ window.photoGallery = function() {
         this.photoModal.image = photo.image;
         this.photoModal.alt = photo.alt;
         this.photoModal.caption = photo.caption;
-        this.photoModal.link = photo.link;
         this.photoModal.date = photo.date;
         this.photoModal.captionVisible = true;
         this.updateModalUI();
