@@ -84,6 +84,7 @@ collections:
         - content
         - markdown
         - permalink
+        - sitemap
         - updatedAt
         - createdAt
   landing_sections:
@@ -103,6 +104,7 @@ collections:
         - content
         - markdown
         - permalink
+        - sitemap
         - updatedAt
         - createdAt
   pages:
@@ -117,6 +119,7 @@ collections:
         - slug
         - permalink
         - searchable
+        - sitemap
         - image { url alt filename }
         - imageAlt
         - content

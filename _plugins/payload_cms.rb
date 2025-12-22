@@ -109,6 +109,7 @@ module PayloadCMS
         'redirectFrom { path }',
         'content',
         'permalink',
+        'sitemap',
         'updatedAt',
         'createdAt',
       ]
