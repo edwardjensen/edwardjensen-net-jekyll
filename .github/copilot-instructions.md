@@ -237,7 +237,32 @@ Custom sitemap generator replacing the abandoned `jekyll-sitemap` gem.
 
 **Override behavior**: An explicit `sitemap: true` overrides the `searchable: false` exclusion, allowing pages to appear in the sitemap while remaining excluded from site search.
 
+## Photography Gallery Modal
+
+The photography gallery (`/photos/`) uses a modal overlay system with URL routing.
+
+**Key files:**
+
+- `_layouts/photography.html` - Gallery layout with embedded JSON data store
+- `assets/js/photo-gallery.js` - Alpine.js component with History API integration
+- `_layouts/single-photo.html` - SEO/no-JS fallback with gallery transformation script
+
+**Behavior:**
+
+- Click photo → modal opens, URL changes to photo permalink
+- Back button → closes modal, returns to gallery
+- Direct URL access → fetches gallery, opens modal over it
+- Modal: image left, details right (desktop); stacked (mobile)
+
+**Two modes:**
+
+- **Full mode** (photography index): JSON data store, URL routing, full details
+- **Simple mode** (homepage): Data attributes, lightbox-only, no URL changes
+
+**CMS migration:** Update `_layouts/photography.html` to generate JSON from GraphQL. The JS reads from `#photo-gallery-data` and requires no changes.
+
 ## Key Patterns
+
 - Use `.lowercase` class for all header text
 - Use `gap-2` for tight social icon spacing
 - Alpine.js `x-data` on parent container (not individual elements)

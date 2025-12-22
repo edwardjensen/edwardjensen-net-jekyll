@@ -27,10 +27,6 @@ jobs:
           echo "build_type: ${{ github.event_name }}" >> ./_data/buildinfo.yml
           echo "build_name: ${{ github.workflow }}" >> ./_data/buildinfo.yml
 
-      - name: Process micro.edwardjensen.net photos JSON
-        run: |
-          pwsh -File ./scripts/microphotojsonprocessor.ps1 -InputUri "https://micro.edwardjensen.net/photos/index.json"
-
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:

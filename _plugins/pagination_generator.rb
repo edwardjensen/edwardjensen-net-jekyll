@@ -228,7 +228,8 @@ module Jekyll
         @base = site.source
 
         # Determine output directory
-        base_url = base_path.sub(%r{/$}, '')
+        # Remove leading and trailing slashes for Jekyll's @dir (which is relative to site root)
+        base_url = base_path.sub(%r{^/}, '').sub(%r{/$}, '')
         @dir = "#{base_url}/page/#{page_num}"
         @name = 'index.html'
 
@@ -239,6 +240,9 @@ module Jekyll
 
         # Copy front matter from base page
         @data = base_page.data.dup
+
+        # Remove permalink from copied data - virtual pages determine their URL via @dir
+        @data.delete('permalink')
 
         # Inject paginator object
         @data['paginator'] = build_paginator(
