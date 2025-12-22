@@ -45,10 +45,6 @@ jobs:
             echo "build_version: ${LATEST_TAG}" >> ./_data/buildinfo.yml
           fi
 
-      - name: Process micro.edwardjensen.net photos JSON
-        run: |
-          pwsh -File ./scripts/microphotojsonprocessor.ps1 -InputUri "https://micro.edwardjensen.net/photos/index.json"
-
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:

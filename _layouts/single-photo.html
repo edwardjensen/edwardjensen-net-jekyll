@@ -1,0 +1,59 @@
+---
+layout: content-wrapper
+---
+<article class="article-container">
+  <!-- Featured Photo (the star of the page) -->
+  <figure class="relative" role="doc-illustration">
+    <img class="w-full h-auto object-contain"
+         src="{{ page.image | relative_url }}"
+         alt="{{ page.image_alt | default: page.title }}"
+         loading="lazy">
+  </figure>
+
+  <!-- Content Area -->
+  <div class="p-8 lg:p-12">
+    <!-- Minimal Header -->
+    <header class="mb-8">
+      <h1 class="font-header font-bold text-2xl lg:text-4xl text-heading leading-tight tracking-wide mb-3">
+        {{ page.title }}
+      </h1>
+
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm">
+        <time datetime="{{ page.date | date_to_xmlschema }}" class="text-muted">
+          {{ page.date | date: "%-d %B %Y" }}
+        </time>
+
+        {% if page.tags and page.tags.size > 0 %}
+        <div class="flex flex-wrap gap-2" role="list" aria-label="Photo tags">
+          {% for tag in page.tags %}
+          <span class="bg-amber-500/20 text-amber-700 dark:text-amber-300 px-2 py-1 rounded-md text-xs font-medium border border-amber-400/30 transition-colors duration-300" role="listitem">
+            #{{ tag }}
+          </span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </header>
+
+    <!-- Prose Content (if body content exists) -->
+    {% if page.content and page.content != "" %}
+    {% assign stripped_content = page.content | strip %}
+    {% if stripped_content != "" %}
+    <div class="mb-8">
+      {% include components/prose-content.html %}
+    </div>
+    {% endif %}
+    {% endif %}
+
+    <!-- EXIF Metadata (conditionally rendered) -->
+    {% if page.exif_camera or page.exif_lens or page.exif_focal_length or page.exif_aperture or page.exif_shutter_speed or page.exif_iso %}
+    {% include components/photo-metadata.html %}
+    {% endif %}
+
+    <!-- Location Map (conditionally rendered - component handles its own check) -->
+    {% include components/photo-location-map.html %}
+
+    <!-- Photo Navigation -->
+    {% include components/photo-navigation.html %}
+  </div>
+</article>

@@ -164,6 +164,12 @@ defaults:
       type: "featured-tags"
     values:
       layout: featured-tag
+  -
+    scope:
+      path: "_photography"
+      type: "photography"
+    values:
+      layout: single-photo
 
 social:
   name: Edward Jensen
