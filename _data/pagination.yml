@@ -22,3 +22,11 @@ collections:
     filter:
       field: tags
       match: tag  # Matches the 'tag' field in each featured-tag document
+
+# Page-level pagination (for standalone pages like /photos)
+# These are applied when a page has pagination.enabled: true in front matter
+pages:
+  photography:
+    enabled: true
+    collection: photography
+    per_page: 20

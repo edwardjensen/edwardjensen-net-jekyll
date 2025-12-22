@@ -1,8 +1,61 @@
 ---
-layout: gallery-page
-title: Photography
-subtitle: Visual stories and captured moments
-header_icon: bi-camera
-header_gradient: from-emerald-500 to-teal-600
+layout: base
 ---
-{% include sections/photos-grid.html %}
+<!-- Full-width main content container with wider max-width for gallery -->
+<main class="w-full" id="main-content" role="main">
+  <div class="max-w-7xl mx-auto px-4 lg:px-8 py-12 lg:py-16">
+    <!-- Photo Gallery Data Store (all photos with complete metadata) -->
+    <script id="photo-gallery-data" type="application/json">
+    {
+      "galleryUrl": "{{ page.url }}",
+      "galleryTitle": {{ page.title | jsonify }},
+      "googleMapsApiKey": {{ site.google_maps_api_key | default: nil | jsonify }},
+      "photos": [
+        {% assign all_photos = site.photography | where_exp:"item", "item.date <= site.time" | sort:"date" | reverse %}
+        {% for photo in all_photos %}
+        {
+          "url": {{ photo.url | jsonify }},
+          "title": {{ photo.title | jsonify }},
+          "date": {{ photo.date | date_to_xmlschema | jsonify }},
+          "dateFormatted": {{ photo.date | date: "%-d %B %Y" | jsonify }},
+          "image": {{ photo.image | jsonify }},
+          "imageAlt": {{ photo.image_alt | default: photo.title | jsonify }},
+          "content": {{ photo.content | strip_html | strip | jsonify }},
+          "tags": {{ photo.tags | default: empty | jsonify }},
+          "exif": {
+            "camera": {{ photo.exif_camera | default: nil | jsonify }},
+            "lens": {{ photo.exif_lens | default: nil | jsonify }},
+            "focalLength": {{ photo.exif_focal_length | default: nil | jsonify }},
+            "aperture": {{ photo.exif_aperture | default: nil | jsonify }},
+            "shutterSpeed": {{ photo.exif_shutter_speed | default: nil | jsonify }},
+            "iso": {{ photo.exif_iso | default: nil | jsonify }}
+          },
+          "location": {
+            "lat": {{ photo.location_lat | default: nil | jsonify }},
+            "lng": {{ photo.location_lng | default: nil | jsonify }},
+            "name": {{ photo.location_name | default: nil | jsonify }}
+          }
+        }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      ]
+    }
+    </script>
+
+    <div class="article-container" x-data="photoGallery()" x-init="init()">
+      <!-- Page Header -->
+      <header class="mb-8 lg:mb-12">
+        <h1 class="font-header font-bold text-3xl lg:text-4xl text-heading leading-tight tracking-wide">
+          {{ page.title }}
+        </h1>
+        {% if page.subtitle %}
+        <p class="mt-2 text-muted text-lg">{{ page.subtitle | default: "Visual stories and captured moments" }}</p>
+        {% endif %}
+      </header>
+
+      <!-- Gallery Content -->
+      <div id="photo-gallery-grid">
+        {% include sections/photos-grid.html %}
+      </div>
+    </div>
+  </div>
+</main>

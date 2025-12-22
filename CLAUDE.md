@@ -507,11 +507,33 @@ location_name: "Downtown Minneapolis"   # Optional display name
 ---
 ```
 
-**Layout:** Uses `single-photo.html` layout (set as default for collection in `_config.yml`).
-
-**Conditional Rendering:** The layout intelligently shows/hides EXIF and location sections based on field presence.
-
 **Detailed Schema:** See `context-docs/site-work/photography.md` for full documentation and Payload CMS implementation notes.
+
+### Gallery Modal with URL Routing
+
+The photography gallery uses a modal overlay system with browser history integration.
+
+**Key Files:**
+
+- **[photography.html](_layouts/photography.html)** - Gallery layout with embedded JSON data store containing all photos
+- **[photo-gallery.js](assets/js/photo-gallery.js)** - Alpine.js component with History API (pushState/popState)
+- **[single-photo.html](_layouts/single-photo.html)** - SEO/no-JS fallback, includes script to fetch gallery and open modal
+- **[photos-grid.html](_includes/sections/photos-grid.html)** - Grid with `@click.prevent="openPhotoByUrl()"` handlers
+
+**User Experience:**
+
+1. Gallery grid at `/photos/` shows paginated thumbnails
+2. Click photo → modal opens over gallery, URL changes to `/photos/2025/2025-12/photo-title`
+3. Modal shows: image (left), details panel (right on desktop, below on mobile)
+4. Back button → closes modal, returns to `/photos/`
+5. Direct URL → fetches gallery page, displays modal over it
+
+**Two Operating Modes:**
+
+- **Full Mode** (photography index): JSON data store present, URL routing enabled, full modal with EXIF/map
+- **Simple Mode** (homepage): Data attributes on buttons, lightbox-only, no URL changes
+
+**CMS Migration:** When migrating to Payload CMS, update `_layouts/photography.html` to generate JSON from GraphQL. The JavaScript reads from `#photo-gallery-data` script element and requires no changes as long as the JSON structure is maintained.
 
 ## Featured Tags Collection
 

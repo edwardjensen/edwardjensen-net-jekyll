@@ -97,9 +97,88 @@ defaults:
       layout: "single-photo"
 ```
 
+## Gallery Modal with URL Routing
+
+The photography gallery uses a modal overlay system with URL routing, implemented in `assets/js/photo-gallery.js`.
+
+### User Experience
+
+1. **Gallery View** (`/photos/`): Grid of photo thumbnails with pagination
+2. **Click Photo**: Opens modal overlay, URL changes to `/photos/2025/2025-12/photo-title`
+3. **Modal Content**: Image (left), details panel (right on desktop, below on mobile)
+4. **Navigation**: Prev/Next buttons, keyboard arrows, back button closes modal
+5. **Direct URL**: Shared links open modal over gallery (fetches gallery in background)
+
+### Two Operating Modes
+
+The `photo-gallery.js` component supports two modes:
+
+**Full Mode** (photography index page):
+
+- JSON data store with all photos embedded in page
+- URL routing via History API (pushState/popState)
+- Full modal with EXIF, location map, tags
+- Triggered by presence of `#photo-gallery-data` script element
+
+**Simple Mode** (homepage):
+
+- Collects photos from data attributes on buttons
+- Lightbox-only (no URL changes)
+- Basic modal with image, title, date
+- Used when JSON data store is not present
+
+### JSON Data Structure
+
+The `_layouts/photography.html` embeds all photos as JSON:
+
+```json
+{
+  "galleryUrl": "/photos/",
+  "galleryTitle": "Photography",
+  "googleMapsApiKey": "...",
+  "photos": [{
+    "url": "/photos/2025/2025-12/photo-title",
+    "title": "Photo Title",
+    "date": "2025-12-18T07:36:17-06:00",
+    "dateFormatted": "18 December 2025",
+    "image": "/assets/photography/filename.jpg",
+    "imageAlt": "Alt text description",
+    "content": "Optional description",
+    "tags": ["tag1", "tag2"],
+    "exif": {
+      "camera": "...", "lens": "...", "focalLength": "...",
+      "aperture": "...", "shutterSpeed": "...", "iso": "..."
+    },
+    "location": { "lat": 44.97, "lng": -93.26, "name": "..." }
+  }]
+}
+```
+
+### CMS Migration
+
+When migrating to Payload CMS:
+
+1. Update `_layouts/photography.html` to generate JSON from CMS GraphQL data
+2. Map CMS fields to the JSON structure above
+3. The JavaScript requires no changes - it reads from `#photo-gallery-data`
+
 ## Layout Behavior
 
-The `single-photo.html` layout implements smart conditional rendering:
+### Single Photo Layout (`single-photo.html`)
+
+The `single-photo.html` layout serves as:
+
+- **SEO fallback**: Renders static HTML for search engines
+- **No-JS fallback**: Works if JavaScript is disabled
+- **Direct URL handler**: Includes script to fetch gallery and open modal
+
+When JavaScript is enabled, the page:
+
+1. Fetches `/photos/` in the background
+2. Replaces page content with gallery
+3. Opens the photo in modal overlay
+
+### Conditional Rendering
 
 1. **Photo** - Always displayed (required field)
 2. **Title/Date/Tags** - Always displayed (title/date required, tags optional)
@@ -149,9 +228,11 @@ When implementing this collection in Payload CMS:
 
 ## Related Files
 
-- `_layouts/single-photo.html` - Single photo page layout
+- `_layouts/photography.html` - Gallery index layout with JSON data store
+- `_layouts/single-photo.html` - Single photo page layout (SEO/no-JS fallback)
+- `assets/js/photo-gallery.js` - Alpine.js gallery modal component with URL routing
+- `_includes/sections/photos-grid.html` - Photography gallery grid with click handlers
 - `_includes/components/photo-metadata.html` - EXIF metadata display component
 - `_includes/components/photo-navigation.html` - Previous/next navigation
 - `_includes/components/photo-location-map.html` - Google Maps embed component
-- `_includes/sections/photos-grid.html` - Photography gallery grid
-- `_homepage_sections/recent-photos.html` - Homepage photography section
+- `_homepage_sections/recent-photos.html` - Homepage photography section (simple mode)
