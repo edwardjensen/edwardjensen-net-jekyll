@@ -27,7 +27,6 @@
 - title: Photos
   url: /photos
   icon: bi-camera
-  newTab: true
 - title: About
   icon: bi-emoji-smile
   url: /about
