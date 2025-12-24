@@ -55,6 +55,34 @@ collections:
   photography:
     output: true
     permalink: /photos/:year/:year-:month/:title
+    cms:
+      collection: "Photography"
+      layout: "single-photo"
+      fields:
+        - id
+        - title
+        - slug
+        - date
+        - image { url alt filename }
+        - imageAlt
+        - tags { tag }
+        - content
+        - exifCamera
+        - exifLens
+        - exifFocalLength
+        - exifAperture
+        - exifShutterSpeed
+        - exifIso
+        - locationLat
+        - locationLng
+        - locationName
+        - locationFormatted
+        - locationCity
+        - locationCountry
+        - permalink
+        - sitemap
+        - updatedAt
+        - createdAt
   portfolio:
     output: true
     permalink: /portfolio/:title
