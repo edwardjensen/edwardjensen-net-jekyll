@@ -1,0 +1,9 @@
+# Google Maps Static API settings (used by photo location maps)
+# These settings are used by both:
+#   - _includes/components/photo-location-map.html (Liquid component)
+#   - assets/js/photo-gallery.js (JavaScript modal)
+
+zoom: 12
+size: "400x200"
+scale: 1
+maptype: roadmap

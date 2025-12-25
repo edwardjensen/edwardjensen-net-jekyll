@@ -8,6 +8,8 @@ permissions:
   
 on:
   workflow_dispatch:
+  repository_dispatch:
+    types: [staging_cms_photo_publish]
 
 jobs:
   build-bleeding-edge-site:
@@ -58,9 +60,13 @@ jobs:
           tags: tag:ci
           args: --accept-dns=true
 
+      - name: Create runtime config with secrets
+        run: |
+          echo "google_maps_api_key: ${{ secrets.GOOGLE_MAPS_API_KEY }}" > _config.runtime.yml
+
       - name: Build site
         run: |
-          JEKYLL_ENV=staging bundle exec jekyll build --config _config.yml,_config.staging-bleeding.yml
+          JEKYLL_ENV=staging bundle exec jekyll build --config _config.yml,_config.staging-bleeding.yml,_config.runtime.yml
       
       - name: Upload artifact
         uses: actions/upload-artifact@v5
