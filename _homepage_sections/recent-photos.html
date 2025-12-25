@@ -47,12 +47,12 @@ icon_bg_color: from-emerald-500 to-teal-600
 <!-- Photo Gallery Container with Modal -->
 <div x-data="photoGallery()" x-init="init()">
   <!-- Photo Gallery Grid -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-4"
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 lg:gap-4"
        role="region"
        aria-label="Recent photography gallery">
-    {% assign recent_photos = site.photography | sort: 'date' | reverse | slice: 0, 6 %}
+    {% assign recent_photos = site.photography | sort: 'date' | reverse | slice: 0, 8 %}
     {% for photo in recent_photos %}
-    <figure class="overflow-hidden rounded-lg hover:opacity-75 transition-opacity duration-300 cursor-pointer">
+    <figure class="aspect-square overflow-hidden rounded-lg hover:opacity-75 transition-opacity duration-300 cursor-pointer">
       <button @click.prevent="openPhotoByUrl('{{ photo.url }}')"
               class="w-full h-full text-left focus:outline-none focus:ring-0 focus:ring-offset-0 focus:shadow-none block border-0 bg-transparent p-0 appearance-none"
               aria-label="View full size: {{ photo.image_alt }}">

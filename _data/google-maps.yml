@@ -5,5 +5,8 @@
 
 zoom: 12
 size: "400x200"
-scale: 1
+scale: 2
 maptype: roadmap
+
+# Cloudflare Worker proxy URL (keeps API key hidden server-side)
+proxy_url: https://maps.edwardjensen.net
