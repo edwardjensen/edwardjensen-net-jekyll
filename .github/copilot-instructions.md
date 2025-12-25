@@ -137,7 +137,15 @@ This project uses **four distinct deployment workflows** to handle different sce
 **CMS Data**: Staging CMS  
 **Site Code**: Latest production tag (vX.Y.Z)
 
-### 4. Republish Production Site
+### 4. Staging Site (Bleeding Edge)
+**Workflow**: `deploy-staging-bleeding-edge.yml`  
+**Trigger**: Manual only (`workflow_dispatch`)  
+**Purpose**: Test new site features with staging CMS content  
+**Destination**: `stagingsite.edwardjensencms.com` (self-hosted server via rsync/SSH)  
+**CMS Data**: Staging CMS  
+**Site Code**: Current `main` branch
+
+### 5. Republish Production Site
 **Workflow**: `republish-prod-site.yml`  
 **Trigger**: `repository_dispatch` event type `prod_cms_publish` / manual  
 **Purpose**: Rebuild production site with latest CMS content (no code changes)  
@@ -152,6 +160,7 @@ This project uses **four distinct deployment workflows** to handle different sce
 | `pr-checks.yml` | Pull request to `main` | PR branch | Production | N/A (build validation only) |
 | `deploy-staging-site-code.yml` | Push to `main` | `main` branch | Production | stagingsite.edwardjensencms.com |
 | `deploy-staging-cms.yml` | `staging_cms_publish` webhook | Latest `v*` tag | Staging | stagingsite.edwardjensencms.com |
+| `deploy-staging-bleeding-edge.yml` | Manual only | `main` branch | Staging | stagingsite.edwardjensencms.com |
 | `deploy-prod-site.yml` | Push `v*` tag | Tagged version | Production | edwardjensen.net |
 | `republish-prod-site.yml` | `prod_cms_publish` webhook | Latest `v*` tag | Production | edwardjensen.net |
 
