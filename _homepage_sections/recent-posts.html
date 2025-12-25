@@ -12,20 +12,24 @@ icon_bg_color: from-blue-500 to-purple-600
     <nav aria-label="Recent blog posts">
         <ul role="list">
             {% for post in recent_posts %}
-            <li class="mb-4 lg:mb-0">
+            <li class="mb-6 lg:mb-4">
                 <article>
-                    <a href="{{ post.url | relative_url }}" class="block" aria-describedby="post-{{ forloop.index }}-date">
-                      <div class="flex flex-col lg:flex-row items-start leading-tight md:leading-normal">
-                        <h3 class="uppercase text-black dark:text-slate-200 hover:font-bold hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-300">{{ post.title }}</h3>
-                        <time id="post-{{ forloop.index }}-date" datetime="{{ post.date | date_to_xmlschema }}" class="text-muted italic ml-0 lg:ml-5 transition-colors duration-300">{{ post.date | date: "%e %B %Y" }}</time>
+                    <a href="{{ post.url | relative_url }}" class="block group" aria-describedby="post-{{ forloop.index }}-date">
+                      <div class="flex flex-col lg:flex-row lg:justify-between items-start leading-tight md:leading-normal">
+                        <h3 class="uppercase text-black dark:text-slate-200 group-hover:font-bold group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors duration-300">{{ post.title }}</h3>
+                        <time id="post-{{ forloop.index }}-date" datetime="{{ post.date | date_to_xmlschema }}" class="text-muted italic lg:ml-5 lg:shrink-0 transition-colors duration-300">{{ post.date | date: "%e %B %Y" }}</time>
                       </div>
+                      <p class="italic text-muted line-clamp-2 transition-colors duration-300">{{ post.excerpt | strip_html | truncate: 150 }}</p>
                     </a>
                 </article>
               </li>
             {% endfor %}
         </ul>
     </nav>
-    <div class="mt-5">
-        <a href="/writing" class="uppercase text-black dark:text-slate-200 hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-300" aria-label="View all blog posts">View all posts</a>
+    <div class="mt-5 text-center">
+        <a href="/writing" class="btn-primary inline-flex items-center gap-2" aria-label="View all blog posts">
+            <i class="bi bi-pen" aria-hidden="true"></i>
+            View all posts
+        </a>
     </div>
 </div>
