@@ -51,6 +51,7 @@ on:
 
 jobs:
   # Determine configuration based on trigger type
+  # Reads trigger mappings from _data/staging-config.yml
   resolve-config:
     runs-on: ubuntu-latest
     name: Resolve Configuration
@@ -59,37 +60,48 @@ jobs:
       cms_source: ${{ steps.config.outputs.cms_source }}
       deploy_target: ${{ steps.config.outputs.deploy_target }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
       - name: Determine configuration
         id: config
         run: |
-          # Default values
-          SITE_CODE="main"
-          CMS_SOURCE="production"
-          DEPLOY_TARGET="local-server"
+          CONFIG_FILE="_data/staging-config.yml"
 
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            # Use workflow_dispatch inputs
+            # Use workflow_dispatch inputs directly
             SITE_CODE="${{ inputs.site_code }}"
             CMS_SOURCE="${{ inputs.cms_source }}"
             DEPLOY_TARGET="${{ inputs.deploy_target }}"
           elif [[ "${{ github.event_name }}" == "push" ]]; then
-            # Push to main: main branch + production CMS + local server
-            SITE_CODE="main"
-            CMS_SOURCE="production"
-            DEPLOY_TARGET="local-server"
+            # Read push trigger config from data file
+            SITE_CODE=$(yq '.triggers.push.site_code' "$CONFIG_FILE")
+            CMS_SOURCE=$(yq '.triggers.push.cms_source' "$CONFIG_FILE")
+            DEPLOY_TARGET=$(yq '.triggers.push.deploy_target' "$CONFIG_FILE")
           elif [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
-            # Handle repository_dispatch events based on type
-            if [[ "${{ github.event.action }}" == "staging_cms_publish" ]]; then
-              # Staging CMS content: latest tag + staging CMS + local server
-              SITE_CODE="latest-tag"
-              CMS_SOURCE="staging"
-              DEPLOY_TARGET="local-server"
-            elif [[ "${{ github.event.action }}" == "staging_cms_photo_publish" ]]; then
-              # Staging CMS photo: main branch + staging CMS + local server
-              SITE_CODE="main"
-              CMS_SOURCE="staging"
-              DEPLOY_TARGET="local-server"
-            fi
+            # Read repository_dispatch config based on action type
+            ACTION="${{ github.event.action }}"
+            SITE_CODE=$(yq ".triggers.repository_dispatch.${ACTION}.site_code" "$CONFIG_FILE")
+            CMS_SOURCE=$(yq ".triggers.repository_dispatch.${ACTION}.cms_source" "$CONFIG_FILE")
+            DEPLOY_TARGET=$(yq ".triggers.repository_dispatch.${ACTION}.deploy_target" "$CONFIG_FILE")
+          fi
+
+          # Fall back to defaults if values are null or empty
+          if [[ -z "${SITE_CODE}" || "${SITE_CODE}" == "null" ]]; then
+            SITE_CODE=$(yq '.defaults.site_code' "$CONFIG_FILE")
+          fi
+          if [[ -z "${CMS_SOURCE}" || "${CMS_SOURCE}" == "null" ]]; then
+            CMS_SOURCE=$(yq '.defaults.cms_source' "$CONFIG_FILE")
+          fi
+          if [[ -z "${DEPLOY_TARGET}" || "${DEPLOY_TARGET}" == "null" ]]; then
+            DEPLOY_TARGET=$(yq '.defaults.deploy_target' "$CONFIG_FILE")
           fi
 
           echo "site_code=${SITE_CODE}" >> $GITHUB_OUTPUT
