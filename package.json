@@ -14,6 +14,7 @@
     "build:serve": "bundle exec jekyll serve --config _config.yml,_config.dev.yml --livereload",
     "build:staging": "JEKYLL_ENV=staging bundle exec jekyll build --config _config.yml,_config.staging.yml",
     "jekyll": "bundle exec jekyll serve --config _config.yml,_config.local.yml --livereload",
+    "jekyll:staging": "bundle exec jekyll serve --config _config.yml,_config.staging-cms.yml --livereload",
     "jekyll:kill": "lsof -ti :4000 | xargs kill"
   },
   "devDependencies": {
