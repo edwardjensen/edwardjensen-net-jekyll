@@ -10,9 +10,9 @@
   Optional fields:
     page.location_name - Display name for the location
 
-  Configuration (one of these must be set):
-    site.google_maps_proxy_url - Cloudflare Worker proxy URL (production)
-    site.google_maps_api_key - Direct API key (dev/staging)
+  Configuration (in _data/google-maps.yml, one of these must be set):
+    proxy_url - Cloudflare Worker proxy URL (production)
+    api_key - Direct API key (dev/staging)
 {% endcomment %}
 
 {% if page.location_lat and page.location_lng %}
@@ -23,10 +23,10 @@
 {% assign map_type = map_settings.maptype | default: "roadmap" %}
 {% capture map_params %}center={{ page.location_lat }},{{ page.location_lng }}&zoom={{ map_zoom }}&size={{ map_size }}&scale={{ map_scale }}&maptype={{ map_type }}{% endcapture %}
 
-{% if site.google_maps_proxy_url %}
-  {% assign map_url = site.google_maps_proxy_url | append: "?" | append: map_params %}
-{% elsif site.google_maps_api_key %}
-  {% assign map_url = "https://maps.googleapis.com/maps/api/staticmap?" | append: map_params | append: "&key=" | append: site.google_maps_api_key %}
+{% if map_settings.proxy_url %}
+  {% assign map_url = map_settings.proxy_url | append: "?" | append: map_params %}
+{% elsif map_settings.api_key %}
+  {% assign map_url = "https://maps.googleapis.com/maps/api/staticmap?" | append: map_params | append: "&key=" | append: map_settings.api_key %}
 {% endif %}
 
 {% if map_url %}
