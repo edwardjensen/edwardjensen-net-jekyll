@@ -5,6 +5,33 @@
 # - site_code: 'main' (current main branch) or 'latest-tag' (latest vX.Y.Z release)
 # - cms_source: 'production' or 'staging'
 
+# Trigger mappings: determines config based on how the workflow was triggered
+# For workflow_dispatch, values come from user input
+# For push/repository_dispatch, values are looked up here
+triggers:
+  # Push to main branch
+  push:
+    site_code: main
+    cms_source: production
+    deploy_target: local-server
+
+  # Repository dispatch events (webhooks from CMS)
+  repository_dispatch:
+    staging_cms_publish:
+      site_code: latest-tag
+      cms_source: staging
+      deploy_target: local-server
+    staging_cms_photo_publish:
+      site_code: main
+      cms_source: staging
+      deploy_target: local-server
+
+# Defaults for workflow_dispatch (manual triggers)
+defaults:
+  site_code: main
+  cms_source: production
+  deploy_target: local-server
+
 # Base configuration applied to all staging builds
 base:
   url: "https://stagingsite.edwardjensencms.com"
