@@ -37,6 +37,7 @@ Temporary Items
 # Other files not to be included
 _data/microphotos.json
 _config.local.yml
+_config.runtime.yml
 
 # Content Types
 _posts
@@ -48,5 +49,3 @@ _pages
 _photography
 
 edwardjensen-net-jekyll.code-workspace
-
-_config.runtime.yml
