@@ -34,24 +34,27 @@ module PayloadCMS
 
     def fetch_collection(name, collection, cms_config)
       cms_collection = cms_config['collection'] || name.capitalize
+      # Allow explicit GraphQL query name for collections with irregular pluralization
+      # (e.g., Photography -> Photographies in Payload's GraphQL API)
+      graphql_query = cms_config['graphql_query'] || cms_collection
       layout = cms_config['layout'] || 'page'
       # Default to 0 (unlimited) if no limit specified - Payload returns all docs when limit=0
       limit = cms_config['limit'] || 0
 
-      Jekyll.logger.info 'PayloadCMS:', "Fetching #{cms_collection} from CMS for #{name} collection"
+      Jekyll.logger.info 'PayloadCMS:', "Fetching #{graphql_query} from CMS for #{name} collection"
 
-      query = build_query(cms_collection, cms_config)
+      query = build_query(graphql_query, cms_config)
       
       begin
         data = execute_query(query, limit)
-        docs = data.dig('data', cms_collection, 'docs') || []
+        docs = data.dig('data', graphql_query, 'docs') || []
 
         if docs.empty?
-          Jekyll.logger.info 'PayloadCMS:', "No published #{cms_collection} found"
+          Jekyll.logger.info 'PayloadCMS:', "No published #{graphql_query} found"
           return
         end
 
-        Jekyll.logger.info 'PayloadCMS:', "Found #{docs.length} published #{cms_collection}"
+        Jekyll.logger.info 'PayloadCMS:', "Found #{docs.length} published #{graphql_query}"
 
         docs.each do |doc_data|
           doc = create_document(collection, doc_data, layout, cms_config)
@@ -63,9 +66,9 @@ module PayloadCMS
           collection.docs.sort_by! { |doc| -(doc.data['date']&.to_i || 0) }
         end
 
-        Jekyll.logger.info 'PayloadCMS:', "Added #{docs.length} #{cms_collection} to #{name}"
+        Jekyll.logger.info 'PayloadCMS:', "Added #{docs.length} #{graphql_query} to #{name}"
       rescue StandardError => e
-        Jekyll.logger.error 'PayloadCMS:', "Failed to fetch #{cms_collection}: #{e.message}"
+        Jekyll.logger.error 'PayloadCMS:', "Failed to fetch #{graphql_query}: #{e.message}"
         Jekyll.logger.debug 'PayloadCMS:', e.backtrace.join("\n") if e.backtrace
       end
     end
