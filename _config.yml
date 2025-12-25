@@ -41,6 +41,7 @@ exclude:
   - .pa11yci.json
   - _data/old
   - _photography
+  - .github
 
 include:
   - _site_pages
