@@ -58,6 +58,7 @@ collections:
     permalink: /photos/:year/:year-:month/:title
     cms:
       collection: "Photography"
+      graphql_query: "Photographies"
       layout: "single-photo"
       fields:
         - id
