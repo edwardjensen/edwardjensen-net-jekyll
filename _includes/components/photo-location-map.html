@@ -1,6 +1,6 @@
 {% comment %}
   Photo Location Map Component
-  Displays a Google Maps embed for photo location.
+  Displays a Google Maps Static API image for photo location.
   Self-contained - handles its own conditional rendering.
 
   Required fields (both must be present for map to display):
@@ -10,10 +10,26 @@
   Optional fields:
     page.location_name - Display name for the location
 
-  Requires site.google_maps_api_key to be set in _config.yml
+  Configuration (one of these must be set):
+    site.google_maps_proxy_url - Cloudflare Worker proxy URL (production)
+    site.google_maps_api_key - Direct API key (dev/staging)
 {% endcomment %}
 
-{% if page.location_lat and page.location_lng and site.google_maps_api_key %}
+{% if page.location_lat and page.location_lng %}
+{% assign map_settings = site.data.google-maps %}
+{% assign map_zoom = map_settings.zoom | default: 15 %}
+{% assign map_size = map_settings.size | default: "640x360" %}
+{% assign map_scale = map_settings.scale | default: 2 %}
+{% assign map_type = map_settings.maptype | default: "roadmap" %}
+{% capture map_params %}center={{ page.location_lat }},{{ page.location_lng }}&zoom={{ map_zoom }}&size={{ map_size }}&scale={{ map_scale }}&maptype={{ map_type }}{% endcapture %}
+
+{% if site.google_maps_proxy_url %}
+  {% assign map_url = site.google_maps_proxy_url | append: "?" | append: map_params %}
+{% elsif site.google_maps_api_key %}
+  {% assign map_url = "https://maps.googleapis.com/maps/api/staticmap?" | append: map_params | append: "&key=" | append: site.google_maps_api_key %}
+{% endif %}
+
+{% if map_url %}
 <aside class="section-bg rounded-lg p-6 my-6 transition-colors duration-300" role="complementary" aria-label="Photo location">
   <h2 class="text-sm font-semibold text-heading uppercase tracking-wide mb-4">
     <i class="bi bi-geo-alt me-2" aria-hidden="true"></i>Location
@@ -23,17 +39,13 @@
   <p class="text-body mb-4">{{ page.location_name }}</p>
   {% endif %}
 
-  <div class="aspect-video w-full rounded-lg overflow-hidden">
-    <iframe
-      src="https://www.google.com/maps/embed/v1/view?key={{ site.google_maps_api_key }}&center={{ page.location_lat }},{{ page.location_lng }}&zoom=15&maptype=roadmap"
-      width="100%"
-      height="100%"
-      style="border:0;"
-      allowfullscreen=""
-      loading="lazy"
-      referrerpolicy="no-referrer-when-downgrade"
-      title="Map showing photo location{% if page.location_name %}: {{ page.location_name }}{% endif %}">
-    </iframe>
+  <div class="aspect-video w-full rounded-lg overflow-hidden bg-slate-200 dark:bg-slate-700">
+    <img
+      src="{{ map_url }}"
+      alt="Map showing photo location{% if page.location_name %}: {{ page.location_name }}{% endif %}"
+      class="w-full h-full object-cover"
+      loading="lazy">
   </div>
 </aside>
+{% endif %}
 {% endif %}
