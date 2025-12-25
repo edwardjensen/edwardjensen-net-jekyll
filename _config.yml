@@ -40,6 +40,7 @@ exclude:
   - README.md
   - .pa11yci.json
   - _data/old
+  - _photography
 
 include:
   - _site_pages
