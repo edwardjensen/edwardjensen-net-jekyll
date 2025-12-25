@@ -6,23 +6,46 @@ order: 30
 icon_bg_color: from-emerald-500 to-teal-600
 ---
 
-<!-- Photo Gallery Container with Modal -->
-<div x-data="photoGallery()">
-  <!-- Hidden container with all photos for the slideshow -->
-  <div id="photo-gallery-all-photos" style="display: none;" role="presentation">
-    {% assign all_photos = site.photography | sort: 'date' | reverse %}
+<!-- Photo Gallery Data Store (all photos with complete metadata for modal) -->
+<script id="photo-gallery-data" type="application/json">
+{
+  "galleryUrl": "/photos/",
+  "galleryTitle": "Photography",
+  "googleMapsApiKey": {{ site.google_maps_api_key | default: nil | jsonify }},
+  "googleMapsProxyUrl": {{ site.google_maps_proxy_url | default: nil | jsonify }},
+  "photos": [
+    {% assign all_photos = site.photography | where_exp:"item", "item.date <= site.time" | sort:"date" | reverse %}
     {% for photo in all_photos %}
-    <button class="gallery-photo-data"
-            data-image="{{ photo.image }}"
-            data-alt="{{ photo.image_alt }}"
-            data-caption="{{ photo.title }}"
-            data-date="{{ photo.date }}"
-            aria-label="Photo from {{ photo.date | date: '%B %d, %Y' }}"
-            style="display: none;">
-    </button>
+    {
+      "url": {{ photo.url | jsonify }},
+      "title": {{ photo.title | jsonify }},
+      "date": {{ photo.date | date_to_xmlschema | jsonify }},
+      "dateFormatted": {{ photo.date | date: "%-d %B %Y" | jsonify }},
+      "image": {{ photo.image | jsonify }},
+      "imageAlt": {{ photo.image_alt | default: photo.title | jsonify }},
+      "content": {{ photo.content | strip_html | strip | jsonify }},
+      "tags": {{ photo.tags | default: empty | jsonify }},
+      "exif": {
+        "camera": {{ photo.exif_camera | default: nil | jsonify }},
+        "lens": {{ photo.exif_lens | default: nil | jsonify }},
+        "focalLength": {{ photo.exif_focal_length | default: nil | jsonify }},
+        "aperture": {{ photo.exif_aperture | default: nil | jsonify }},
+        "shutterSpeed": {{ photo.exif_shutter_speed | default: nil | jsonify }},
+        "iso": {{ photo.exif_iso | default: nil | jsonify }}
+      },
+      "location": {
+        "lat": {{ photo.location_lat | default: nil | jsonify }},
+        "lng": {{ photo.location_lng | default: nil | jsonify }},
+        "name": {{ photo.location_name | default: nil | jsonify }}
+      }
+    }{% unless forloop.last %},{% endunless %}
     {% endfor %}
-  </div>
+  ]
+}
+</script>
 
+<!-- Photo Gallery Container with Modal -->
+<div x-data="photoGallery()" x-init="init()">
   <!-- Photo Gallery Grid -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-4"
        role="region"
@@ -30,12 +53,8 @@ icon_bg_color: from-emerald-500 to-teal-600
     {% assign recent_photos = site.photography | sort: 'date' | reverse | slice: 0, 6 %}
     {% for photo in recent_photos %}
     <figure class="overflow-hidden rounded-lg hover:opacity-75 transition-opacity duration-300 cursor-pointer">
-      <button @click="openPhoto($el)"
+      <button @click.prevent="openPhotoByUrl('{{ photo.url }}')"
               class="w-full h-full text-left focus:outline-none focus:ring-0 focus:ring-offset-0 focus:shadow-none block border-0 bg-transparent p-0 appearance-none"
-              data-image="{{ photo.image }}"
-              data-alt="{{ photo.image_alt }}"
-              data-caption="{{ photo.title }}"
-              data-date="{{ photo.date }}"
               aria-label="View full size: {{ photo.image_alt }}">
         <img src="{{ photo.image }}"
              class="w-full h-full object-cover"

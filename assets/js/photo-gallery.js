@@ -11,6 +11,8 @@ window.photoGallery = function() {
     galleryUrl: '/photos/',
     galleryTitle: 'Photography',
     googleMapsApiKey: null,
+    googleMapsProxyUrl: null,
+    googleMapsSettings: { zoom: 15, size: '640x360', scale: 2, maptype: 'roadmap' },
 
     // Mode detection
     isFullMode: false, // true if JSON data store exists (photography index page)
@@ -26,6 +28,10 @@ window.photoGallery = function() {
       date: '',
       captionVisible: true,
     },
+
+    // UI state for reduced layout
+    showInfo: false, // Whether info is visible (both overlay and panel when applicable)
+    infoTimer: null, // Timer for auto-hiding info overlay
 
     // Initialization
     init() {
@@ -63,6 +69,10 @@ window.photoGallery = function() {
         this.galleryUrl = data.galleryUrl || '/photos/';
         this.galleryTitle = data.galleryTitle || 'Photography';
         this.googleMapsApiKey = data.googleMapsApiKey;
+        this.googleMapsProxyUrl = data.googleMapsProxyUrl;
+        if (data.googleMapsSettings) {
+          this.googleMapsSettings = { ...this.googleMapsSettings, ...data.googleMapsSettings };
+        }
       } catch (e) {
         console.error('Failed to parse photo gallery data:', e);
       }
@@ -182,19 +192,21 @@ window.photoGallery = function() {
     },
 
     // Open photo in simple mode (no URL routing) - for homepage
-    openPhotoSimple(photo) {
+    // preserveInfoState: if true, keep current info panel state (used when navigating)
+    openPhotoSimple(photo, preserveInfoState = false) {
       this.photoModal.photo = photo;
       this.photoModal.isOpen = true;
 
       // Update modal UI
-      this.updateModalUI();
+      this.updateModalUI(preserveInfoState);
 
       // Prevent body scroll
       document.body.style.overflow = 'hidden';
     },
 
     // Open photo in full mode (with URL routing) - for photography index
-    openPhotoFull(photo, pushState = true) {
+    // preserveInfoState: if true, keep current info panel state (used when navigating)
+    openPhotoFull(photo, pushState = true, preserveInfoState = false) {
       this.photoModal.photo = photo;
       this.photoModal.isOpen = true;
       this.currentIndex = this.findPhotoIndex(photo);
@@ -212,7 +224,7 @@ window.photoGallery = function() {
       document.title = `${photo.title} - ${this.galleryTitle} - Edward Jensen`;
 
       // Update modal UI
-      this.updateModalUI();
+      this.updateModalUI(preserveInfoState);
 
       // Prevent body scroll
       document.body.style.overflow = 'hidden';
@@ -225,6 +237,12 @@ window.photoGallery = function() {
       this.photoModal.isOpen = false;
       this.photoModal.photo = null;
       this.currentIndex = -1;
+
+      // Clear info timer
+      this.clearInfoTimer();
+
+      // Reset UI state (keep showInfo state for next open)
+      this.showInfo = false;
 
       // Update URL back to gallery (full mode only)
       if (this.isFullMode && pushState) {
@@ -247,28 +265,30 @@ window.photoGallery = function() {
       document.body.style.overflow = '';
     },
 
-    // Navigate to next photo
+    // Navigate to next photo (preserves info panel state)
     next() {
       if (this.hasNext()) {
+        this.clearInfoTimer(); // Clear any running timer
         this.currentIndex++;
         const nextPhoto = this.photos[this.currentIndex];
         if (this.isFullMode) {
-          this.openPhotoFull(nextPhoto, true);
+          this.openPhotoFull(nextPhoto, true, true); // preserve info state
         } else {
-          this.openPhotoSimple(nextPhoto);
+          this.openPhotoSimple(nextPhoto, true); // preserve info state
         }
       }
     },
 
-    // Navigate to previous photo
+    // Navigate to previous photo (preserves info panel state)
     previous() {
       if (this.hasPrevious()) {
+        this.clearInfoTimer(); // Clear any running timer
         this.currentIndex--;
         const prevPhoto = this.photos[this.currentIndex];
         if (this.isFullMode) {
-          this.openPhotoFull(prevPhoto, true);
+          this.openPhotoFull(prevPhoto, true, true); // preserve info state
         } else {
-          this.openPhotoSimple(prevPhoto);
+          this.openPhotoSimple(prevPhoto, true); // preserve info state
         }
       }
     },
@@ -281,6 +301,78 @@ window.photoGallery = function() {
       return this.currentIndex > 0;
     },
 
+    // Start the info auto-hide timer (5 seconds) - only when no details panel
+    startInfoTimer() {
+      this.clearInfoTimer();
+      this.showInfo = true;
+      this.infoTimer = setTimeout(() => {
+        this.showInfo = false;
+        this.updateInfoVisibility();
+      }, 5000);
+    },
+
+    // Clear the info timer
+    clearInfoTimer() {
+      if (this.infoTimer) {
+        clearTimeout(this.infoTimer);
+        this.infoTimer = null;
+      }
+    },
+
+    // Toggle info visibility (unified: overlay + panel)
+    toggleInfo() {
+      this.clearInfoTimer();
+      this.showInfo = !this.showInfo;
+      this.updateInfoVisibility();
+    },
+
+    // Update info visibility in DOM (both overlay and details panel)
+    updateInfoVisibility() {
+      const photo = this.photoModal.photo;
+      const hasDetails = this.hasAdditionalDetails(photo);
+
+      const overlayInfo = document.getElementById('modal-photo-overlay-info');
+      const detailsPanel = document.getElementById('modal-details-panel');
+      const detailsToggle = document.getElementById('modal-details-toggle');
+      const mainContent = document.getElementById('modal-main-content');
+
+      if (hasDetails) {
+        // Photo has details: show/hide panel, hide overlay when panel is open
+        if (detailsPanel) {
+          detailsPanel.style.display = this.showInfo ? '' : 'none';
+        }
+        if (overlayInfo) {
+          // Hide overlay when details panel is visible
+          overlayInfo.style.opacity = this.showInfo ? '0' : '1';
+          overlayInfo.style.pointerEvents = this.showInfo ? 'none' : 'auto';
+        }
+        if (mainContent) {
+          // Adjust layout when panel is visible
+          mainContent.classList.toggle('lg:mr-[400px]', this.showInfo);
+        }
+      } else {
+        // No details: just toggle overlay visibility
+        if (overlayInfo) {
+          overlayInfo.style.opacity = this.showInfo ? '1' : '0';
+          overlayInfo.style.pointerEvents = this.showInfo ? 'auto' : 'none';
+        }
+      }
+
+      // Update toggle button state
+      if (detailsToggle && hasDetails) {
+        detailsToggle.innerHTML = this.showInfo
+          ? '<i class="bi bi-info-circle-fill"></i>'
+          : '<i class="bi bi-info-circle"></i>';
+        detailsToggle.title = this.showInfo ? 'Hide info (i)' : 'Show info (i)';
+      }
+    },
+
+    // Check if photo has any additional details (EXIF, location, or content)
+    hasAdditionalDetails(photo) {
+      if (!photo) return false;
+      return this.hasExifData(photo) || this.hasLocationData(photo) || (photo.content || '').trim();
+    },
+
     // Check if photo has EXIF data
     hasExifData(photo) {
       if (!photo || !photo.exif) return false;
@@ -291,14 +383,26 @@ window.photoGallery = function() {
     // Check if photo has location data
     hasLocationData(photo) {
       if (!photo || !photo.location) return false;
-      return photo.location.lat && photo.location.lng && this.googleMapsApiKey;
+      // Need either proxy URL or API key to display the map
+      return photo.location.lat && photo.location.lng && (this.googleMapsProxyUrl || this.googleMapsApiKey);
     },
 
-    // Generate Google Maps embed URL
-    getMapEmbedUrl(photo) {
+    // Generate Google Maps Static API URL (supports both proxy and direct API key)
+    // Settings are centralized in _config.yml under google_maps
+    getMapImageUrl(photo) {
       if (!this.hasLocationData(photo)) return null;
       const loc = photo.location;
-      return `https://www.google.com/maps/embed/v1/view?key=${this.googleMapsApiKey}&center=${loc.lat},${loc.lng}&zoom=15&maptype=roadmap`;
+      const s = this.googleMapsSettings;
+      const params = `center=${loc.lat},${loc.lng}&zoom=${s.zoom}&size=${s.size}&scale=${s.scale}&maptype=${s.maptype}`;
+
+      if (this.googleMapsProxyUrl) {
+        // Use proxy (production) - API key is added server-side
+        return `${this.googleMapsProxyUrl}?${params}`;
+      } else if (this.googleMapsApiKey) {
+        // Use direct API key (dev/staging)
+        return `https://maps.googleapis.com/maps/api/staticmap?${params}&key=${this.googleMapsApiKey}`;
+      }
+      return null;
     },
 
     // Initialize modal HTML in DOM
@@ -309,98 +413,153 @@ window.photoGallery = function() {
       // Clear existing content
       modalRoot.innerHTML = `
         <div id="photo-modal-overlay"
-             class="fixed inset-0 bg-black/95 z-[9999] overflow-y-auto"
+             class="fixed inset-0 bg-black z-[9999]"
              style="display: none;"
              @keydown.escape.window="if (window.photoGalleryInstance?.photoModal.isOpen) window.photoGalleryInstance.closeModal(true)"
              @keydown.left.window="if (window.photoGalleryInstance?.photoModal.isOpen) window.photoGalleryInstance.previous()"
-             @keydown.right.window="if (window.photoGalleryInstance?.photoModal.isOpen) window.photoGalleryInstance.next()">
+             @keydown.right.window="if (window.photoGalleryInstance?.photoModal.isOpen) window.photoGalleryInstance.next()"
+             @keydown.i.window="if (window.photoGalleryInstance?.photoModal.isOpen) window.photoGalleryInstance.toggleInfo()">
 
-          <!-- Close button (fixed position) -->
-          <button onclick="window.photoGalleryInstance?.closeModal(true)"
-                  class="fixed top-4 right-4 z-[10000] bg-white/20 hover:bg-white/40 text-white rounded-full p-3 transition-colors"
-                  aria-label="Close and return to gallery">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <!-- Top toolbar (fixed) -->
+          <div class="fixed top-0 left-0 right-0 z-[10001] flex justify-between items-center p-4">
+            <!-- Back to gallery -->
+            <a id="modal-back-link"
+               href="/photos/"
+               class="bg-white/10 hover:bg-white/20 text-white rounded-full px-4 py-2 transition-colors text-sm flex items-center gap-2"
+               title="Back to gallery">
+              <i class="bi bi-arrow-left"></i>
+              <span class="hidden sm:inline">Gallery</span>
+            </a>
 
-          <!-- Modal content container - side by side on desktop -->
-          <div class="min-h-screen flex items-start justify-center py-8 px-4">
-            <div class="w-full max-w-7xl flex flex-col lg:flex-row gap-8">
+            <div class="flex items-center gap-2">
+              <!-- Info toggle button (only shown if photo has additional details) -->
+              <button id="modal-details-toggle"
+                      onclick="window.photoGalleryInstance?.toggleInfo()"
+                      class="bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-colors"
+                      style="display: none;"
+                      aria-label="Show info"
+                      title="Show info (i)">
+                <i class="bi bi-info-circle"></i>
+              </button>
 
-              <!-- Image (left side on desktop) -->
-              <div class="lg:flex-1 lg:sticky lg:top-8 lg:self-start">
-                <img id="modal-photo-image"
-                     src=""
-                     alt=""
-                     class="w-full h-auto max-h-[50vh] lg:max-h-[85vh] object-contain rounded-lg">
+              <!-- Close button -->
+              <button onclick="window.photoGalleryInstance?.closeModal(true)"
+                      class="bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-colors"
+                      aria-label="Close and return to gallery">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Main content area (adjusts when details panel is visible) -->
+          <div id="modal-main-content" class="h-screen flex flex-col transition-all duration-300">
+            <!-- Image container (centered, takes available space) -->
+            <div class="flex-1 flex items-center justify-center px-4 pt-20 pb-4 relative min-h-0"
+                 onclick="window.photoGalleryInstance?.toggleInfo()">
+              <img id="modal-photo-image"
+                   src=""
+                   alt=""
+                   class="max-w-full max-h-full object-contain rounded-lg cursor-pointer"
+                   onclick="event.stopPropagation(); window.photoGalleryInstance?.toggleInfo()">
+
+              <!-- Info overlay on image (auto-hides after 5 seconds, hidden when panel is open) -->
+              <div id="modal-photo-overlay-info"
+                   class="absolute bottom-4 left-4 right-4 pointer-events-none transition-opacity duration-300"
+                   style="opacity: 1;">
+                <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 max-w-4xl mx-auto">
+                  <!-- Title (bottom left) -->
+                  <div class="flex-1 min-w-0">
+                    <h1 id="modal-overlay-title" class="font-header font-bold text-2xl lg:text-3xl text-white drop-shadow-lg truncate"></h1>
+                  </div>
+
+                  <!-- Tags and date (bottom right) -->
+                  <div class="flex flex-col items-start sm:items-end gap-2 flex-shrink-0">
+                    <div id="modal-overlay-tags" class="flex flex-wrap gap-1.5 justify-start sm:justify-end"></div>
+                    <time id="modal-overlay-date" class="text-white/80 text-sm drop-shadow-lg"></time>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Navigation bar (at bottom) -->
+            <nav class="flex-shrink-0 bg-gradient-to-t from-black via-black/80 to-transparent py-4 px-4">
+              <div class="max-w-lg mx-auto flex justify-between items-center">
+                <button id="modal-prev-btn"
+                        onclick="window.photoGalleryInstance?.previous()"
+                        class="flex items-center gap-2 text-white/70 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed px-4 py-2"
+                        aria-label="Previous photo">
+                  <i class="bi bi-chevron-left text-lg"></i>
+                  <span>Previous</span>
+                </button>
+
+                <span id="modal-photo-counter" class="text-white/50 text-sm"></span>
+
+                <button id="modal-next-btn"
+                        onclick="window.photoGalleryInstance?.next()"
+                        class="flex items-center gap-2 text-white/70 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed px-4 py-2"
+                        aria-label="Next photo">
+                  <span>Next</span>
+                  <i class="bi bi-chevron-right text-lg"></i>
+                </button>
+              </div>
+            </nav>
+          </div>
+
+          <!-- Details panel (part of layout, hidden by default) -->
+          <div id="modal-details-panel"
+               class="fixed top-0 right-0 bottom-0 w-full sm:w-[400px] bg-slate-900 z-[10000] overflow-y-auto"
+               style="display: none;">
+
+            <!-- Panel header -->
+            <div class="sticky top-0 bg-slate-900 p-4 pt-20 border-b border-slate-700 flex justify-between items-center">
+              <h2 class="text-white font-semibold">Photo Details</h2>
+              <button onclick="window.photoGalleryInstance?.toggleInfo()"
+                      class="text-white/70 hover:text-white p-2 transition-colors"
+                      aria-label="Close details">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div class="p-4 space-y-4">
+              <!-- Title and date -->
+              <header>
+                <h1 id="modal-photo-title" class="font-header font-bold text-xl text-white mb-1"></h1>
+                <time id="modal-photo-date" class="text-slate-400 text-sm block mb-3"></time>
+                <div id="modal-photo-tags" class="flex flex-wrap gap-2"></div>
+              </header>
+
+              <!-- Description (if any) -->
+              <div id="modal-photo-content" class="text-slate-300 text-sm" style="display: none;"></div>
+
+              <!-- EXIF Metadata -->
+              <div id="modal-exif-section" class="bg-slate-800/50 rounded-lg" style="display: none;">
+                <div class="p-4 flex items-center gap-2 text-xs font-semibold text-white uppercase tracking-wide border-b border-slate-700/50">
+                  <i class="bi bi-camera"></i>
+                  <span>Camera Details</span>
+                </div>
+                <dl id="modal-exif-grid" class="grid grid-cols-2 gap-3 text-xs p-4"></dl>
               </div>
 
-              <!-- Content area (right side on desktop) -->
-              <div class="lg:w-96 lg:flex-shrink-0 bg-slate-900/50 rounded-lg p-6 lg:p-8 lg:max-h-[85vh] lg:overflow-y-auto">
-                <!-- Header -->
-                <header class="mb-6">
-                  <h1 id="modal-photo-title" class="font-header font-bold text-xl lg:text-2xl text-white mb-3"></h1>
-                  <time id="modal-photo-date" class="text-slate-400 text-sm block mb-3"></time>
-                  <div id="modal-photo-tags" class="flex flex-wrap gap-2"></div>
-                </header>
-
-                <!-- Description (if any) -->
-                <div id="modal-photo-content" class="text-slate-300 text-sm mb-6" style="display: none;"></div>
-
-                <!-- EXIF Metadata -->
-                <aside id="modal-exif-section" class="bg-slate-800/50 rounded-lg p-4 mb-6" style="display: none;">
-                  <h2 class="text-xs font-semibold text-white uppercase tracking-wide mb-3">
-                    <i class="bi bi-camera me-2"></i>Camera Details
-                  </h2>
-                  <dl id="modal-exif-grid" class="grid grid-cols-2 gap-3 text-xs"></dl>
-                </aside>
-
-                <!-- Location Map -->
-                <aside id="modal-location-section" class="bg-slate-800/50 rounded-lg p-4 mb-6" style="display: none;">
-                  <h2 class="text-xs font-semibold text-white uppercase tracking-wide mb-3">
-                    <i class="bi bi-geo-alt me-2"></i>Location
-                  </h2>
+              <!-- Location Map -->
+              <div id="modal-location-section" class="bg-slate-800/50 rounded-lg" style="display: none;">
+                <div class="p-4 flex items-center gap-2 text-xs font-semibold text-white uppercase tracking-wide border-b border-slate-700/50">
+                  <i class="bi bi-geo-alt"></i>
+                  <span>Location</span>
+                </div>
+                <div class="p-4">
                   <p id="modal-location-name" class="text-slate-300 text-sm mb-3" style="display: none;"></p>
-                  <div class="aspect-video w-full rounded-lg overflow-hidden">
-                    <iframe id="modal-location-map"
-                            src=""
-                            width="100%"
-                            height="100%"
-                            style="border:0;"
-                            allowfullscreen=""
-                            loading="lazy"
-                            referrerpolicy="no-referrer-when-downgrade">
-                    </iframe>
+                  <div class="aspect-video w-full rounded-lg overflow-hidden bg-slate-700">
+                    <img id="modal-location-map"
+                         src=""
+                         alt=""
+                         class="w-full h-full object-cover"
+                         loading="lazy">
                   </div>
-                </aside>
-
-                <!-- Navigation -->
-                <nav class="flex justify-between items-center pt-4 border-t border-slate-700">
-                  <button id="modal-prev-btn"
-                          onclick="window.photoGalleryInstance?.previous()"
-                          class="flex items-center gap-1 text-slate-400 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-sm"
-                          aria-label="Previous photo">
-                    <i class="bi bi-arrow-left"></i>
-                    <span class="hidden sm:inline">Prev</span>
-                  </button>
-
-                  <a id="modal-back-link"
-                     href="/photos/"
-                     class="text-amber-400 hover:text-amber-300 text-xs"
-                     title="Back to gallery">
-                    <i class="bi bi-grid me-1"></i>
-                    Gallery
-                  </a>
-
-                  <button id="modal-next-btn"
-                          onclick="window.photoGalleryInstance?.next()"
-                          class="flex items-center gap-1 text-slate-400 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-sm"
-                          aria-label="Next photo">
-                    <span class="hidden sm:inline">Next</span>
-                    <i class="bi bi-arrow-right"></i>
-                  </button>
-                </nav>
+                </div>
               </div>
             </div>
           </div>
@@ -409,12 +568,16 @@ window.photoGallery = function() {
     },
 
     // Update modal UI with current photo data
-    updateModalUI() {
+    // preserveInfoState: if true, keep current showInfo state (used when navigating)
+    updateModalUI(preserveInfoState = false) {
       const photo = this.photoModal.photo;
       if (!photo) return;
 
       const overlay = document.getElementById('photo-modal-overlay');
       const image = document.getElementById('modal-photo-image');
+      const detailsToggle = document.getElementById('modal-details-toggle');
+
+      // Details panel elements
       const title = document.getElementById('modal-photo-title');
       const date = document.getElementById('modal-photo-date');
       const tags = document.getElementById('modal-photo-tags');
@@ -427,8 +590,14 @@ window.photoGallery = function() {
       const prevBtn = document.getElementById('modal-prev-btn');
       const nextBtn = document.getElementById('modal-next-btn');
       const backLink = document.getElementById('modal-back-link');
+      const photoCounter = document.getElementById('modal-photo-counter');
 
-      // Show overlay
+      // Overlay elements
+      const overlayTitle = document.getElementById('modal-overlay-title');
+      const overlayDate = document.getElementById('modal-overlay-date');
+      const overlayTags = document.getElementById('modal-overlay-tags');
+
+      // Show modal overlay
       if (overlay) overlay.style.display = '';
 
       // Update image
@@ -437,31 +606,53 @@ window.photoGallery = function() {
         image.alt = photo.imageAlt;
       }
 
-      // Update title
-      if (title) title.textContent = photo.title;
+      // Check if we have any additional details to show
+      const hasContent = (photo.content || '').trim();
+      const hasExif = this.hasExifData(photo);
+      const hasLocation = this.hasLocationData(photo);
+      const hasDetails = hasContent || hasExif || hasLocation;
 
-      // Update date
+      // Format tags HTML (smaller badges for overlay)
+      const overlayTagsHtml = (photo.tags && photo.tags.length > 0)
+        ? photo.tags.map(tag =>
+            `<span class="bg-black/40 backdrop-blur-sm text-white/90 px-2 py-0.5 rounded text-xs">#${tag}</span>`
+          ).join('')
+        : '';
+
+      // Format tags HTML (for details panel)
+      const tagsHtml = (photo.tags && photo.tags.length > 0)
+        ? photo.tags.map(tag =>
+            `<span class="bg-amber-500/20 text-amber-300 px-2 py-1 rounded-md text-xs font-medium border border-amber-400/30">#${tag}</span>`
+          ).join('')
+        : '';
+
+      const dateFormatted = photo.dateFormatted || this.formatDate(photo.date);
+
+      // Update overlay info
+      if (overlayTitle) overlayTitle.textContent = photo.title;
+      if (overlayDate) {
+        overlayDate.textContent = dateFormatted;
+        if (photo.date) overlayDate.setAttribute('datetime', photo.date);
+      }
+      if (overlayTags) overlayTags.innerHTML = overlayTagsHtml;
+
+      // Show/hide details toggle button based on whether photo has additional details
+      if (detailsToggle) {
+        detailsToggle.style.display = hasDetails ? '' : 'none';
+      }
+
+      // Update details panel content
+      if (title) title.textContent = photo.title;
       if (date) {
-        date.textContent = photo.dateFormatted || this.formatDate(photo.date);
+        date.textContent = dateFormatted;
         if (photo.date) date.setAttribute('datetime', photo.date);
       }
-
-      // Update tags
-      if (tags) {
-        if (photo.tags && photo.tags.length > 0) {
-          tags.innerHTML = photo.tags.map(tag =>
-            `<span class="bg-amber-500/20 text-amber-300 px-2 py-1 rounded-md text-xs font-medium border border-amber-400/30">#${tag}</span>`
-          ).join('');
-        } else {
-          tags.innerHTML = '';
-        }
-      }
+      if (tags) tags.innerHTML = tagsHtml;
 
       // Update content
       if (content) {
-        const stripped = (photo.content || '').trim();
-        if (stripped) {
-          content.textContent = stripped;
+        if (hasContent) {
+          content.textContent = photo.content.trim();
           content.style.display = '';
         } else {
           content.style.display = 'none';
@@ -470,7 +661,7 @@ window.photoGallery = function() {
 
       // Update EXIF section
       if (exifSection && exifGrid) {
-        if (this.hasExifData(photo)) {
+        if (hasExif) {
           const e = photo.exif;
           let exifHtml = '';
 
@@ -488,14 +679,15 @@ window.photoGallery = function() {
         }
       }
 
-      // Update location section
+      // Update location section (map is now aspect-video)
       if (locationSection && locationMap) {
-        if (this.hasLocationData(photo)) {
+        if (hasLocation) {
           if (locationName) {
             locationName.textContent = photo.location.name || '';
             locationName.style.display = photo.location.name ? '' : 'none';
           }
-          locationMap.src = this.getMapEmbedUrl(photo);
+          locationMap.src = this.getMapImageUrl(photo);
+          locationMap.alt = `Map showing photo location${photo.location.name ? ': ' + photo.location.name : ''}`;
           locationSection.style.display = '';
         } else {
           locationSection.style.display = 'none';
@@ -506,11 +698,35 @@ window.photoGallery = function() {
       if (prevBtn) prevBtn.disabled = !this.hasPrevious();
       if (nextBtn) nextBtn.disabled = !this.hasNext();
 
+      // Update photo counter
+      if (photoCounter && this.photos.length > 0) {
+        photoCounter.textContent = `${this.currentIndex + 1} / ${this.photos.length}`;
+      }
+
       // Update back link
       if (backLink) backLink.href = this.galleryUrl;
 
-      // Scroll to top of modal
-      overlay?.scrollTo(0, 0);
+      // Handle info visibility
+      if (!preserveInfoState) {
+        // First open: start with info visible, then auto-hide after 5 seconds
+        // (only if photo doesn't have details - if it has details, info stays hidden)
+        if (hasDetails) {
+          // Photo has details: start with info hidden (user can toggle with click or 'i')
+          this.showInfo = false;
+        } else {
+          // No details: show overlay info with auto-hide timer
+          this.showInfo = true;
+          this.startInfoTimer();
+        }
+      }
+      // Apply current info visibility state
+      this.updateInfoVisibility();
+
+      // Scroll details panel to top if visible
+      const detailsPanel = document.getElementById('modal-details-panel');
+      if (detailsPanel && this.showInfo) {
+        detailsPanel.scrollTo(0, 0);
+      }
     }
   };
 };
