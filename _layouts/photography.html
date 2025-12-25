@@ -10,6 +10,13 @@ layout: base
       "galleryUrl": "{{ page.url }}",
       "galleryTitle": {{ page.title | jsonify }},
       "googleMapsApiKey": {{ site.google_maps_api_key | default: nil | jsonify }},
+      "googleMapsProxyUrl": {{ site.google_maps_proxy_url | default: nil | jsonify }},
+      "googleMapsSettings": {
+        "zoom": {{ site.data.google-maps.zoom | default: 15 }},
+        "size": {{ site.data.google-maps.size | default: "640x360" | jsonify }},
+        "scale": {{ site.data.google-maps.scale | default: 2 }},
+        "maptype": {{ site.data.google-maps.maptype | default: "roadmap" | jsonify }}
+      },
       "photos": [
         {% assign all_photos = site.photography | where_exp:"item", "item.date <= site.time" | sort:"date" | reverse %}
         {% for photo in all_photos %}
