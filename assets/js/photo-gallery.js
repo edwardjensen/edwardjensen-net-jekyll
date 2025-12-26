@@ -16,6 +16,7 @@ window.photoGallery = function() {
 
     // Mode detection
     isFullMode: false, // true if JSON data store exists (photography index page)
+    sourceUrl: null, // URL to return to (tracks where user came from)
 
     // Modal state
     photoModal: {
@@ -38,6 +39,9 @@ window.photoGallery = function() {
       // Check if we're in full mode (JSON data store exists)
       const dataEl = document.getElementById('photo-gallery-data');
       this.isFullMode = !!dataEl;
+
+      // Capture the current page URL as the source to return to
+      this.sourceUrl = window.location.pathname;
 
       if (this.isFullMode) {
         this.loadPhotoData();
@@ -131,6 +135,13 @@ window.photoGallery = function() {
       const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December'];
       return `${date.getDate()} ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+    },
+
+    // Escape HTML special characters to prevent XSS
+    escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
     },
 
     // Setup popstate listener for back/forward navigation (full mode only)
@@ -422,13 +433,13 @@ window.photoGallery = function() {
 
           <!-- Top toolbar (fixed) -->
           <div class="fixed top-0 left-0 right-0 z-[10001] flex justify-between items-center p-4">
-            <!-- Back to gallery -->
+            <!-- Back link -->
             <a id="modal-back-link"
                href="/photos/"
                class="bg-white/10 hover:bg-white/20 text-white rounded-full px-4 py-2 transition-colors text-sm flex items-center gap-2"
-               title="Back to gallery">
+               title="Back">
               <i class="bi bi-arrow-left"></i>
-              <span class="hidden sm:inline">Gallery</span>
+              <span id="modal-back-link-text" class="hidden sm:inline">Back</span>
             </a>
 
             <div class="flex items-center gap-2">
@@ -470,9 +481,7 @@ window.photoGallery = function() {
                    style="opacity: 1;">
                 <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 max-w-4xl mx-auto">
                   <!-- Title (bottom left) -->
-                  <div class="flex-1 min-w-0">
-                    <h1 id="modal-overlay-title" class="font-header font-bold text-2xl lg:text-3xl text-white drop-shadow-lg truncate"></h1>
-                  </div>
+                  <div id="modal-overlay-title-container" class="flex-1 min-w-0"></div>
 
                   <!-- Tags and date (bottom right) -->
                   <div class="flex flex-col items-start sm:items-end gap-2 flex-shrink-0">
@@ -527,7 +536,7 @@ window.photoGallery = function() {
             <div class="p-5 space-y-5">
               <!-- Title and date -->
               <header>
-                <h1 id="modal-photo-title" class="font-header font-bold text-2xl text-white mb-1"></h1>
+                <div id="modal-photo-title-container"></div>
                 <time id="modal-photo-date" class="text-slate-400 text-base block mb-3"></time>
                 <div id="modal-photo-tags" class="flex flex-wrap gap-2"></div>
               </header>
@@ -578,7 +587,6 @@ window.photoGallery = function() {
       const detailsToggle = document.getElementById('modal-details-toggle');
 
       // Details panel elements
-      const title = document.getElementById('modal-photo-title');
       const date = document.getElementById('modal-photo-date');
       const tags = document.getElementById('modal-photo-tags');
       const content = document.getElementById('modal-photo-content');
@@ -593,7 +601,6 @@ window.photoGallery = function() {
       const photoCounter = document.getElementById('modal-photo-counter');
 
       // Overlay elements
-      const overlayTitle = document.getElementById('modal-overlay-title');
       const overlayDate = document.getElementById('modal-overlay-date');
       const overlayTags = document.getElementById('modal-overlay-tags');
 
@@ -628,8 +635,15 @@ window.photoGallery = function() {
 
       const dateFormatted = photo.dateFormatted || this.formatDate(photo.date);
 
-      // Update overlay info
-      if (overlayTitle) overlayTitle.textContent = photo.title;
+      // Update overlay info (create h1 only if title exists)
+      const overlayTitleContainer = document.getElementById('modal-overlay-title-container');
+      if (overlayTitleContainer) {
+        if (photo.title) {
+          overlayTitleContainer.innerHTML = `<h1 class="font-header font-bold text-2xl lg:text-3xl text-white drop-shadow-lg truncate">${this.escapeHtml(photo.title)}</h1>`;
+        } else {
+          overlayTitleContainer.innerHTML = '';
+        }
+      }
       if (overlayDate) {
         overlayDate.textContent = dateFormatted;
         if (photo.date) overlayDate.setAttribute('datetime', photo.date);
@@ -641,8 +655,15 @@ window.photoGallery = function() {
         detailsToggle.style.display = hasDetails ? '' : 'none';
       }
 
-      // Update details panel content
-      if (title) title.textContent = photo.title;
+      // Update details panel content (create h1 only if title exists)
+      const titleContainer = document.getElementById('modal-photo-title-container');
+      if (titleContainer) {
+        if (photo.title) {
+          titleContainer.innerHTML = `<h1 class="font-header font-bold text-2xl text-white mb-1">${this.escapeHtml(photo.title)}</h1>`;
+        } else {
+          titleContainer.innerHTML = '';
+        }
+      }
       if (date) {
         date.textContent = dateFormatted;
         if (photo.date) date.setAttribute('datetime', photo.date);
@@ -703,8 +724,26 @@ window.photoGallery = function() {
         photoCounter.textContent = `${this.currentIndex + 1} / ${this.photos.length}`;
       }
 
-      // Update back link
-      if (backLink) backLink.href = this.galleryUrl;
+      // Update back link (use source URL, with appropriate label)
+      if (backLink) {
+        const backUrl = this.sourceUrl || this.galleryUrl;
+        backLink.href = backUrl;
+
+        // Set appropriate label based on where we came from
+        const backLinkText = document.getElementById('modal-back-link-text');
+        if (backLinkText) {
+          if (backUrl === '/' || backUrl === '') {
+            backLinkText.textContent = 'Home';
+            backLink.title = 'Back to home';
+          } else if (backUrl.startsWith('/photos')) {
+            backLinkText.textContent = 'Gallery';
+            backLink.title = 'Back to gallery';
+          } else {
+            backLinkText.textContent = 'Back';
+            backLink.title = 'Go back';
+          }
+        }
+      }
 
       // Handle info visibility
       if (!preserveInfoState) {
