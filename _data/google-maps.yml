@@ -9,4 +9,4 @@ scale: 2
 maptype: roadmap
 
 # Cloudflare Worker proxy URL (keeps API key hidden server-side)
-proxy_url: https://ejnetmaps.edwardjensenprojects.com
+proxy_url: https://ejnetmaps.edwardjensenprojects.com/staticmap
