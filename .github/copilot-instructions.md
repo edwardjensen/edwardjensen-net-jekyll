@@ -51,7 +51,7 @@ The site uses **custom Tailwind classes** defined in `assets/css/main.css` (@lay
 
 **Key files**:
 - `_layouts/base.html` - Root layout with HTML boilerplate, sticky header nav, footer
-- `_layouts/content-wrapper.html` - Content wrapper with max-w-4xl centered container
+- `_layouts/content-wrapper.html` - Content wrapper with max-w-7xl centered container
 - `_includes/components/header-nav.html` - Sticky header with responsive nav
 - `_includes/components/seo.html` - Custom SEO meta tags (Open Graph, Twitter Cards)
 
@@ -111,58 +111,47 @@ featured: true  # Shows in homepage featured section
 
 ## Deployment Workflows
 
-This project uses **four distinct deployment workflows** to handle different scenarios:
+This project uses **six deployment workflows** with a unified staging architecture:
 
-### 1. Production Site (`edwardjensen.net`)
-**Workflow**: `deploy-prod-site.yml`  
-**Trigger**: Push `v*` tag  
-**Purpose**: Environment promotion from `main` branch on new tag  
-**Destination**: Cloudflare Pages  
-**CMS Data**: Production CMS  
-**Site Code**: Tagged production code (vX.Y.Z)
+### Workflow Overview
 
-### 2. Staging Site for Site Code Revisions
-**Workflow**: `deploy-staging-site-code.yml`  
-**Trigger**: Push to `main` branch  
-**Purpose**: Test site code changes before production  
-**Destination**: `stagingsite.edwardjensencms.com` (self-hosted server via rsync/SSH)  
-**CMS Data**: Production CMS  
-**Site Code**: Current `main` branch (may be ahead of latest tag)
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `pr-checks.yml` | Pull request to `main` | Build validation (no deployment) |
+| `deploy-staging.yml` | Push to `main`, repository_dispatch, manual | Unified staging deployment |
+| `deploy-prod-site.yml` | Push `v*` tag | Production release |
+| `republish-prod-site.yml` | `prod_cms_publish` webhook, manual | Rebuild production with CMS changes |
+| `publish-prod-photo.yml` | `prod_cms_photo_publish` webhook, manual | Rebuild production for new photography |
+| `cleanup-cloudflare.yml` | Weekly schedule, manual | Clean old Cloudflare deployments |
 
-### 3. Staging Site for CMS Changes
-**Workflow**: `deploy-staging-cms.yml`  
-**Trigger**: `repository_dispatch` event type `staging_cms_publish` / manual  
-**Purpose**: Test CMS content changes with production site code  
-**Destination**: `stagingsite.edwardjensencms.com` (self-hosted server via rsync/SSH)  
-**CMS Data**: Staging CMS  
-**Site Code**: Latest production tag (vX.Y.Z)
+### Unified Staging Workflow
 
-### 4. Staging Site (Bleeding Edge)
-**Workflow**: `deploy-staging-bleeding-edge.yml`  
-**Trigger**: Manual only (`workflow_dispatch`)  
-**Purpose**: Test new site features with staging CMS content  
-**Destination**: `stagingsite.edwardjensencms.com` (self-hosted server via rsync/SSH)  
-**CMS Data**: Staging CMS  
-**Site Code**: Current `main` branch
+The `deploy-staging.yml` workflow uses configuration from `_data/staging-config.yml` to handle multiple staging scenarios:
 
-### 5. Republish Production Site
-**Workflow**: `republish-prod-site.yml`  
-**Trigger**: `repository_dispatch` event type `prod_cms_publish` / manual  
-**Purpose**: Rebuild production site with latest CMS content (no code changes)  
-**Destination**: Cloudflare Pages  
-**CMS Data**: Production CMS  
-**Site Code**: Latest production tag (vX.Y.Z)
+**Configuration Dimensions:**
+- **site_code**: `main` (current branch) or `latest-tag` (production vX.Y.Z tag)
+- **cms_source**: `production` or `staging` CMS
+- **deploy_target**: `local-server` or `cloudflare`
+
+**Trigger Mappings:**
+
+| Trigger | site_code | cms_source | deploy_target |
+|---------|-----------|------------|---------------|
+| Push to `main` | main | staging | cloudflare |
+| `staging_cms_publish` | latest-tag | staging | local-server |
+| `staging_cms_photo_publish` | main | staging | local-server |
+| Manual (default) | main | production | local-server |
 
 ### Workflow Summary Table
 
 | Workflow | Trigger | Site Code | CMS Data | Destination |
 |----------|---------|-----------|----------|-------------|
-| `pr-checks.yml` | Pull request to `main` | PR branch | Production | N/A (build validation only) |
-| `deploy-staging-site-code.yml` | Push to `main` | `main` branch | Production | stagingsite.edwardjensencms.com |
-| `deploy-staging-cms.yml` | `staging_cms_publish` webhook | Latest `v*` tag | Staging | stagingsite.edwardjensencms.com |
-| `deploy-staging-bleeding-edge.yml` | Manual only | `main` branch | Staging | stagingsite.edwardjensencms.com |
+| `pr-checks.yml` | Pull request to `main` | PR branch | Production | N/A (build only) |
+| `deploy-staging.yml` | Push to `main` | `main` branch | Staging | staging.edwardjensen.net |
+| `deploy-staging.yml` | `staging_cms_publish` | Latest `v*` tag | Staging | stagingsite.edwardjensencms.com |
 | `deploy-prod-site.yml` | Push `v*` tag | Tagged version | Production | edwardjensen.net |
-| `republish-prod-site.yml` | `prod_cms_publish` webhook | Latest `v*` tag | Production | edwardjensen.net |
+| `republish-prod-site.yml` | `prod_cms_publish` | Latest `v*` tag | Production | edwardjensen.net |
+| `publish-prod-photo.yml` | `prod_cms_photo_publish` | Latest `v*` tag | Production | edwardjensen.net |
 
 ### Development Workflow
 
@@ -259,9 +248,15 @@ The photography gallery (`/photos/`) uses a modal overlay system with URL routin
 **Behavior:**
 
 - Click photo → modal opens, URL changes to photo permalink
-- Back button → closes modal, returns to gallery
+- Back button → closes modal, returns to source URL (context-aware)
 - Direct URL access → fetches gallery, opens modal over it
 - Modal: image left, details right (desktop); stacked (mobile)
+
+**Key features:**
+
+- **Source URL tracking**: Tracks where user came from for context-aware back navigation ("Home", "Gallery", or "Back")
+- **XSS prevention**: `escapeHtml()` sanitizes dynamic content in modal titles
+- **Google Maps config**: Centralized in `_data/google-maps.yml` (zoom, size, proxy URL)
 
 **Two modes:**
 
@@ -285,16 +280,28 @@ The photography gallery (`/photos/`) uses a modal overlay system with URL routin
 
 ## Documentation Requirements
 
-**IMPORTANT: When making changes to this codebase, you (GitHub Copilot or Claude Code) must update the relevant documentation files as part of your changes.** Documentation should not drift from the actual code.
+**CRITICAL: When making changes to this codebase, you (GitHub Copilot or Claude Code) MUST update the relevant documentation files as part of your changes.** Documentation drift causes significant problems for AI-assisted development.
 
-**Documentation files to update:**
+### Primary Documentation Files (MUST be kept in sync)
 
-- **`.github/copilot-instructions.md`** (this file) - Architecture overview, key patterns, deployment workflow
-- **`CLAUDE.md`** - Build commands, site architecture, layouts, includes, deployment
-- **`context-docs/site-work/project-context.md`** - Comprehensive project context and content workflows
-- **`context-docs/site-work/content-schema.md`** - Content types and CMS schema documentation
+These two files are the primary references for AI assistants and MUST BOTH be updated when making code changes:
 
-**When to update documentation** (includes but is not limited to):
+| File | Purpose | AI Consumer |
+|------|---------|-------------|
+| **`.github/copilot-instructions.md`** | Quick reference, key patterns, deployment | GitHub Copilot |
+| **`CLAUDE.md`** | Comprehensive guide, detailed architecture | Claude Code |
+
+**Both files document the same codebase from different perspectives.** Changes to one typically require changes to the other. When in doubt, update both.
+
+### Secondary Documentation Files
+
+- **`context-docs/site-work/project-context.md`** - Deep technical context and content workflows
+- **`context-docs/site-work/content-schema.md`** - CMS field documentation and content types
+
+### When to Update Documentation
+
+Update documentation for ANY of the following:
+
 - New layouts or significant layout changes
 - New includes or component patterns
 - Changes to the deployment workflow or GitHub Actions
@@ -303,5 +310,9 @@ The photography gallery (`/photos/`) uses a modal overlay system with URL routin
 - New npm scripts or build commands
 - Changes to the GraphQL/CMS integration
 - Removing or renaming files referenced in documentation
+- New data files in `_data/`
+- New plugins in `_plugins/`
 
-**Related repository**: The Payload CMS application lives in a separate repository (`edwardjensen/edwardjensencms-payload`). Changes to CMS collections, fields, or content schema should be documented in that repository's `.github/copilot-instructions.md`.
+### Cross-Repository Documentation
+
+The Payload CMS application lives in a separate repository (`edwardjensen/edwardjensencms-payload`). Changes to CMS collections, fields, or content schema should be documented in that repository's `.github/copilot-instructions.md`.

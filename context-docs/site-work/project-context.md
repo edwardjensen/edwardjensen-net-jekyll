@@ -511,13 +511,17 @@ This project uses an **environment promotion workflow** for deployments:
 
 ### GitHub Actions Workflows
 
+The site uses a **unified staging workflow** (`deploy-staging.yml`) that handles multiple staging scenarios via configuration in `_data/staging-config.yml`.
+
 | Workflow | Trigger | Site Code | CMS Data | Destination |
 |----------|---------|-----------|----------|-------------|
-| `pr-checks.yml` | Pull request to `main` | PR branch | Production | N/A (build validation only) |
-| `deploy-staging-site-code.yml` | Push to `main` | `main` branch | Production | stagingsite.edwardjensencms.com |
-| `deploy-staging-cms.yml` | `staging_cms_publish` webhook | Latest `v*` tag | Staging | stagingsite.edwardjensencms.com |
+| `pr-checks.yml` | Pull request to `main` | PR branch | Production | N/A (build only) |
+| `deploy-staging.yml` | Push to `main` | `main` branch | Staging | staging.edwardjensen.net |
+| `deploy-staging.yml` | `staging_cms_publish` webhook | Latest `v*` tag | Staging | stagingsite.edwardjensencms.com |
 | `deploy-prod-site.yml` | Push `v*` tag | Tagged version | Production | edwardjensen.net |
 | `republish-prod-site.yml` | `prod_cms_publish` webhook | Latest `v*` tag | Production | edwardjensen.net |
+| `publish-prod-photo.yml` | `prod_cms_photo_publish` webhook | Latest `v*` tag | Production | edwardjensen.net |
+| `cleanup-cloudflare.yml` | Weekly schedule | — | — | Cleans old deployments |
 
 ### Development Workflow
 
@@ -549,10 +553,12 @@ JEKYLL_ENV=production bundle exec jekyll build
 
 | Event | Triggers Build | Notes |
 |-------|----------------|-------|
-| Push to `main` | Yes (staging) | Tests code changes with production content |
+| Push to `main` | Yes (staging) | Tests code changes with staging CMS content |
 | Push `v*` tag | Yes (production) | Promotes code to production |
 | `staging_cms_publish` webhook | Yes (staging) | Tests CMS content with production code |
+| `staging_cms_photo_publish` webhook | Yes (staging) | Tests photo content with main branch code |
 | `prod_cms_publish` webhook | Yes (production) | Rebuilds production with latest CMS content |
+| `prod_cms_photo_publish` webhook | Yes (production) | Rebuilds production with new photography |
 | Manual dispatch | Yes | Available on all workflows |
 
 ---

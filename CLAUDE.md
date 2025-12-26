@@ -60,7 +60,7 @@ The site uses a two-tier layout inheritance pattern (refactored Oct 2025 to full
 
 **Base Layouts:**
 - **[base.html](_layouts/base.html)** - Root layout with HTML boilerplate, sticky header nav, skip-to-main link, and footer
-- **[content-wrapper.html](_layouts/content-wrapper.html)** - Extends base, adds full-width main with max-w-4xl centered container
+- **[content-wrapper.html](_layouts/content-wrapper.html)** - Extends base, adds full-width main with max-w-7xl centered container
 
 **Content Layouts** (all extend content-wrapper):
 - **[page.html](_layouts/page.html)** - Standard page with header styling
@@ -79,7 +79,7 @@ The site uses a two-tier layout inheritance pattern (refactored Oct 2025 to full
 **Layout Features:**
 - Layouts can inject additional `<head>` content via `content_for_head` front matter variable
 - Sticky header navigation component included in base layout
-- Full-width stacked layout with centered max-w-4xl content container
+- Full-width stacked layout with centered max-w-7xl content container
 - Warm amber/slate color scheme throughout
 
 ### Includes Structure
@@ -94,19 +94,25 @@ Includes are organized into three logical subdirectories in [_includes/](_includ
 **`components/`** - Reusable UI elements:
 
 - **[header-nav.html](_includes/components/header-nav.html)** - Sticky header navigation with responsive mobile menu
+- **[page-header.html](_includes/components/page-header.html)** - Reusable page header with icon, title, subtitle
 - **[post-credits.html](_includes/components/post-credits.html)** - Post author attribution box
 - **[post-navigation.html](_includes/components/post-navigation.html)** - Previous/next post navigation links
 - **[photo-metadata.html](_includes/components/photo-metadata.html)** - EXIF metadata display for photography posts
 - **[photo-navigation.html](_includes/components/photo-navigation.html)** - Previous/next photo navigation
 - **[photo-location-map.html](_includes/components/photo-location-map.html)** - Google Maps embed for photo location
+- **[photo-modal.html](_includes/components/photo-modal.html)** - Photo modal overlay template
 - **[privacy-modal.html](_includes/components/privacy-modal.html)** - Privacy policy modal
 - **[working-note.html](_includes/components/working-note.html)** - Working note component
 - **[prose-content.html](_includes/components/prose-content.html)** - Formatted prose content wrapper
 - **[seo.html](_includes/components/seo.html)** - Custom SEO meta tags (title, description, Open Graph, Twitter Cards)
+- **[pagination.html](_includes/components/pagination.html)** - Pagination navigation UI with page numbers
+- **[search-interface.html](_includes/components/search-interface.html)** - Search input with status indicators
+- **[search-results.html](_includes/components/search-results.html)** - Search results display with Lunr.js integration
 
 **`sections/`** - Content sections and list views:
 
 - **[post-list.html](_includes/sections/post-list.html)** - Flexible post listing (supports filtering by year, historical notes)
+- **[historic-post-list.html](_includes/sections/historic-post-list.html)** - Historic posts collection listing
 - **[photos-grid.html](_includes/sections/photos-grid.html)** - Photography gallery grid
 - **[portfolio-grid.html](_includes/sections/portfolio-grid.html)** - Portfolio items grid
 - **[featured-tags-list.html](_includes/sections/featured-tags-list.html)** - Featured tags index listing with thumbnails and post counts
@@ -130,8 +136,11 @@ The [_data/](_data/) directory contains:
 - **[redirects.yml](_data/redirects.yml)** - URL redirects
 - **[a11y-check-urls.yml](_data/a11y-check-urls.yml)** - URLs to check for accessibility
 - **[rss-feeds.yml](_data/rss-feeds.yml)** - RSS feed generator configuration
+- **[pagination.yml](_data/pagination.yml)** - Pagination plugin configuration
 - **[sitemap.yml](_data/sitemap.yml)** - Sitemap generator configuration
 - **[footer-text.yml](_data/footer-text.yml)** - Site disclaimer and feed footer text
+- **[staging-config.yml](_data/staging-config.yml)** - Staging deployment configuration templates
+- **[google-maps.yml](_data/google-maps.yml)** - Google Maps Static API settings (zoom, size, proxy URL)
 - **buildinfo.yml** - Build information (generated during CI/CD)
 
 ## Build Scripts
@@ -154,6 +163,32 @@ npm run a11y:report       # Generate JSON report
 ### Asset Management
 
 - **[copy-vendor-assets.js](scripts/copy-vendor-assets.js)** - Copies vendor assets (Alpine.js, Bootstrap Icons) from node_modules to assets directory
+
+## Cloudflare Workers
+
+### Google Maps Proxy Worker
+
+Located in `/cloudflare-workers/maps-proxy/`, this Cloudflare Worker proxies requests to Google Maps Static API, keeping the API key server-side for security.
+
+**Files:**
+
+- `worker.js` - Worker logic (validates parameters, forwards to Google Maps API)
+- `wrangler.toml` - Cloudflare configuration
+- `README.md` - Setup and deployment instructions
+
+**Deployment:**
+
+```bash
+cd cloudflare-workers/maps-proxy
+wrangler secret put GOOGLE_MAPS_API_KEY
+wrangler deploy
+```
+
+**Production URL:** `https://ejnetmaps.edwardjensenprojects.com/staticmap`
+
+**Usage:** The site uses `_data/google-maps.yml` to configure the proxy URL, which is used by both the Liquid component (`photo-location-map.html`) and JavaScript modal (`photo-gallery.js`).
+
+**Allowed Parameters:** `center`, `zoom`, `size`, `scale`, `maptype`, `markers`, `format`
 
 ## CMS Integration Plugin
 
@@ -356,68 +391,86 @@ Sitemap: {{ "sitemap.xml" | absolute_url }}
 
 ## Deployment
 
-This project uses **four distinct deployment workflows** to handle different scenarios:
+This project uses **six deployment workflows** with a unified staging architecture:
 
-### 1. Production Site (`edwardjensen.net`)
-**Workflow**: [deploy-prod-site.yml](.github/workflows/deploy-prod-site.yml)  
-**Trigger**: Push `v*` tag  
-**Purpose**: Environment promotion from `main` branch on new tag  
-**Destination**: Cloudflare Pages  
-**CMS Data**: Production CMS  
-**Site Code**: Tagged production code (vX.Y.Z)
+### Workflow Overview
 
-- Validates tag is on `main` branch before deploying
-- Generates build info (commit SHA, run ID, version)
-- Builds with `JEKYLL_ENV=production`
-- Deploys to Cloudflare Pages using Wrangler
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `pr-checks.yml` | Pull request to `main` | Build validation (no deployment) |
+| `deploy-staging.yml` | Push to `main`, repository_dispatch, manual | Unified staging deployment |
+| `deploy-prod-site.yml` | Push `v*` tag | Production release |
+| `republish-prod-site.yml` | `prod_cms_publish` webhook, manual | Rebuild production with CMS changes |
+| `publish-prod-photo.yml` | `prod_cms_photo_publish` webhook, manual | Rebuild production for new photography |
+| `cleanup-cloudflare.yml` | Weekly schedule, manual | Clean old Cloudflare deployments |
+
+### Unified Staging Workflow
+
+The `deploy-staging.yml` workflow uses configuration from `_data/staging-config.yml` to handle multiple staging scenarios with two configuration dimensions:
+
+**Configuration Dimensions:**
+
+- **site_code**: `main` (current branch) or `latest-tag` (production vX.Y.Z tag)
+- **cms_source**: `production` or `staging` CMS
+- **deploy_target**: `local-server` (stagingsite.edwardjensencms.com) or `cloudflare` (staging.edwardjensen.net)
+
+**Trigger Mappings:**
+
+| Trigger | site_code | cms_source | deploy_target |
+|---------|-----------|------------|---------------|
+| Push to `main` | main | staging | cloudflare |
+| `staging_cms_publish` | latest-tag | staging | local-server |
+| `staging_cms_photo_publish` | main | staging | local-server |
+| Manual (default) | main | production | local-server |
+
+**Site Titles by Configuration:**
+
+- `main` + `production` = "Edward Jensen [CODE STAGING]"
+- `main` + `staging` = "Edward Jensen [STAGING CMS + CODE]"
+- `latest-tag` + `production` = "Edward Jensen [TAG STAGING]"
+- `latest-tag` + `staging` = "Edward Jensen [CMS STAGING]"
+
+### Production Workflows
+
+**1. `deploy-prod-site.yml`** (Production Release)
+
+- **Trigger**: Push `v*` tag
+- **Site Code**: Tagged version
+- **CMS Data**: Production
+- **Destination**: Cloudflare Pages (edwardjensen.net)
 - Creates GitHub Release with auto-generated notes
 
-### 2. Staging Site for Site Code Revisions
-**Workflow**: [deploy-staging-site-code.yml](.github/workflows/deploy-staging-site-code.yml)  
-**Trigger**: Push to `main` branch  
-**Purpose**: Test site code changes before production  
-**Destination**: `stagingsite.edwardjensencms.com` (self-hosted server via rsync/SSH)  
-**CMS Data**: Production CMS  
-**Site Code**: Current `main` branch (may be ahead of latest tag)
+**2. `republish-prod-site.yml`** (CMS Content Refresh)
 
-- Uses `_config.staging-code.yml` for staging-specific configuration
-- Connects to Tailscale VPN for CMS GraphQL access
-- Deploys to self-hosted staging server via rsync/SSH
+- **Trigger**: `prod_cms_publish` webhook or manual
+- **Site Code**: Latest `v*` tag
+- **CMS Data**: Production
+- **Destination**: Cloudflare Pages
 
-### 3. Staging Site for CMS Changes
-**Workflow**: [deploy-staging-cms.yml](.github/workflows/deploy-staging-cms.yml)  
-**Trigger**: `repository_dispatch` event type `staging_cms_publish` / manual  
-**Purpose**: Test CMS content changes with production site code  
-**Destination**: `stagingsite.edwardjensencms.com` (self-hosted server via rsync/SSH)  
-**CMS Data**: Staging CMS  
-**Site Code**: Latest production tag (vX.Y.Z)
+**3. `publish-prod-photo.yml`** (Photography Publishing)
 
-- Checks out latest production tag (not `main` branch)
-- Uses `_config.staging-cms.yml` for staging-specific configuration
-- Connects to Tailscale VPN for CMS GraphQL access
-- Deploys to self-hosted staging server via rsync/SSH
+- **Trigger**: `prod_cms_photo_publish` webhook or manual
+- **Site Code**: Latest `v*` tag
+- **CMS Data**: Production
+- **Destination**: Cloudflare Pages
 
-### 4. Republish Production Site
-**Workflow**: [republish-prod-site.yml](.github/workflows/republish-prod-site.yml)  
-**Trigger**: `repository_dispatch` event type `prod_cms_publish` / manual  
-**Purpose**: Rebuild production site with latest CMS content (no code changes)  
-**Destination**: Cloudflare Pages  
-**CMS Data**: Production CMS  
-**Site Code**: Latest production tag (vX.Y.Z)
+### Maintenance Workflows
 
-- Checks out latest production tag (not `main` branch)
-- Rebuilds production site with latest CMS content
-- Deploys to Cloudflare Pages using Wrangler
+**`cleanup-cloudflare.yml`** - Runs weekly (Sunday 3am UTC) to delete:
+
+- All preview deployments (immediately)
+- Production deployments older than 7 days (except the most recent)
 
 ### Workflow Summary Table
 
 | Workflow | Trigger | Site Code | CMS Data | Destination |
 |----------|---------|-----------|----------|-------------|
-| `pr-checks.yml` | Pull request to `main` | PR branch | Production | N/A (build validation only) |
-| `deploy-staging-site-code.yml` | Push to `main` | `main` branch | Production | stagingsite.edwardjensencms.com |
-| `deploy-staging-cms.yml` | `staging_cms_publish` webhook | Latest `v*` tag | Staging | stagingsite.edwardjensencms.com |
+| `pr-checks.yml` | Pull request to `main` | PR branch | Production | N/A (build only) |
+| `deploy-staging.yml` | Push to `main` | `main` branch | Staging | staging.edwardjensen.net |
+| `deploy-staging.yml` | `staging_cms_publish` | Latest `v*` tag | Staging | stagingsite.edwardjensencms.com |
 | `deploy-prod-site.yml` | Push `v*` tag | Tagged version | Production | edwardjensen.net |
-| `republish-prod-site.yml` | `prod_cms_publish` webhook | Latest `v*` tag | Production | edwardjensen.net |
+| `republish-prod-site.yml` | `prod_cms_publish` | Latest `v*` tag | Production | edwardjensen.net |
+| `publish-prod-photo.yml` | `prod_cms_photo_publish` | Latest `v*` tag | Production | edwardjensen.net |
 
 ### Development Workflow
 
@@ -475,7 +528,7 @@ The site uses custom Tailwind classes defined in `assets/css/main.css` (@layer c
 - **Header**: Sticky top navigation with backdrop blur, horizontal on desktop, hamburger on mobile
 - **Colors**: Warm amber/slate palette (not blue) - amber-600/400 for accents, slate-900/50 for text
 - **Typography**: `basic-sans` for body, `museo-slab` for headers, lowercase class for header text
-- **Content Container**: max-w-4xl, centered with proper spacing
+- **Content Container**: max-w-7xl, centered with proper spacing
 
 ## Photography Collection
 
@@ -500,7 +553,7 @@ exif_aperture: "f/1.8"
 exif_shutter_speed: "1/125s"
 exif_iso: "100"
 
-# Optional geolocation (requires google_maps_api_key in _config.yml)
+# Optional geolocation (uses proxy from _data/google-maps.yml)
 location_lat: 44.9778
 location_lng: -93.2650
 location_name: "Downtown Minneapolis"   # Optional display name
@@ -525,8 +578,14 @@ The photography gallery uses a modal overlay system with browser history integra
 1. Gallery grid at `/photos/` shows paginated thumbnails
 2. Click photo → modal opens over gallery, URL changes to `/photos/2025/2025-12/photo-title`
 3. Modal shows: image (left), details panel (right on desktop, below on mobile)
-4. Back button → closes modal, returns to `/photos/`
+4. Back button → closes modal, returns to source URL (context-aware)
 5. Direct URL → fetches gallery page, displays modal over it
+
+**Key Features:**
+
+- **Source URL Tracking**: The `sourceUrl` property tracks where the user came from (homepage, gallery, featured tag page) for context-aware back navigation with appropriate labels ("Home", "Gallery", or "Back")
+- **XSS Prevention**: The `escapeHtml()` function sanitizes dynamic content in modal titles to prevent cross-site scripting
+- **Google Maps Configuration**: Map settings centralized in `_data/google-maps.yml` (zoom, size, scale, proxy URL)
 
 **Two Operating Modes:**
 
@@ -555,22 +614,34 @@ sort_ascending: false               # Optional - default false (newest first), t
 
 **Index Page:** Available at `/tags/` ([_site_pages/tags.md](_site_pages/tags.md)) - lists all featured tags with thumbnails, descriptions, and post counts.
 
-**RSS Feeds:** All RSS feeds are generated by the unified `rss_feed_generator.rb` plugin based on configuration in `_config.yml`. Each featured tag gets a feed at `/feeds/{tag-slug}.xml`. The feed description uses the markdown body content from the featured tag file. See the `rss_feeds:` section in `_config.yml` for configuration options.
+**RSS Feeds:** All RSS feeds are generated by the unified `rss_feed_generator.rb` plugin based on configuration in `_data/rss-feeds.yml`. Each featured tag gets a feed at `/feeds/{tag-slug}.xml`. The feed description uses the markdown body content from the featured tag file.
 
 **Pagination:** Configured via `_data/pagination.yml` collection-level defaults. See the Pagination Plugin section below.
 
 ## Documentation Requirements
 
-**IMPORTANT: When making changes to this codebase, you (GitHub Copilot or Claude Code) must update the relevant documentation files as part of your changes.** Documentation should not drift from the actual code.
+**CRITICAL: When making changes to this codebase, you (GitHub Copilot or Claude Code) MUST update the relevant documentation files as part of your changes.** Documentation drift causes significant problems for AI-assisted development.
 
-**Documentation files to update:**
+### Primary Documentation Files (MUST be kept in sync)
 
-- **`CLAUDE.md`** (this file) - Build commands, site architecture, layouts, includes, deployment
-- **`.github/copilot-instructions.md`** - Architecture overview, key patterns, deployment workflow
-- **`context-docs/site-work/project-context.md`** - Comprehensive project context and content workflows
-- **`context-docs/site-work/content-schema.md`** - Content types and CMS schema documentation
+These two files are the primary references for AI assistants and MUST BOTH be updated when making code changes:
 
-**When to update documentation** (includes but is not limited to):
+| File | Purpose | AI Consumer |
+|------|---------|-------------|
+| **`CLAUDE.md`** | Comprehensive guide, detailed architecture | Claude Code |
+| **`.github/copilot-instructions.md`** | Quick reference, key patterns, deployment | GitHub Copilot |
+
+**Both files document the same codebase from different perspectives.** Changes to one typically require changes to the other. When in doubt, update both.
+
+### Secondary Documentation Files
+
+- **`context-docs/site-work/project-context.md`** - Deep technical context and content workflows
+- **`context-docs/site-work/content-schema.md`** - CMS field documentation and content types
+
+### When to Update Documentation
+
+Update documentation for ANY of the following:
+
 - New layouts or significant layout changes
 - New includes or component patterns
 - Changes to the deployment workflow or GitHub Actions
@@ -579,5 +650,9 @@ sort_ascending: false               # Optional - default false (newest first), t
 - New npm scripts or build commands
 - Changes to the GraphQL/CMS integration
 - Removing or renaming files referenced in documentation
+- New data files in `_data/`
+- New plugins in `_plugins/`
 
-**Related repository**: The Payload CMS application lives in a separate repository (`edwardjensen/edwardjensencms-payload`). Changes to CMS collections, fields, or content schema should be documented in that repository's `.github/copilot-instructions.md`.
+### Cross-Repository Documentation
+
+The Payload CMS application lives in a separate repository (`edwardjensen/edwardjensencms-payload`). Changes to CMS collections, fields, or content schema should be documented in that repository's `.github/copilot-instructions.md`.
