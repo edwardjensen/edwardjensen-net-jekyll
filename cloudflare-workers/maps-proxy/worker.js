@@ -13,8 +13,9 @@
 
 // Allowed origin patterns
 const ALLOWED_ORIGINS = [
-  /^https?:\/\/([\w-]+\.)?edwardjensen\.net$/,
-  /^https?:\/\/([\w-]+\.)?edwardjensencms\.com$/,
+  /^https:\/\/([\w-]+\.)?edwardjensen\.net$/,
+  /^https:\/\/([\w-]+\.)?edwardjensencms\.com$/,
+  /^https:\/\/([\w-]+\.)?edwardjensen-jekyll\.pages\.dev$/,
   /^http:\/\/localhost(:\d+)?$/,
   /^http:\/\/127\.0\.0\.1(:\d+)?$/,
 ];
