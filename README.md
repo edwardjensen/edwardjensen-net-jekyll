@@ -216,7 +216,7 @@ The site uses a **full-width stacked layout** (refactored in Oct 2025):
 - **Sticky header** at top with transparent backdrop blur (z-40)
 - **Desktop nav**: Horizontal navigation with site title, center menu, right social icons
 - **Mobile nav**: Hamburger menu with slide-down animation
-- **Content**: Max-width 4xl, centered with proper spacing
+- **Content**: Max-width 7xl, centered with proper spacing
 
 ---
 
@@ -266,10 +266,14 @@ This project uses a promotion-based deployment strategy:
 
 ### Deployment Environments
 
+The site uses a **unified staging workflow** with multiple deployment targets. See `CLAUDE.md` for full workflow documentation.
+
 | Environment | Trigger | Destination | URL |
 |-------------|---------|-------------|-----|
-| **Staging** | Push to `main` | Self-hosted server (rsync/SSH) | [stagingsite.edwardjensencms.com](https://stagingsite.edwardjensencms.com) |
+| **Staging** | Push to `main` | Cloudflare Pages | [staging.edwardjensen.net](https://staging.edwardjensen.net) |
+| **Staging** | CMS webhook | Self-hosted server | [stagingsite.edwardjensencms.com](https://stagingsite.edwardjensencms.com) |
 | **Production** | Push `v*` tag | Cloudflare Pages | [edwardjensen.net](https://www.edwardjensen.net) |
+| **Production** | CMS webhook | Cloudflare Pages | Rebuilds with latest CMS content |
 
 ### Content Source
 
