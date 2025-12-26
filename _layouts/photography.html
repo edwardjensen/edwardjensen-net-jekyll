@@ -9,8 +9,8 @@ layout: base
     {
       "galleryUrl": "{{ page.url }}",
       "galleryTitle": {{ page.title | jsonify }},
-      "googleMapsApiKey": {{ site.google_maps_api_key | default: nil | jsonify }},
-      "googleMapsProxyUrl": {{ site.google_maps_proxy_url | default: nil | jsonify }},
+      "googleMapsApiKey": {{ site.data.google-maps.api_key | default: nil | jsonify }},
+      "googleMapsProxyUrl": {{ site.data.google-maps.proxy_url | default: nil | jsonify }},
       "googleMapsSettings": {
         "zoom": {{ site.data.google-maps.zoom | default: 15 }},
         "size": {{ site.data.google-maps.size | default: "640x360" | jsonify }},
