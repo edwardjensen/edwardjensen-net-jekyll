@@ -11,8 +11,8 @@ icon_bg_color: from-emerald-500 to-teal-600
 {
   "galleryUrl": "/photos/",
   "galleryTitle": "Photography",
-  "googleMapsApiKey": {{ site.google_maps_api_key | default: nil | jsonify }},
-  "googleMapsProxyUrl": {{ site.google_maps_proxy_url | default: nil | jsonify }},
+  "googleMapsApiKey": {{ site.data.google-maps.api_key | default: nil | jsonify }},
+  "googleMapsProxyUrl": {{ site.data.google-maps.proxy_url | default: nil | jsonify }},
   "photos": [
     {% assign all_photos = site.photography | where_exp:"item", "item.date <= site.time" | sort:"date" | reverse %}
     {% for photo in all_photos %}
