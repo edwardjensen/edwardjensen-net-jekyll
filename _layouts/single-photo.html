@@ -124,10 +124,10 @@ layout: content-wrapper
           setTimeout(() => {
             if (window.photoGalleryInstance) {
               // Replace state instead of push since we're already on this URL
-              window.photoGalleryInstance.openPhoto(
-                window.photoGalleryInstance.findPhotoByUrl(photoUrl),
-                false // Don't push state, we're already on this URL
-              );
+              const photo = window.photoGalleryInstance.findPhotoByUrl(photoUrl);
+              if (photo) {
+                window.photoGalleryInstance.openPhotoFull(photo, false);
+              }
             }
           }, 150);
         }
