@@ -509,7 +509,7 @@ window.photoGallery = function() {
 
           <!-- Details panel (part of layout, hidden by default) -->
           <div id="modal-details-panel"
-               class="fixed top-0 right-0 bottom-0 w-full sm:w-[400px] bg-slate-900 z-[10000] overflow-y-auto"
+               class="fixed top-0 right-0 bottom-0 w-full sm:w-[480px] bg-slate-900 z-[10000] overflow-y-auto"
                style="display: none;">
 
             <!-- Panel header -->
@@ -524,34 +524,34 @@ window.photoGallery = function() {
               </button>
             </div>
 
-            <div class="p-4 space-y-4">
+            <div class="p-5 space-y-5">
               <!-- Title and date -->
               <header>
-                <h1 id="modal-photo-title" class="font-header font-bold text-xl text-white mb-1"></h1>
-                <time id="modal-photo-date" class="text-slate-400 text-sm block mb-3"></time>
+                <h1 id="modal-photo-title" class="font-header font-bold text-2xl text-white mb-1"></h1>
+                <time id="modal-photo-date" class="text-slate-400 text-base block mb-3"></time>
                 <div id="modal-photo-tags" class="flex flex-wrap gap-2"></div>
               </header>
 
               <!-- Description (if any) -->
-              <div id="modal-photo-content" class="text-slate-300 text-sm" style="display: none;"></div>
+              <div id="modal-photo-content" class="text-slate-300 text-base" style="display: none;"></div>
 
               <!-- EXIF Metadata -->
               <div id="modal-exif-section" class="bg-slate-800/50 rounded-lg" style="display: none;">
-                <div class="p-4 flex items-center gap-2 text-xs font-semibold text-white uppercase tracking-wide border-b border-slate-700/50">
+                <div class="p-4 flex items-center gap-2 text-sm font-semibold text-white uppercase tracking-wide border-b border-slate-700/50">
                   <i class="bi bi-camera"></i>
                   <span>Camera Details</span>
                 </div>
-                <dl id="modal-exif-grid" class="grid grid-cols-2 gap-3 text-xs p-4"></dl>
+                <dl id="modal-exif-grid" class="grid grid-cols-2 gap-4 text-sm p-4"></dl>
               </div>
 
               <!-- Location Map -->
               <div id="modal-location-section" class="bg-slate-800/50 rounded-lg" style="display: none;">
-                <div class="p-4 flex items-center gap-2 text-xs font-semibold text-white uppercase tracking-wide border-b border-slate-700/50">
+                <div class="p-4 flex items-center gap-2 text-sm font-semibold text-white uppercase tracking-wide border-b border-slate-700/50">
                   <i class="bi bi-geo-alt"></i>
                   <span>Location</span>
                 </div>
                 <div class="p-4">
-                  <p id="modal-location-name" class="text-slate-300 text-sm mb-3" style="display: none;"></p>
+                  <p id="modal-location-name" class="text-slate-300 text-base mb-3" style="display: none;"></p>
                   <div class="aspect-video w-full rounded-lg overflow-hidden bg-slate-700">
                     <img id="modal-location-map"
                          src=""

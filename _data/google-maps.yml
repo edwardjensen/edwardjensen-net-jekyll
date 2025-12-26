@@ -4,7 +4,7 @@
 #   - assets/js/photo-gallery.js (JavaScript modal)
 
 zoom: 12
-size: "400x200"
+size: "320x160"
 scale: 2
 maptype: roadmap
 
