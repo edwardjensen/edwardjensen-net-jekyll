@@ -1,4 +1,4 @@
-name: Republish Prod Site (CMS Changes)
+name: Republish Prod Site (New Photography)
 
 permissions:
   contents: read
@@ -6,7 +6,7 @@ permissions:
 on:
   workflow_dispatch:
   repository_dispatch:
-    types: ['prod_cms_publish']
+    types: ['prod_cms_photo_publish']
 
 jobs:
   republish:
