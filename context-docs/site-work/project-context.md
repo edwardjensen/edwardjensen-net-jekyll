@@ -14,6 +14,7 @@ Technical advice context for edwardjensen.net, a modern personal portfolio and b
 - **Historic Posts**: Legacy WordPress archive (read-only, preserved for reference)
 - **Photography**: Documentary and urban photography portfolio
 - **Project Portfolio**: Civic engagement and leadership work showcase
+- **Live Camera Stream**: Occasionally live stream of downtown Saint Paul, Minnesota
 
 **Target Cadence**: 1-2 new posts per week (ongoing goal)
 
@@ -249,6 +250,9 @@ edwardjensen-net-jekyll/
 ├── _homepage_sections/         # Homepage component partials
 │   ├── recent-posts.html       # Featured posts section
 │   └── recent-photos.html      # Recent photos section
+│
+├── _camerastream_sections/     # Camera stream page sections
+│   └── livestream.html         # Cloudflare Stream embed
 │
 ├── _landing_sections/          # Landing page sections
 │   └── [landing page components]
@@ -491,8 +495,23 @@ These content types are still managed as files in the Jekyll repository:
 
 #### 6. Static Pages
 
-**Directory**: `_pages/`  
+**Directory**: `_pages/`
 **Purpose**: About, Portfolio overview, Writing archive, Search, Privacy Policy, etc.
+
+#### 7. Camera Stream
+
+**Page**: `_site_pages/saintpaullive.md`
+**Sections Directory**: `_camerastream_sections/`
+**URL**: `/saintpaulcamera/`
+**Layout**: `landing-page`
+**Purpose**: Occasionally live camera stream of downtown Saint Paul, Minnesota
+
+**Implementation:**
+
+- Uses `landing-page` layout with `collection: camerastream_sections`
+- Cloudflare Stream iframe embed with autoplay (`autoplay=true&muted=true`)
+- Responsive 16:9 aspect ratio using Tailwind's `aspect-video`
+- Excluded from site search (`searchable: false`) but included in sitemap
 
 ---
 
