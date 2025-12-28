@@ -13,6 +13,7 @@ Edward Jensen is a technology leader at the intersection of IT and nonprofit org
 - **Writing**: Essays and reflections on nonprofit technology, systems thinking, and civic engagement
 - **Photography**: Urban and documentary photography portfolio
 - **Portfolio**: Notable projects and civic leadership work
+- **Live Camera**: Occasionally live stream of downtown Saint Paul, Minnesota
 
 **Content Architecture**: This repository contains **code and templates only**. All blog posts, working notes, and historic posts are managed in [Payload CMS](https://github.com/edwardjensen/edwardjensencms-payload) and fetched via GraphQL at build time.
 
@@ -106,6 +107,7 @@ JEKYLL_ENV=production bundle exec jekyll build
 ├── _portfolio/            # Project portfolio entries
 ├── assets/                # Static assets (images, fonts, etc.)
 ├── _homepage_sections/    # Homepage component partials
+├── _camerastream_sections/ # Camera stream page sections
 ├── scripts/               # Build and utility scripts
 ├── site-docs/             # Developer documentation
 ├── package.json           # Node.js dependencies

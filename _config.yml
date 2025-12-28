@@ -107,6 +107,8 @@ collections:
     output: true
   homepage_sections:
     output: false
+  camerastream_sections:
+    output: false
   working_notes:
     output: true
     permalink: /notes/:year-:month-:day/:title
