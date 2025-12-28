@@ -265,6 +265,22 @@ The photography gallery (`/photos/`) uses a modal overlay system with URL routin
 
 **CMS migration:** Update `_layouts/photography.html` to generate JSON from GraphQL. The JS reads from `#photo-gallery-data` and requires no changes.
 
+## Camera Stream Page
+
+The site includes an occasionally live camera stream at `/saintpaulcamera/` featuring a Cloudflare Stream embed.
+
+**Key files:**
+
+- `_site_pages/saintpaullive.md` - Page definition
+- `_camerastream_sections/livestream.html` - Cloudflare Stream iframe embed
+
+**Features:**
+
+- Uses `landing-page` layout with `camerastream_sections` collection
+- Cloudflare Stream iframe with `autoplay=true&muted=true`
+- Responsive 16:9 aspect ratio (`aspect-video`)
+- Excluded from search (`searchable: false`), included in sitemap
+
 ## Key Patterns
 
 - Use `.lowercase` class for all header text
