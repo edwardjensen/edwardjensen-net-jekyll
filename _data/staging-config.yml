@@ -13,7 +13,7 @@ triggers:
   push:
     site_code: main
     cms_source: staging
-    deploy_target: cloudflare
+    deploy_target: local-server
 
   # Repository dispatch events (webhooks from CMS)
   repository_dispatch:
