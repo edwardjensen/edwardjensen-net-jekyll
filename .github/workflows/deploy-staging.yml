@@ -7,8 +7,8 @@ name: Deploy Staging Site
 #
 # Configuration is dynamically generated from _data/staging-config.yml
 #
-# Trigger mappings from previous workflows:
-# - push to main: main + production CMS + local-server
+# Trigger mappings (defined in _data/staging-config.yml):
+# - push to main: main + staging CMS + cloudflare
 # - staging_cms_publish: latest-tag + staging CMS + local-server
 # - staging_cms_photo_publish: main + staging CMS + local-server
 
