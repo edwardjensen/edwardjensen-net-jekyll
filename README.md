@@ -15,7 +15,7 @@ This is the source code for [edwardjensen.net](https://www.edwardjensen.net), a 
 - **Portfolio**: Notable projects and civic leadership work
 - **Live Camera**: Occasionally live stream of downtown Saint Paul, Minnesota
 
-**Content Architecture**: This repository contains **code and templates only**. All blog posts, working notes, and historic posts are managed in a separate [Payload CMS](https://payloadcms.com/) instance and fetched via GraphQL at build time.
+**Content Architecture**: This repository contains **code and templates only**. All blog posts, working notes, historic posts, and photography are managed in a separate [Payload CMS](https://payloadcms.com/) instance and fetched via GraphQL at build time.
 
 ### Why This Repo is Public
 
@@ -112,7 +112,6 @@ JEKYLL_ENV=production bundle exec jekyll build
 │   └── gallery-page.html    # Photo gallery layout
 ├── _site_pages/             # Static pages (about, contact, etc.)
 ├── _plugins/                # Jekyll plugins
-├── _photography/            # Photography portfolio entries
 ├── _portfolio/              # Project portfolio entries
 ├── assets/                  # Static assets (images, fonts, etc.)
 ├── _homepage_sections/      # Homepage component partials
@@ -132,7 +131,6 @@ JEKYLL_ENV=production bundle exec jekyll build
   - `rss_feed_generator.rb` — RSS feed generation from config
   - `sitemap_generator.rb` — Sitemap and robots.txt generation
   - `pagination_generator.rb` — Collection-agnostic pagination with filtering
-- **`_photography/`**: Photography portfolio entries (file-based)
 - **`_site_pages/`**: Static pages (about, contact, etc.)
 - **`site-docs/`**: Developer documentation
 
@@ -142,13 +140,13 @@ JEKYLL_ENV=production bundle exec jekyll build
 
 This site uses a **headless CMS architecture**:
 
-| Content Type   | Source                        | Notes                           |
-| -------------- | ----------------------------- | ------------------------------- |
-| Blog Posts     | Payload CMS                   | Fetched via GraphQL at build time |
-| Working Notes  | Payload CMS                   | Fetched via GraphQL at build time |
-| Historic Posts | Payload CMS                   | Legacy WordPress archive        |
-| Photography    | File-based (`_photography/`)  | Still in repository             |
-| Portfolio      | File-based (`_portfolio/`)    | Still in repository             |
+| Content Type   | Source                     | Notes                             |
+| -------------- | -------------------------- | --------------------------------- |
+| Blog Posts     | Payload CMS                | Fetched via GraphQL at build time |
+| Working Notes  | Payload CMS                | Fetched via GraphQL at build time |
+| Historic Posts | Payload CMS                | Legacy WordPress archive          |
+| Photography    | Payload CMS                | Fetched via GraphQL at build time |
+| Portfolio      | File-based (`_portfolio/`) | Still in repository               |
 
 ### How It Works
 
@@ -160,21 +158,7 @@ This site uses a **headless CMS architecture**:
 
 ### File-Based Content
 
-Photography and portfolio items are still file-based. Example photography entry in `_photography/`:
-
-```yaml
----
-title: "Photo Title"
-date: 2025-12-18T07:36:17-06:00
-image: /assets/photography/filename.jpg
-image_alt: "Descriptive alt text"
-tags:
-  - tag-slug
-exif_camera: "iPhone 15 Pro"
-location_lat: 44.9778
-location_lng: -93.2650
----
-```
+Portfolio items remain file-based in the `_portfolio/` directory.
 
 ---
 
@@ -210,9 +194,6 @@ The site uses a **full-width stacked layout** (refactored in Oct 2025):
 ## Available Scripts
 
 ```bash
-# Photography processing
-npm run photos
-
 # Accessibility testing
 npm run a11y                    # Full scan
 npm run a11y:dev              # Test local dev server
