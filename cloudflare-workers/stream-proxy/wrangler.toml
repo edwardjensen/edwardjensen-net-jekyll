@@ -1,0 +1,12 @@
+name = "stream-proxy"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# The stream identifiers should be set as secrets:
+# wrangler secret put CLOUDFLARE_STREAM_CUSTOMER_ID
+# wrangler secret put CLOUDFLARE_STREAM_VIDEO_ID
+
+# Routes configuration
+routes = [
+  { pattern = "stpcamera.edwardjensenprojects.com", custom_domain = true }
+]
