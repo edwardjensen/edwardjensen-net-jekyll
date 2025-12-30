@@ -118,6 +118,20 @@ Includes are organized into three logical subdirectories in [_includes/](_includ
 - **[portfolio-grid.html](_includes/sections/portfolio-grid.html)** - Portfolio items grid
 - **[featured-tags-list.html](_includes/sections/featured-tags-list.html)** - Featured tags index listing with thumbnails and post counts
 
+**`embeds/`** - Embedded content reference templates:
+
+- **[working-note.html](_includes/embeds/working-note.html)** - Working note template (reference only - HTML comes directly from Payload)
+
+**Embedded Content System:**
+
+Embedded content (like working notes within blog posts) is rendered as complete HTML by Payload CMS handlers. The HTML is output in the `markdown` field and preserved by kramdown using the `markdown="0"` attribute.
+
+**Important:** Collections that include embedded content must explicitly list the `markdown` field in their GraphQL `fields:` config in `_config.yml`. Without this, embedded content won't be fetched from the CMS.
+
+**CSS for Embeds:**
+
+Embed styles are defined in `assets/css/main.css` using BEM naming convention (`.embedded-{type}`, `.embedded-{type}__element`). The HTML from Payload uses these class names directly.
+
 ### Styling Architecture
 
 This project uses Tailwind CSS 4.x with the following configuration:

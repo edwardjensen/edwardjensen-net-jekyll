@@ -18,6 +18,8 @@ markdown: kramdown
 highlighter: rouge
 kramdown:
   input: GFM
+  parse_block_html: true
+  parse_span_html: true
 
 postcss:
   cache: false
@@ -55,6 +57,27 @@ collections:
     cms:
       collection: "Posts"
       layout: "single-post"
+      fields:
+        - id
+        - title
+        - slug
+        - date
+        - categories { category }
+        - tags { tag }
+        - image { url alt filename }
+        - imageAlt
+        - excerpt
+        - showImage
+        - renderWithLiquid
+        - postCredits
+        - landingFeatured
+        - redirectFrom { path }
+        - content
+        - markdown
+        - permalink
+        - sitemap
+        - updatedAt
+        - createdAt
   photography:
     output: true
     permalink: /photos/:year/:year-:month/:title
