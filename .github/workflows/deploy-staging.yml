@@ -127,7 +127,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          fetch-depth: ${{ needs.resolve-config.outputs.site_code == 'latest-tag' && 0 || 1 }}
+          fetch-depth: 0
           ref: main
 
       - name: Checkout latest production tag
