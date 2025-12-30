@@ -14,15 +14,15 @@
 
     // Process all paragraphs to find YouTube URLs
     const paragraphs = container.querySelectorAll('p');
-    
+
     paragraphs.forEach(p => {
       const text = p.textContent.trim();
       const youtubeUrlRegex = /^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\S+$/;
-      
+
       if (youtubeUrlRegex.test(text)) {
         const url = text;
         let videoId = null;
-        
+
         // Extract video ID from youtu.be format
         const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
         if (shortMatch) {
@@ -32,7 +32,7 @@
           const longMatch = url.match(/[?&]v=([a-zA-Z0-9_-]+)/);
           if (longMatch) videoId = longMatch[1];
         }
-        
+
         if (videoId) {
           // Create the lite-youtube element
           const liteYT = document.createElement('lite-youtube');
@@ -43,7 +43,7 @@
           liteYT.style.backgroundImage = `url("https://i.ytimg.com/vi/${videoId}/hqdefault.jpg")`;
           liteYT.style.margin = '1.5rem 0';
           liteYT.style.display = 'block';
-          
+
           // Replace the paragraph with the embed
           p.replaceWith(liteYT);
         }

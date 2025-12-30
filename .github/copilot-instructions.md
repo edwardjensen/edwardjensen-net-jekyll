@@ -103,6 +103,23 @@ This repository is **code and templates only**. All content (posts, working note
   - External/custom links: URL in `fields.url`
   - Internal links: URL in `fields.doc.value.permalink`
 
+## Embedded Content System
+
+Embedded content (like working notes within blog posts) is rendered as complete HTML by Payload CMS handlers. The HTML is output in the `markdown` field and preserved by kramdown using the `markdown="0"` attribute. The `_includes/embeds/` directory contains reference templates only.
+
+**Current Embeds:**
+- `working-note.html` - Working note embedded in blog posts (reference only - HTML comes from Payload)
+
+**Important:** Collections that include embedded content must explicitly list the `markdown` field in their GraphQL `fields:` config in `_config.yml`. Without this, embedded content won't be fetched from the CMS.
+
+**Adding New Embed Types:**
+1. Create handler in Payload CMS (`src/lib/blocks/handlers/`)
+2. Handler outputs complete HTML with `markdown="0"` attribute
+3. Add BEM-style CSS in `assets/css/main.css`
+4. Ensure the collection's `fields:` config includes `markdown`
+
+**CSS Naming Convention:** Use BEM with `.embedded-{type}` as block name (e.g., `.embedded-working-note`, `.embedded-working-note__title`).
+
 ## Post YAML for Homepage
 Posts pulled from CMS can be marked featured with:
 ```yaml

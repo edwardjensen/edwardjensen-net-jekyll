@@ -1,0 +1,24 @@
+{% comment %}
+  Embedded Working Note Component
+
+  Renders a working note embedded within blog post content.
+  Data is passed from Payload CMS via Liquid include parameters.
+
+  Parameters:
+    - title: Note title
+    - permalink: Link to full note
+    - content: Markdown content (will be passed through markdownify)
+{% endcomment %}
+<aside class="embedded-working-note">
+  <header class="embedded-working-note__header">
+    <h4 class="embedded-working-note__title">{{ include.title }}</h4>
+  </header>
+  <div class="embedded-working-note__content prose dark:prose-invert">
+    {{ include.content | markdownify }}
+  </div>
+  <footer class="embedded-working-note__footer">
+    <a href="{{ include.permalink }}" class="embedded-working-note__link">
+      View full note &rarr;
+    </a>
+  </footer>
+</aside>
