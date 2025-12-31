@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - 'cloudflare-workers/hi-redirector/**'
-      - '_data/hi-redirects.json'
   workflow_dispatch:
   repository_dispatch:
     types: [hi_redirector_update]
