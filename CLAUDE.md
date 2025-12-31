@@ -183,6 +183,8 @@ npm run a11y:report       # Generate JSON report
 
 ## Cloudflare Workers
 
+All Cloudflare Workers and Pages deployments use **Wrangler v4** (installed via `npm install -g wrangler@4`). GitHub Actions workflows install Wrangler directly rather than using the deprecated `cloudflare/wrangler-action`.
+
 ### Google Maps Proxy Worker
 
 Located in `/cloudflare-workers/maps-proxy/`, this Cloudflare Worker proxies requests to Google Maps Static API, keeping the API key server-side for security.
@@ -546,9 +548,23 @@ Set in GitHub repository variables:
 - `NODE_VERSION` - Node.js version for CI
 
 Set in GitHub secrets:
-- `CLOUDFLARE_API_TOKEN`
-- `CLOUDFLARE_ACCOUNT_ID`
-- `CF_PAGES_PROJECT`
+- `CLOUDFLARE_API_TOKEN` - API token with required permissions (see below)
+- `CLOUDFLARE_ACCOUNT_ID` - Cloudflare account ID
+- `CF_PAGES_PROJECT` - Cloudflare Pages project name
+
+### Cloudflare API Token Permissions
+
+The `CLOUDFLARE_API_TOKEN` must have the following permissions:
+
+| Permission | Access | Used By |
+|------------|--------|---------|
+| Account → Cloudflare Pages | Edit | All Pages deployments |
+| Account → Workers Scripts | Edit | Worker deployments (hi-redirector, maps-proxy) |
+| Zone → Workers Routes | Edit | Custom domain routing for workers |
+
+To create or update the token:
+1. Go to https://dash.cloudflare.com/profile/api-tokens
+2. Create a token with the permissions above, or use the "Edit Cloudflare Workers" template and add Pages permissions
 
 ## Image Alt Text Guidelines
 
