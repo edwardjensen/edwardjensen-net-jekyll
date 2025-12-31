@@ -128,7 +128,7 @@ featured: true  # Shows in homepage featured section
 
 ## Deployment Workflows
 
-This project uses **six deployment workflows** with a unified staging architecture:
+This project uses **seven deployment workflows** with a unified staging architecture. All Cloudflare deployments use **Wrangler v4** (installed via `npm install -g wrangler@4`).
 
 ### Workflow Overview
 
@@ -139,6 +139,7 @@ This project uses **six deployment workflows** with a unified staging architectu
 | `deploy-prod-site.yml` | Push `v*` tag | Production release |
 | `republish-prod-site.yml` | `prod_cms_publish` webhook, manual | Rebuild production with CMS changes |
 | `publish-prod-photo.yml` | `prod_cms_photo_publish` webhook, manual | Rebuild production for new photography |
+| `deploy-hi-redirector.yml` | Push to `main` (worker files), manual | Deploy hi.edwardjensen.net worker |
 | `cleanup-cloudflare.yml` | Weekly schedule, manual | Clean old Cloudflare deployments |
 
 ### Unified Staging Workflow
@@ -297,6 +298,28 @@ The site includes an occasionally live camera stream at `/saintpaulcamera/` feat
 - Cloudflare Stream iframe with `autoplay=true&muted=true`
 - Responsive 16:9 aspect ratio (`aspect-video`)
 - Excluded from search (`searchable: false`), included in sitemap
+
+## Cloudflare Workers
+
+This repository contains Cloudflare Workers in `cloudflare-workers/`:
+
+### Google Maps Proxy (`maps-proxy/`)
+Proxies requests to Google Maps Static API, keeping the API key server-side.
+- **URL**: `https://ejnetmaps.edwardjensenprojects.com/staticmap`
+- **Config**: `_data/google-maps.yml`
+
+### Hi Redirector (`hi-redirector/`)
+Handles short URL redirects for `hi.edwardjensen.net` with UTM tracking.
+- **URL**: `https://hi.edwardjensen.net`
+- **Config**: `_data/hi-redirects.json`
+- **Routes**: `/` (root), `/{platform}` (social), `/{tag}` (events), `/events.json` (API)
+- **Deploys**: Automatically when worker files or config change on `main`
+
+**Note**: The `hi.edwardjensen.net` subdomain is handled entirely by this worker - there is no separate Jekyll site for it.
+
+### API Token Permissions
+
+The `CLOUDFLARE_API_TOKEN` secret requires: Cloudflare Pages (Edit), Workers Scripts (Edit), Workers Routes (Edit). See CLAUDE.md for full details.
 
 ## Key Patterns
 

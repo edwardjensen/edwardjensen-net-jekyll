@@ -235,12 +235,15 @@ The site uses an **environment promotion model**:
 
 ### GitHub Actions Workflows
 
+All Cloudflare deployments use **Wrangler v4**.
+
 | Workflow                   | Trigger              | Purpose                              |
 | -------------------------- | -------------------- | ------------------------------------ |
 | `pr-checks.yml`            | Pull request         | Build validation                     |
 | `deploy-staging.yml`       | Push to `main`       | Deploy to staging environment        |
 | `deploy-prod-site.yml`     | Push `v*` tag        | Deploy to production                 |
 | `republish-prod-site.yml`  | CMS webhook          | Rebuild production with CMS changes  |
+| `deploy-hi-redirector.yml` | Push (worker files)  | Deploy hi.edwardjensen.net worker    |
 
 ### Build Configuration
 
@@ -327,6 +330,19 @@ npm run build:css -- --watch
 
 - Ensure `--livereload` flag is set in Jekyll command
 - Check that no other process is using port 4000
+
+---
+
+## Cloudflare Workers
+
+This repository includes Cloudflare Workers in `cloudflare-workers/`:
+
+| Worker | URL | Purpose |
+| ------ | --- | ------- |
+| `maps-proxy` | `ejnetmaps.edwardjensenprojects.com` | Google Maps Static API proxy |
+| `hi-redirector` | `hi.edwardjensen.net` | Short URL redirects with UTM tracking |
+
+The `hi.edwardjensen.net` subdomain is handled entirely by a Cloudflare Worker in this repository - there is no separate Jekyll site for it.
 
 ---
 
