@@ -1,4 +1,4 @@
-name: Deploy Hi Redirector Worker
+name: Deploy hi.edwardjensen.net redirector
 
 on:
   push:
@@ -13,6 +13,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     name: Deploy to Cloudflare Workers
+    environment: production
 
     steps:
       - name: Checkout repository
