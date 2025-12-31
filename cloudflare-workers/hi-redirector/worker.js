@@ -10,7 +10,7 @@
  *   - /*             → Catch-all redirect to main site /hi page
  */
 
-import redirects from '../../_data/hi-redirects.json';
+import redirects from './hi-redirects.json';
 
 // Build lookup maps for O(1) path matching
 const socialMap = new Map(

@@ -1,4 +1,4 @@
-name: Deploy hi.edwardjensen.net redirector
+name: Deploy hi.edwardjensen.net redirection URLs
 
 on:
   push:
@@ -11,20 +11,32 @@ on:
     types: [hi_redirector_update]
 
 jobs:
-  deploy:
+  get-redirects-and-deploy:
     runs-on: ubuntu-latest
     name: Deploy to Cloudflare Workers
     environment: production
+    defaults:
+      run:
+        working-directory: cloudflare-workers/hi-redirector
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Connect to Tailscale VPN
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_CLIENT_SECRET }}
+          tags: tag:ci
+          args: --accept-dns=true
+
       - name: Fetch redirects from CMS
-        if: github.event_name == 'repository_dispatch'
+        env:
+          CMS_URL: ${{ secrets.CMS_URL }}
         run: |
           echo "Fetching redirects from CMS..."
-          curl -sf "${{ secrets.CMS_API_URL }}/api/globals/redirects/export-json" \
+          curl -sf "${CMS_URL}/api/globals/redirects/export-json" \
             -o _data/hi-redirects.json
           echo "Fetched redirects:"
           cat _data/hi-redirects.json
@@ -38,8 +50,7 @@ jobs:
         run: npm install -g wrangler@4
 
       - name: Deploy Worker
-        working-directory: cloudflare-workers/hi-redirector
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: wrangler deploy
+        run: wrangler deploy --commit-dirty=true
