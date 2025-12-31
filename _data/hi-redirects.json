@@ -1,0 +1,11 @@
+{
+  "baseUrl": "https://www.edwardjensen.net/hi",
+  "social": [
+    { "platform": "linkedin" },
+    { "platform": "bluesky" },
+    { "platform": "github" }
+  ],
+  "events": [
+    { "event": "Keychain", "type": "in-person", "tag": "keychain" }
+  ]
+}

@@ -157,6 +157,7 @@ The [_data/](_data/) directory contains:
 - **[footer-text.yml](_data/footer-text.yml)** - Site disclaimer and feed footer text
 - **[staging-config.yml](_data/staging-config.yml)** - Staging deployment configuration templates
 - **[google-maps.yml](_data/google-maps.yml)** - Google Maps Static API settings (zoom, size, proxy URL)
+- **[hi-redirects.json](_data/hi-redirects.json)** - Redirect configuration for hi.edwardjensen.net worker
 - **buildinfo.yml** - Build information (generated during CI/CD)
 
 ## Build Scripts
@@ -205,6 +206,47 @@ wrangler deploy
 **Usage:** The site uses `_data/google-maps.yml` to configure the proxy URL, which is used by both the Liquid component (`photo-location-map.html`) and JavaScript modal (`photo-gallery.js`).
 
 **Allowed Parameters:** `center`, `zoom`, `size`, `scale`, `maptype`, `markers`, `format`
+
+### Hi Redirector Worker
+
+Located in `/cloudflare-workers/hi-redirector/`, this Cloudflare Worker handles short URL redirects for `hi.edwardjensen.net` with UTM tracking for analytics.
+
+**Files:**
+
+- `worker.js` - Redirect logic with UTM parameter construction
+- `wrangler.toml` - Cloudflare configuration with custom domain
+- `README.md` - Setup and deployment instructions
+
+**Configuration:**
+
+Redirect data is stored in `_data/hi-redirects.json`:
+
+```json
+{
+  "baseUrl": "https://www.edwardjensen.net/hi",
+  "social": [{ "platform": "linkedin" }],
+  "events": [{ "event": "Event Name", "type": "in-person", "tag": "shorttag" }]
+}
+```
+
+**Redirect Types:**
+
+- Root `/` - Redirects to main site /hi page
+- Social `/linkedin`, `/bluesky`, `/github` - Social platform redirects with UTM params
+- Events `/{tag}` - Event-specific redirects with UTM tracking
+- `/events.json` - JSON API endpoint listing all events (consumed by main site /hi page)
+- Catch-all `/*` - Redirects unknown paths to /hi page
+
+**Deployment:**
+
+Automatically deploys when files in `cloudflare-workers/hi-redirector/` or `_data/hi-redirects.json` are modified on main branch. Manual deploy:
+
+```bash
+cd cloudflare-workers/hi-redirector
+wrangler deploy
+```
+
+**Production URL:** `https://hi.edwardjensen.net`
 
 ## CMS Integration Plugin
 
@@ -407,7 +449,7 @@ Sitemap: {{ "sitemap.xml" | absolute_url }}
 
 ## Deployment
 
-This project uses **six deployment workflows** with a unified staging architecture:
+This project uses **seven deployment workflows** with a unified staging architecture:
 
 ### Workflow Overview
 
@@ -418,6 +460,7 @@ This project uses **six deployment workflows** with a unified staging architectu
 | `deploy-prod-site.yml` | Push `v*` tag | Production release |
 | `republish-prod-site.yml` | `prod_cms_publish` webhook, manual | Rebuild production with CMS changes |
 | `publish-prod-photo.yml` | `prod_cms_photo_publish` webhook, manual | Rebuild production for new photography |
+| `deploy-hi-redirector.yml` | Push to `main` (worker files), manual | Deploy hi.edwardjensen.net worker |
 | `cleanup-cloudflare.yml` | Weekly schedule, manual | Clean old Cloudflare deployments |
 
 ### Unified Staging Workflow

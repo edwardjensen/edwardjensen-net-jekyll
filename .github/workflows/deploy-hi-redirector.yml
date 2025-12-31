@@ -1,0 +1,27 @@
+name: Deploy Hi Redirector Worker
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'cloudflare-workers/hi-redirector/**'
+      - '_data/hi-redirects.json'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy to Cloudflare Workers
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Deploy Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: cloudflare-workers/hi-redirector
+          command: deploy
