@@ -8,6 +8,8 @@ on:
       - 'cloudflare-workers/hi-redirector/**'
       - '_data/hi-redirects.json'
   workflow_dispatch:
+  repository_dispatch:
+    types: [hi_redirector_update]
 
 jobs:
   deploy:
@@ -18,6 +20,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+
+      - name: Fetch redirects from CMS
+        if: github.event_name == 'repository_dispatch'
+        run: |
+          echo "Fetching redirects from CMS..."
+          curl -sf "${{ secrets.CMS_API_URL }}/api/globals/redirects/export-json" \
+            -o _data/hi-redirects.json
+          echo "Fetched redirects:"
+          cat _data/hi-redirects.json
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
