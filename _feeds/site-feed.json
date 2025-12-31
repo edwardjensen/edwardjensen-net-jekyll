@@ -26,6 +26,7 @@ permalink: /feed.json
       "url": "{{ post.url | prepend: site.baseurl | prepend: site.url }}",
       "title": {{ post.title | jsonify }},
       "content_html": {% capture content_html %}{% if post.show_image != false and post.image %}<img src="{{ post.image | absolute_url }}" alt="{{ post.title | xml_escape }}">{% endif %}{{ post.excerpt }}<p>{{ site.feed_footer_text | markdownify }}</p>{% endcapture %}{{ content_html | jsonify }},
+      "post_excerpt": {{ post.excerpt | strip_html | strip_newlines | strip | jsonify }},
       "date_published": "{{ post.date | date_to_xmlschema }}",
       {% if post.date-updated %}"date_modified": "{{ post.date-updated | date_to_xmlschema }}",{% endif %}
       {% if post.author %}
