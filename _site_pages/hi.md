@@ -5,7 +5,7 @@ image: "/assets/images/bluebackground.png"
 searchable: false
 sitemap: true
 permalink: /hi
-collection: landing_sections
+collection: sections_landing
 ---
 # It's nice to meet you! I'm Edward Jensen.
 

@@ -2,7 +2,7 @@
 layout: landing-page
 image: "/assets/images/bluebackground.png"
 searchable: false
-collection: homepage_sections
+collection: sections_homepage
 ---
 
 # Edward Jensen explores the intersection of nonprofit technology and mission-driven impact.
