@@ -15,9 +15,15 @@ module PayloadCMS
       @site = site
       @config = site.config['payload_graphql'] || {}
       @endpoint = @config['url']
+      # Default to true - builds fail on CMS errors unless explicitly disabled
+      @fail_on_error = @config['fail_on_error'] != false
 
       unless @endpoint
-        Jekyll.logger.warn 'PayloadCMS:', 'No payload_graphql.url configured in _config.yml, skipping CMS fetch'
+        message = 'No payload_graphql.url configured in _config.yml'
+        if @fail_on_error
+          raise "PayloadCMS: #{message}"
+        end
+        Jekyll.logger.warn 'PayloadCMS:', "#{message}, skipping CMS fetch"
         return
       end
 
@@ -50,7 +56,11 @@ module PayloadCMS
         docs = data.dig('data', graphql_query, 'docs') || []
 
         if docs.empty?
-          Jekyll.logger.info 'PayloadCMS:', "No published #{graphql_query} found"
+          message = "No published #{graphql_query} found in CMS"
+          if @fail_on_error
+            raise "PayloadCMS: #{message} - this may indicate a connectivity issue"
+          end
+          Jekyll.logger.info 'PayloadCMS:', message
           return
         end
 
@@ -70,6 +80,7 @@ module PayloadCMS
       rescue StandardError => e
         Jekyll.logger.error 'PayloadCMS:', "Failed to fetch #{graphql_query}: #{e.message}"
         Jekyll.logger.debug 'PayloadCMS:', e.backtrace.join("\n") if e.backtrace
+        raise if @fail_on_error
       end
     end
 

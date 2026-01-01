@@ -9,6 +9,7 @@ timezone: "America/Chicago"
 
 payload_graphql:
   url: "https://www-ts.edwardjensencms.com/api/graphql"
+  fail_on_error: true
 
 plugins:
   - jekyll-postcss-v2

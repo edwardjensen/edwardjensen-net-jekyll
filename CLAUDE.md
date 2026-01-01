@@ -265,6 +265,26 @@ Located in `/cloudflare-workers/stream-proxy/`, this Cloudflare Worker proxies r
 
 The `_plugins/payload_cms.rb` plugin fetches content from Payload CMS via GraphQL at build time.
 
+### Build Failure on CMS Errors
+
+By default, the build **fails** when:
+
+- CMS endpoint is not configured
+- CMS is unreachable (network errors, timeouts)
+- CMS returns HTTP errors (4xx/5xx)
+- CMS returns zero documents for any configured collection
+
+This ensures CI/CD pipelines surface CMS connectivity issues rather than silently deploying sites with missing content.
+
+To disable this behavior (e.g., for local development without CMS):
+
+```yaml
+# _config.local.yml
+payload_graphql:
+  url: "http://localhost:3000/api/graphql"
+  fail_on_error: false  # Allow builds to continue if CMS unavailable
+```
+
 ### Lexical Rich Text Conversion
 
 Payload CMS uses the Lexical editor for rich text content. The plugin converts Lexical JSON to HTML:
