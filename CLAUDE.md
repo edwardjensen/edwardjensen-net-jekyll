@@ -77,6 +77,7 @@ The site uses a two-tier layout inheritance pattern (refactored Oct 2025 to full
 - **[working-notes.html](_layouts/working-notes.html)** - Working notes archive
 - **[search-page.html](_layouts/search-page.html)** - Search results page
 - **[featured-tag.html](_layouts/featured-tag.html)** - Featured tag landing page with hero image and filtered post list
+- **[retired-post.html](_layouts/retired-post.html)** - Archive/retired post layout
 
 **Layout Features:**
 - Layouts can inject additional `<head>` content via `content_for_head` front matter variable
@@ -249,6 +250,16 @@ wrangler deploy
 ```
 
 **Production URL:** `https://hi.edwardjensen.net`
+
+### Stream Proxy Worker
+
+Located in `/cloudflare-workers/stream-proxy/`, this Cloudflare Worker proxies requests to Cloudflare Stream for the camera stream page.
+
+**Files:**
+
+- `worker.js` - Stream proxy logic
+- `wrangler.toml` - Cloudflare configuration
+- `README.md` - Setup and deployment instructions
 
 ## CMS Integration Plugin
 
