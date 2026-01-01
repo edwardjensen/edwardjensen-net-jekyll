@@ -19,8 +19,6 @@ markdown: kramdown
 highlighter: rouge
 kramdown:
   input: GFM
-  parse_block_html: true
-  parse_span_html: true
 
 postcss:
   cache: false
