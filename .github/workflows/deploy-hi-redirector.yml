@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'cloudflare-workers/hi-redirector/**'
+      - '.github/workflows/deploy-hi-redirector.yml'
   workflow_dispatch:
   repository_dispatch:
     types: [hi_redirector_update]
@@ -37,9 +38,9 @@ jobs:
         run: |
           echo "Fetching redirects from CMS..."
           curl -sf "${CMS_URL}/api/globals/redirects/export-json" \
-            -o _data/hi-redirects.json
+            -o hi-redirects.json
           echo "Fetched redirects:"
-          cat _data/hi-redirects.json
+          cat hi-redirects.json
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
