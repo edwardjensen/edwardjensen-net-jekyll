@@ -374,4 +374,4 @@ This is a personal website, so I'm not accepting pull requests for content chang
 
 ---
 
-**Last updated**: December 2025
+**Last updated**: January 2026

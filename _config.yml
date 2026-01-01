@@ -41,7 +41,6 @@ exclude:
   - CLAUDE.md
   - README.md
   - .pa11yci.json
-  - _data/old
   - _photography
   - .github
   - cloudflare-workers
@@ -128,9 +127,9 @@ collections:
     permalink: /portfolio/:title
   feeds:
     output: true
-  homepage_sections:
+  sections_homepage:
     output: false
-  camerastream_sections:
+  sections_camerastream:
     output: false
   working_notes:
     output: true
@@ -150,7 +149,7 @@ collections:
         - sitemap
         - updatedAt
         - createdAt
-  landing_sections:
+  sections_landing:
     output: false
   historic_posts:
     output: true

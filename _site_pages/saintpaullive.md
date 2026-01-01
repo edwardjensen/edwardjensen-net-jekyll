@@ -5,7 +5,7 @@ image: "/assets/images/bluebackground.png"
 searchable: false
 sitemap: true
 permalink: /saintpaulcamera/
-collection: camerastream_sections
+collection: sections_camerastream
 ---
 # It's nice to just watch the world go by.
 
