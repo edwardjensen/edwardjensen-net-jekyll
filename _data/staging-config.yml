@@ -40,6 +40,7 @@ base:
 staging_cms:
   payload_graphql:
     url: "https://staging-tailscale.edwardjensencms.com/api/graphql"
+    fail_on_error: true
 
 # Title templates based on configuration combination
 # Variables: {site_code}, {cms_source}
