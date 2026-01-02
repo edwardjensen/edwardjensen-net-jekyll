@@ -1,13 +1,17 @@
 {% comment %}
-  Embedded Working Note Component
+  Embedded Working Note - HTML Structure Reference
 
-  Renders a working note embedded within blog post content.
-  Data is passed from Payload CMS via Liquid include parameters.
+  NOTE: This file is NOT included via {% include %} anywhere.
+  The actual HTML is rendered server-side by Payload CMS and output
+  directly in the 'markdown' field of blog posts.
 
-  Parameters:
-    - title: Note title
-    - permalink: Link to full note
-    - content: Markdown content (will be passed through markdownify)
+  This file serves as:
+  1. Documentation of the expected HTML structure from the CMS
+  2. CSS class reference for styling in assets/css/main.css
+  3. Template for any future changes to the embedded content format
+
+  CSS classes are defined in main.css under the "Embedded Content" section.
+  The BEM naming convention (.embedded-working-note__element) is used.
 {% endcomment %}
 <aside class="embedded-working-note">
   <header class="embedded-working-note__header">

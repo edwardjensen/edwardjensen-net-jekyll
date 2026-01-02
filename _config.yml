@@ -192,45 +192,17 @@ collections:
     output: true
     permalink: /tags/:title
 
+# Layout defaults
+# Note: CMS-managed collections (posts, working_notes, historic_posts, pages, photography)
+# have their layouts set explicitly by the payload_cms.rb plugin via the cms.layout config.
+# Only file-based collections need defaults here.
 defaults:
-  -
-    scope: 
-      path: "_posts"
-    values:
-      layout: single-post
-  -
-    scope: 
-      path: "_drafts"
-    values:
-      layout: single-post
-  -
-    scope:
-      path: "_working_notes"
-    values:
-      layout: single-working-note
-      future: false
-  -
-    scope:
-      path: "_historic_posts"
-    values:
-      layout: single-post
-  -
-    scope:
-      path: "_pages"
-    values:
-      layout: page
   -
     scope:
       path: "_featured-tags"
       type: "featured-tags"
     values:
       layout: featured-tag
-  -
-    scope:
-      path: "_photography"
-      type: "photography"
-    values:
-      layout: single-photo
 
 social:
   name: Edward Jensen

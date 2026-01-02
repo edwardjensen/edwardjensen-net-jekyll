@@ -23,7 +23,7 @@ jobs:
       code: ${{ steps.filter.outputs.code }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Check for code changes
         uses: dorny/paths-filter@v3
@@ -45,7 +45,7 @@ jobs:
     if: needs.changes.outputs.code == 'true'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1
 
@@ -61,7 +61,7 @@ jobs:
           bundle install
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ vars.NODE_VERSION }}
           cache: 'npm'
@@ -82,7 +82,7 @@ jobs:
           JEKYLL_ENV=staging bundle exec jekyll build --config _config.yml
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: test-site-build
           path: ./_site
