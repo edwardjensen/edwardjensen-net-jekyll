@@ -65,11 +65,10 @@ The site uses a two-tier layout inheritance pattern (refactored Oct 2025 to full
 - **[content-wrapper.html](_layouts/content-wrapper.html)** - Extends base, adds full-width main with max-w-7xl centered container
 
 **Content Layouts** (all extend content-wrapper):
-- **[page.html](_layouts/page.html)** - Standard page with header styling
+- **[page.html](_layouts/page.html)** - Standard page with header styling. Supports `prose: false` front matter to disable prose styling for non-article pages.
 - **[single-post.html](_layouts/single-post.html)** - Blog post with article header, metadata, featured image, navigation
 - **[single-working-note.html](_layouts/single-working-note.html)** - Working notes layout
 - **[single-photo.html](_layouts/single-photo.html)** - Single photography post with photo, EXIF metadata, location map
-- **[writing-base.html](_layouts/writing-base.html)** - Writing archive pages with customizable header
 - **[photography.html](_layouts/photography.html)** - Photography gallery page
 - **[portfolio.html](_layouts/portfolio.html)** - Portfolio grid page
 - **[landing-page.html](_layouts/landing-page.html)** - Landing pages with custom sections
@@ -103,7 +102,7 @@ Includes are organized into three logical subdirectories in [_includes/](_includ
 - **[photo-metadata.html](_includes/components/photo-metadata.html)** - EXIF metadata display for photography posts
 - **[photo-navigation.html](_includes/components/photo-navigation.html)** - Previous/next photo navigation
 - **[photo-location-map.html](_includes/components/photo-location-map.html)** - Google Maps embed for photo location
-- **[photo-modal.html](_includes/components/photo-modal.html)** - Photo modal overlay template
+- **[photo-modal.html](_includes/components/photo-modal.html)** - Photo modal overlay (included in base.html, populated by photo-gallery.js)
 - **[privacy-modal.html](_includes/components/privacy-modal.html)** - Privacy policy modal
 - **[working-note.html](_includes/components/working-note.html)** - Working note component
 - **[prose-content.html](_includes/components/prose-content.html)** - Formatted prose content wrapper
@@ -122,7 +121,7 @@ Includes are organized into three logical subdirectories in [_includes/](_includ
 
 **`embeds/`** - Embedded content reference templates:
 
-- **[working-note.html](_includes/embeds/working-note.html)** - Working note template (reference only - HTML comes directly from Payload)
+- **[working-note.html](_includes/embeds/working-note.html)** - HTML structure reference for CMS-rendered embedded notes (not included via Liquid)
 
 **Embedded Content System:**
 
@@ -482,7 +481,7 @@ Sitemap: {{ "sitemap.xml" | absolute_url }}
 
 ## Deployment
 
-This project uses **seven deployment workflows** with a unified staging architecture:
+This project uses **six deployment workflows** with a unified staging architecture:
 
 ### Workflow Overview
 
@@ -491,8 +490,7 @@ This project uses **seven deployment workflows** with a unified staging architec
 | `pr-checks.yml` | Pull request to `main` | Build validation (no deployment) |
 | `deploy-staging.yml` | Push to `main`, repository_dispatch, manual | Unified staging deployment |
 | `deploy-prod-site.yml` | Push `v*` tag | Production release |
-| `republish-prod-site.yml` | `prod_cms_publish` webhook, manual | Rebuild production with CMS changes |
-| `publish-prod-photo.yml` | `prod_cms_photo_publish` webhook, manual | Rebuild production for new photography |
+| `republish-prod.yml` | `prod_cms_publish` or `prod_cms_photo_publish` webhook, manual | Rebuild production with CMS changes |
 | `deploy-hi-redirector.yml` | Push to `main` (worker files), manual | Deploy hi.edwardjensen.net worker |
 | `cleanup-cloudflare.yml` | Weekly schedule, manual | Clean old Cloudflare deployments |
 
@@ -532,19 +530,13 @@ The `deploy-staging.yml` workflow uses configuration from `_data/staging-config.
 - **Destination**: Cloudflare Pages (edwardjensen.net)
 - Creates GitHub Release with auto-generated notes
 
-**2. `republish-prod-site.yml`** (CMS Content Refresh)
+**2. `republish-prod.yml`** (CMS Content Refresh)
 
-- **Trigger**: `prod_cms_publish` webhook or manual
+- **Trigger**: `prod_cms_publish` or `prod_cms_photo_publish` webhook, or manual
 - **Site Code**: Latest `v*` tag
 - **CMS Data**: Production
 - **Destination**: Cloudflare Pages
-
-**3. `publish-prod-photo.yml`** (Photography Publishing)
-
-- **Trigger**: `prod_cms_photo_publish` webhook or manual
-- **Site Code**: Latest `v*` tag
-- **CMS Data**: Production
-- **Destination**: Cloudflare Pages
+- Handles both general content and photography publishing in a single consolidated workflow
 
 ### Maintenance Workflows
 
@@ -561,8 +553,7 @@ The `deploy-staging.yml` workflow uses configuration from `_data/staging-config.
 | `deploy-staging.yml` | Push to `main` | `main` branch | Staging | staging.edwardjensen.net |
 | `deploy-staging.yml` | `staging_cms_publish` | Latest `v*` tag | Staging | stagingsite.edwardjensencms.com |
 | `deploy-prod-site.yml` | Push `v*` tag | Tagged version | Production | edwardjensen.net |
-| `republish-prod-site.yml` | `prod_cms_publish` | Latest `v*` tag | Production | edwardjensen.net |
-| `publish-prod-photo.yml` | `prod_cms_photo_publish` | Latest `v*` tag | Production | edwardjensen.net |
+| `republish-prod.yml` | `prod_cms_publish` or `prod_cms_photo_publish` | Latest `v*` tag | Production | edwardjensen.net |
 
 ### Development Workflow
 
@@ -659,7 +650,9 @@ The photography gallery uses a modal overlay system with browser history integra
 
 - **[photography.html](_layouts/photography.html)** - Gallery layout with embedded JSON data store containing all photos
 - **[photo-gallery.js](assets/js/photo-gallery.js)** - Alpine.js component with History API (pushState/popState)
-- **[single-photo.html](_layouts/single-photo.html)** - SEO/no-JS fallback, includes script to fetch gallery and open modal
+- **[photo-page-modal.js](assets/js/photo-page-modal.js)** - Transforms single photo pages to gallery + modal view
+- **[photo-modal.html](_includes/components/photo-modal.html)** - Modal HTML template (included in base.html)
+- **[single-photo.html](_layouts/single-photo.html)** - SEO/no-JS fallback, loads photo-page-modal.js
 - **[photos-grid.html](_includes/sections/photos-grid.html)** - Grid with `@click.prevent="openPhotoByUrl()"` handlers
 
 **User Experience:**

@@ -114,7 +114,7 @@ JEKYLL_ENV=production bundle exec jekyll build
 ├── _plugins/                # Jekyll plugins
 ├── _portfolio/              # Project portfolio entries
 ├── assets/                  # Static assets (images, fonts, etc.)
-├── _homepage_sections/      # Homepage component partials
+├── _sections_homepage/      # Homepage component partials
 ├── scripts/                 # Build and utility scripts
 ├── site-docs/               # Developer documentation
 ├── package.json             # Node.js dependencies
@@ -242,7 +242,7 @@ All Cloudflare deployments use **Wrangler v4**.
 | `pr-checks.yml`            | Pull request         | Build validation                     |
 | `deploy-staging.yml`       | Push to `main`       | Deploy to staging environment        |
 | `deploy-prod-site.yml`     | Push `v*` tag        | Deploy to production                 |
-| `republish-prod-site.yml`  | CMS webhook          | Rebuild production with CMS changes  |
+| `republish-prod.yml`       | CMS webhook          | Rebuild production with CMS changes  |
 | `deploy-hi-redirector.yml` | Push (worker files)  | Deploy hi.edwardjensen.net worker    |
 
 ### Build Configuration
