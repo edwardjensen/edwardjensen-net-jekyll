@@ -1,4 +1,4 @@
-name: Republish Prod Site
+name: Republish Production Site
 
 # Consolidated workflow for rebuilding production site with latest CMS content.
 # Triggers on CMS publish events (content or photography) or manual dispatch.
@@ -87,4 +87,4 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: wrangler pages deploy _site --project-name=${{ secrets.CF_PAGES_PROJECT }} --branch=main --commit-dirty=true
+        run: wrangler pages deploy _site --project-name=${{ secrets.CF_PAGES_PROJECT }} --branch=main
