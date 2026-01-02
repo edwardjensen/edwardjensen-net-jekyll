@@ -7,10 +7,17 @@ layout: content-wrapper
     page_title=page.title
     page_subtitle=page.subtitle
     page_excerpt=page.excerpt
+    header_icon=page.header_icon
   %}
 
   <!-- Content -->
   <div class="p-8 lg:p-12">
-    {% include components/prose-content.html %}
+    {% if page.prose == false %}
+      <div class="[&_a]:hyperlinks">
+        {{ content }}
+      </div>
+    {% else %}
+      {% include components/prose-content.html %}
+    {% endif %}
   </div>
 </article>
