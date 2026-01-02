@@ -10,7 +10,7 @@
     "copy-assets": "node ./scripts/copy-vendor-assets.js",
     "prebuild": "npm run copy-assets",
     "build": "JEKYLL_ENV=production bundle exec jekyll build",
-    "build:serve": "bundle exec jekyll serve --config _config.yml,_config.dev.yml --livereload",
+    "build:serve": "bundle exec jekyll serve --config _config.yml,_config.local.yml --livereload",
     "build:staging": "JEKYLL_ENV=staging bundle exec jekyll build --config _config.yml,_config.staging.yml",
     "jekyll": "bundle exec jekyll serve --config _config.yml,_config.local.yml,_config.runtime.yml --livereload",
     "jekyll:staging": "bundle exec jekyll serve --config _config.yml,_config.local.yml,_config.runtime.yml --livereload",

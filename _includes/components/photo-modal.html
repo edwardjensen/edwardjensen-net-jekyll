@@ -1,56 +1,157 @@
-<!-- Photo Modal Component -->
-<template x-if="photoModal.isOpen">
-  <div class="fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center p-4 top-0 left-0 w-screen h-screen"
-       @click.self="close()"
-       @keydown.escape="close()">
-    <!-- Modal Container -->
-    <div class="relative w-full h-full flex flex-col bg-black rounded-lg overflow-hidden max-w-6xl max-h-[95vh]">
-      <!-- Close Button -->
-      <button @click="close()"
-              class="absolute top-4 right-4 z-50 bg-white/20 hover:bg-white/40 text-white rounded-full p-2 transition-colors"
-              aria-label="Close modal">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
+<!-- Photo Modal Component
+     Displays photo in fullscreen modal with optional details panel.
+     Used by photo-gallery.js for both photography index and homepage simple modes.
+     The modal is initially hidden and shown via JavaScript.
+-->
+<div id="photo-modal-root">
+  <div id="photo-modal-overlay"
+       class="fixed inset-0 bg-black z-[9999]"
+       style="display: none;"
+       @keydown.escape.window="if (window.photoGalleryInstance?.photoModal.isOpen) window.photoGalleryInstance.closeModal(true)"
+       @keydown.left.window="if (window.photoGalleryInstance?.photoModal.isOpen) window.photoGalleryInstance.previous()"
+       @keydown.right.window="if (window.photoGalleryInstance?.photoModal.isOpen) window.photoGalleryInstance.next()"
+       @keydown.i.window="if (window.photoGalleryInstance?.photoModal.isOpen) window.photoGalleryInstance.toggleInfo()">
 
-      <!-- Image Container -->
-      <div class="flex-1 flex items-center justify-center overflow-auto">
-        <img :src="photoModal.image"
-             :alt="photoModal.alt"
-             class="w-full h-full object-contain">
-      </div>
+    <!-- Top toolbar (fixed) -->
+    <div class="fixed top-0 left-0 right-0 z-[10001] flex justify-between items-center p-4">
+      <!-- Back link -->
+      <a id="modal-back-link"
+         href="/photos/"
+         class="bg-white/10 hover:bg-white/20 text-white rounded-full px-4 py-2 transition-colors text-sm flex items-center gap-2"
+         title="Back">
+        <i class="bi bi-arrow-left"></i>
+        <span id="modal-back-link-text" class="hidden sm:inline">Back</span>
+      </a>
 
-      <!-- Caption -->
-      <div class="p-4 border-t border-slate-700 bg-black/80">
-        <p class="text-sm text-slate-100 whitespace-normal break-words">
-          <span x-text="photoModal.caption" class="block"></span>
-        </p>
-        <p class="text-xs text-slate-400 mt-2">
-          <a :href="photoModal.link" 
-             target="_blank" 
-             rel="noopener noreferrer"
-             class="text-amber-400 hover:text-amber-300 underline">
-            View on micro.edwardjensen.net
-          </a>
-        </p>
-      </div>
-
-      <!-- Navigation Buttons -->
-      <div class="absolute bottom-4 left-4 right-4 flex gap-2 justify-center">
-        <button @click="previous()"
-                :disabled="!hasPrevious()"
-                class="px-3 py-1 text-sm bg-white/20 hover:bg-white/40 disabled:opacity-30 text-white rounded transition-colors"
-                aria-label="Previous photo">
-          ← Prev
+      <div class="flex items-center gap-2">
+        <!-- Info toggle button (only shown if photo has additional details) -->
+        <button id="modal-details-toggle"
+                onclick="window.photoGalleryInstance?.toggleInfo()"
+                class="bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-colors"
+                style="display: none;"
+                aria-label="Show info"
+                title="Show info (i)">
+          <i class="bi bi-info-circle"></i>
         </button>
-        <button @click="next()"
-                :disabled="!hasNext()"
-                class="px-3 py-1 text-sm bg-white/20 hover:bg-white/40 disabled:opacity-30 text-white rounded transition-colors"
-                aria-label="Next photo">
-          Next →
+
+        <!-- Close button -->
+        <button onclick="window.photoGalleryInstance?.closeModal(true)"
+                class="bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-colors"
+                aria-label="Close and return to gallery">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
         </button>
       </div>
     </div>
+
+    <!-- Main content area (adjusts when details panel is visible) -->
+    <div id="modal-main-content" class="h-screen flex flex-col transition-all duration-300">
+      <!-- Image container (centered, takes available space) -->
+      <div class="flex-1 flex items-center justify-center px-4 pt-20 pb-4 relative min-h-0"
+           onclick="window.photoGalleryInstance?.toggleInfo()">
+        <img id="modal-photo-image"
+             src=""
+             alt=""
+             class="max-w-full max-h-full object-contain rounded-lg cursor-pointer"
+             onclick="event.stopPropagation(); window.photoGalleryInstance?.toggleInfo()">
+
+        <!-- Info overlay on image (auto-hides after 5 seconds, hidden when panel is open) -->
+        <div id="modal-photo-overlay-info"
+             class="absolute bottom-4 left-4 right-4 pointer-events-none transition-opacity duration-300"
+             style="opacity: 1;">
+          <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 max-w-4xl mx-auto">
+            <!-- Title (bottom left) -->
+            <div id="modal-overlay-title-container" class="flex-1 min-w-0"></div>
+
+            <!-- Tags and date (bottom right) -->
+            <div class="flex flex-col items-start sm:items-end gap-2 flex-shrink-0">
+              <div id="modal-overlay-tags" class="flex flex-wrap gap-1.5 justify-start sm:justify-end"></div>
+              <time id="modal-overlay-date" class="text-white/80 text-sm drop-shadow-lg"></time>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation bar (at bottom) -->
+      <nav class="flex-shrink-0 bg-gradient-to-t from-black via-black/80 to-transparent py-4 px-4">
+        <div class="max-w-lg mx-auto flex justify-between items-center">
+          <button id="modal-prev-btn"
+                  onclick="window.photoGalleryInstance?.previous()"
+                  class="flex items-center gap-2 text-white/70 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed px-4 py-2"
+                  aria-label="Previous photo">
+            <i class="bi bi-chevron-left text-lg"></i>
+            <span>Previous</span>
+          </button>
+
+          <span id="modal-photo-counter" class="text-white/50 text-sm"></span>
+
+          <button id="modal-next-btn"
+                  onclick="window.photoGalleryInstance?.next()"
+                  class="flex items-center gap-2 text-white/70 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed px-4 py-2"
+                  aria-label="Next photo">
+            <span>Next</span>
+            <i class="bi bi-chevron-right text-lg"></i>
+          </button>
+        </div>
+      </nav>
+    </div>
+
+    <!-- Details panel (part of layout, hidden by default) -->
+    <div id="modal-details-panel"
+         class="fixed top-0 right-0 bottom-0 w-full sm:w-[480px] bg-slate-900 z-[10000] overflow-y-auto"
+         style="display: none;">
+
+      <!-- Panel header -->
+      <div class="sticky top-0 bg-slate-900 p-4 pt-20 border-b border-slate-700 flex justify-between items-center">
+        <h2 class="text-white font-semibold">Photo Details</h2>
+        <button onclick="window.photoGalleryInstance?.toggleInfo()"
+                class="text-white/70 hover:text-white p-2 transition-colors"
+                aria-label="Close details">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-5">
+        <!-- Title and date -->
+        <header>
+          <div id="modal-photo-title-container"></div>
+          <time id="modal-photo-date" class="text-slate-400 text-base block mb-3"></time>
+          <div id="modal-photo-tags" class="flex flex-wrap gap-2"></div>
+        </header>
+
+        <!-- Description (if any) -->
+        <div id="modal-photo-content" class="text-slate-300 text-base" style="display: none;"></div>
+
+        <!-- EXIF Metadata -->
+        <div id="modal-exif-section" class="bg-slate-800/50 rounded-lg" style="display: none;">
+          <div class="p-4 flex items-center gap-2 text-sm font-semibold text-white uppercase tracking-wide border-b border-slate-700/50">
+            <i class="bi bi-camera"></i>
+            <span>Camera Details</span>
+          </div>
+          <dl id="modal-exif-grid" class="grid grid-cols-2 gap-4 text-sm p-4"></dl>
+        </div>
+
+        <!-- Location Map -->
+        <div id="modal-location-section" class="bg-slate-800/50 rounded-lg" style="display: none;">
+          <div class="p-4 flex items-center gap-2 text-sm font-semibold text-white uppercase tracking-wide border-b border-slate-700/50">
+            <i class="bi bi-geo-alt"></i>
+            <span>Location</span>
+          </div>
+          <div class="p-4">
+            <p id="modal-location-name" class="text-slate-300 text-base mb-3" style="display: none;"></p>
+            <div class="aspect-video w-full rounded-lg overflow-hidden bg-slate-700">
+              <img id="modal-location-map"
+                   src=""
+                   alt=""
+                   class="w-full h-full object-cover"
+                   loading="lazy">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-</template>
+</div>

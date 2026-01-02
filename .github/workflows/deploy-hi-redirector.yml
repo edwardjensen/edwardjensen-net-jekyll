@@ -43,9 +43,9 @@ jobs:
           cat hi-redirects.json
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: ${{ vars.NODE_VERSION }}
 
       - name: Install Wrangler
         run: npm install -g wrangler@4

@@ -128,7 +128,7 @@ featured: true  # Shows in homepage featured section
 
 ## Deployment Workflows
 
-This project uses **seven deployment workflows** with a unified staging architecture. All Cloudflare deployments use **Wrangler v4** (installed via `npm install -g wrangler@4`).
+This project uses **six deployment workflows** with a unified staging architecture. All Cloudflare deployments use **Wrangler v4** (installed via `npm install -g wrangler@4`).
 
 ### Workflow Overview
 
@@ -137,8 +137,7 @@ This project uses **seven deployment workflows** with a unified staging architec
 | `pr-checks.yml` | Pull request to `main` | Build validation (no deployment) |
 | `deploy-staging.yml` | Push to `main`, repository_dispatch, manual | Unified staging deployment |
 | `deploy-prod-site.yml` | Push `v*` tag | Production release |
-| `republish-prod-site.yml` | `prod_cms_publish` webhook, manual | Rebuild production with CMS changes |
-| `publish-prod-photo.yml` | `prod_cms_photo_publish` webhook, manual | Rebuild production for new photography |
+| `republish-prod.yml` | `prod_cms_publish` or `prod_cms_photo_publish` webhook, manual | Rebuild production with CMS changes |
 | `deploy-hi-redirector.yml` | Push to `main` (worker files), manual | Deploy hi.edwardjensen.net worker |
 | `cleanup-cloudflare.yml` | Weekly schedule, manual | Clean old Cloudflare deployments |
 
@@ -168,8 +167,7 @@ The `deploy-staging.yml` workflow uses configuration from `_data/staging-config.
 | `deploy-staging.yml` | Push to `main` | `main` branch | Staging | staging.edwardjensen.net |
 | `deploy-staging.yml` | `staging_cms_publish` | Latest `v*` tag | Staging | stagingsite.edwardjensencms.com |
 | `deploy-prod-site.yml` | Push `v*` tag | Tagged version | Production | edwardjensen.net |
-| `republish-prod-site.yml` | `prod_cms_publish` | Latest `v*` tag | Production | edwardjensen.net |
-| `publish-prod-photo.yml` | `prod_cms_photo_publish` | Latest `v*` tag | Production | edwardjensen.net |
+| `republish-prod.yml` | `prod_cms_publish` or `prod_cms_photo_publish` | Latest `v*` tag | Production | edwardjensen.net |
 
 ### Development Workflow
 
@@ -261,7 +259,9 @@ The photography gallery (`/photos/`) uses a modal overlay system with URL routin
 
 - `_layouts/photography.html` - Gallery layout with embedded JSON data store
 - `assets/js/photo-gallery.js` - Alpine.js component with History API integration
-- `_layouts/single-photo.html` - SEO/no-JS fallback with gallery transformation script
+- `assets/js/photo-page-modal.js` - Transforms single photo pages to gallery + modal view
+- `_includes/components/photo-modal.html` - Modal HTML template (included in base.html)
+- `_layouts/single-photo.html` - SEO/no-JS fallback, loads photo-page-modal.js
 
 **Behavior:**
 
