@@ -17,7 +17,7 @@
 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 lg:gap-4">
   {% for item in photos %}
   <a href="{{ item.url }}"
-     class="group relative aspect-square overflow-hidden rounded-lg bg-slate-900"
+     class="group relative aspect-square overflow-hidden"
      @click.prevent="openPhotoByUrl('{{ item.url }}')">
     <img
       src="{{ item.image }}"

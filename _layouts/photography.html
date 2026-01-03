@@ -27,7 +27,7 @@ layout: base
           "dateFormatted": {{ photo.date | date: "%-d %B %Y" | jsonify }},
           "image": {{ photo.image | jsonify }},
           "imageAlt": {{ photo.image_alt | default: photo.title | jsonify }},
-          "content": {{ photo.content | strip_html | strip | jsonify }},
+          "content": {{ photo.caption | default: "" | jsonify }},
           "tags": {{ photo.tags | default: empty | jsonify }},
           "exif": {
             "camera": {{ photo.exif_camera | default: nil | jsonify }},

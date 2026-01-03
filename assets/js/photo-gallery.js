@@ -56,6 +56,9 @@ window.photoGallery = function() {
         return; // Cannot proceed without modal
       }
 
+      // Setup keyboard navigation
+      this.setupKeyboardNavigation();
+
       // Store reference globally for modal access
       window.photoGalleryInstance = this;
 
@@ -125,6 +128,8 @@ window.photoGallery = function() {
 
         const photo = this.findPhotoByUrl(currentPath);
         if (photo) {
+          // When opening from direct URL, set source to gallery (not the photo URL itself)
+          this.sourceUrl = this.galleryUrl;
           // Small delay to ensure DOM is ready
           setTimeout(() => this.openPhotoFull(photo, false), 100);
         }
@@ -159,6 +164,40 @@ window.photoGallery = function() {
         } else {
           // Close modal (returned to gallery)
           this.closeModal(false);
+        }
+      });
+    },
+
+    // Setup keyboard navigation for modal (only once)
+    setupKeyboardNavigation() {
+      // Prevent duplicate listeners if init() is called multiple times
+      if (window._photoGalleryKeyboardSetup) return;
+      window._photoGalleryKeyboardSetup = true;
+
+      window.addEventListener('keydown', (event) => {
+        // Only handle keys when modal is open
+        if (!window.photoGalleryInstance?.photoModal.isOpen) return;
+
+        switch (event.key) {
+          case 'Escape':
+            window.photoGalleryInstance.closeModal(true);
+            break;
+          case 'ArrowLeft':
+          case 'ArrowUp':
+            // Go forward in time (previous photo)
+            event.preventDefault();
+            window.photoGalleryInstance.previous();
+            break;
+          case 'ArrowRight':
+          case 'ArrowDown':
+            // Go back in time (next photo)
+            event.preventDefault();
+            window.photoGalleryInstance.next();
+            break;
+          case 'i':
+          case 'I':
+            window.photoGalleryInstance.toggleInfo();
+            break;
         }
       });
     },
@@ -279,6 +318,30 @@ window.photoGallery = function() {
       document.body.style.overflow = '';
     },
 
+    // Handle back button click - close modal and navigate to source URL
+    handleBackClick() {
+      const targetUrl = this.sourceUrl || this.galleryUrl;
+
+      // Close the modal first (without pushing state, we'll navigate instead)
+      this.photoModal.isOpen = false;
+      this.photoModal.photo = null;
+      this.currentIndex = -1;
+      this.clearInfoTimer();
+      this.showInfo = false;
+
+      // Hide modal
+      const modalDiv = document.getElementById('photo-modal-overlay');
+      if (modalDiv) {
+        modalDiv.style.display = 'none';
+      }
+
+      // Restore body scroll
+      document.body.style.overflow = '';
+
+      // Navigate to the source URL
+      window.location.href = targetUrl;
+    },
+
     // Navigate to next photo (preserves info panel state)
     next() {
       if (this.hasNext()) {
@@ -346,6 +409,7 @@ window.photoGallery = function() {
       const hasDetails = this.hasAdditionalDetails(photo);
 
       const overlayInfo = document.getElementById('modal-photo-overlay-info');
+      const overlayBg = document.getElementById('modal-photo-overlay-bg');
       const detailsPanel = document.getElementById('modal-details-panel');
       const detailsToggle = document.getElementById('modal-details-toggle');
       const mainContent = document.getElementById('modal-main-content');
@@ -360,6 +424,10 @@ window.photoGallery = function() {
           overlayInfo.style.opacity = this.showInfo ? '0' : '1';
           overlayInfo.style.pointerEvents = this.showInfo ? 'none' : 'auto';
         }
+        if (overlayBg) {
+          // Hide overlay background when details panel is visible
+          overlayBg.style.opacity = this.showInfo ? '0' : '1';
+        }
         if (mainContent) {
           // Adjust layout when panel is visible
           mainContent.classList.toggle('lg:mr-[400px]', this.showInfo);
@@ -369,6 +437,9 @@ window.photoGallery = function() {
         if (overlayInfo) {
           overlayInfo.style.opacity = this.showInfo ? '1' : '0';
           overlayInfo.style.pointerEvents = this.showInfo ? 'auto' : 'none';
+        }
+        if (overlayBg) {
+          overlayBg.style.opacity = this.showInfo ? '1' : '0';
         }
       }
 
