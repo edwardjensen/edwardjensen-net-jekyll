@@ -232,12 +232,18 @@ module PayloadCMS
         end
       end
 
-      # Content - use markdown field if available (e.g., WorkingNotes), 
+      # Content - use markdown field if available (e.g., WorkingNotes),
       # otherwise convert Lexical JSON to HTML
       if doc_data['markdown'] && !doc_data['markdown'].empty?
         doc.content = doc_data['markdown']
       else
         doc.content = convert_content(doc_data['content'])
+      end
+
+      # For photography, store plain-text caption for SEO and modal display
+      # This decodes HTML entities that would otherwise appear as &quot; etc.
+      if cms_config['collection'] == 'Photography' && doc.content && !doc.content.empty?
+        doc.data['caption'] = strip_html_and_decode_entities(doc.content)
       end
 
       # Mark as from CMS
@@ -410,6 +416,27 @@ module PayloadCMS
           .gsub('>', '&gt;')
           .gsub('"', '&quot;')
           .gsub("'", '&#39;')
+    end
+
+    # Strip HTML tags and decode HTML entities back to plain text
+    # Used for generating plain-text captions for SEO and display
+    def strip_html_and_decode_entities(html)
+      return '' if html.nil? || html.empty?
+
+      # Strip HTML tags
+      text = html.gsub(/<[^>]+>/, ' ')
+
+      # Decode common HTML entities
+      text = text
+             .gsub('&amp;', '&')
+             .gsub('&lt;', '<')
+             .gsub('&gt;', '>')
+             .gsub('&quot;', '"')
+             .gsub('&#39;', "'")
+             .gsub('&nbsp;', ' ')
+
+      # Collapse whitespace and trim
+      text.gsub(/\s+/, ' ').strip
     end
   end
 end
