@@ -29,16 +29,16 @@
 
         <!-- Title -->
         <h3 class="text-lg font-semibold mb-2">
-          <a 
+          <a
             :href="data[result.ref].url"
             class="link-accent hover:underline"
-            x-text="data[result.ref].title"
+            x-text="decodeHtml(data[result.ref].title)"
           ></a>
         </h3>
 
         <!-- Excerpt -->
         <p class="text-body mb-3">
-          <span x-text="data[result.ref].excerpt"></span>…
+          <span x-text="decodeHtml(data[result.ref].excerpt)"></span>…
         </p>
 
         <!-- Read more link -->
@@ -65,7 +65,7 @@
 </div>
 
 <!-- Lunr search script from CDN -->
-<script src={{ "/assets/js/lunr.min.js" | relative_url }}></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.9/lunr.min.js"></script>
 <script>
   function searchHandler() {
     return {
@@ -75,6 +75,13 @@
       index: null,
       isSearching: false,
       searchTimeout: null,
+
+      // Decode HTML entities
+      decodeHtml(html) {
+        const txt = document.createElement('textarea');
+        txt.innerHTML = html;
+        return txt.value;
+      },
 
       async init() {
         try {
