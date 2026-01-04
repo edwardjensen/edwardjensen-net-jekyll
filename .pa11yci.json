@@ -1,21 +1,19 @@
 {
-  "standard": "WCAG2AA",
-  "timeout": 10000,
-  "wait": 1000,
-  "chromeLaunchConfig": {
-    "args": [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-dev-shm-usage"
+  "defaults": {
+    "standard": "WCAG2AA",
+    "timeout": 10000,
+    "wait": 1000,
+    "chromeLaunchConfig": {
+      "args": [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage"
+      ]
+    },
+    "runners": [
+      "axe",
+      "htmlcs"
     ]
   },
-  "runners": [
-    "axe",
-    "pa11y"
-  ],
-  "threshold": 0,
-  "reporters": [
-    "json",
-    "cli"
-  ]
+  "threshold": 0
 }
