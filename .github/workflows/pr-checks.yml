@@ -32,7 +32,6 @@ jobs:
           filters: |
             code:
               - '**'
-              - '!context-docs/**'
               - '!.github/copilot-instructions.md'
               - '!assets/images/**'
               - '!README.md'
@@ -88,26 +87,76 @@ jobs:
           path: ./_site
           retention-days: 1
 
+  accessibility-checks:
+    name: Accessibility Checks
+    runs-on: ubuntu-latest
+    needs: [changes, build-test-site]
+    if: needs.changes.outputs.code == 'true' && needs.build-test-site.result == 'success'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Download built site
+        uses: actions/download-artifact@v7
+        with:
+          name: test-site-build
+          path: ./_site
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ vars.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Run accessibility checks
+        id: a11y
+        run: npm run a11y:ci -- --report accessibility-report.json
+        continue-on-error: true
+
+      - name: Upload accessibility report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: accessibility-report
+          path: accessibility-report.json
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Check accessibility results
+        if: steps.a11y.outcome == 'failure'
+        run: |
+          echo "::error::Accessibility checks failed. See the accessibility-report artifact for details."
+          exit 1
+
   # Final status check - this is the required check in branch protection
   # Passes when: all checks pass OR only docs/markdown files changed
   pr-status-push-check:
     name: PR Status
     runs-on: ubuntu-latest
-    needs: [changes, build-test-site]
+    needs: [changes, build-test-site, accessibility-checks]
     if: always()
     steps:
       - name: Check status
         run: |
           if [[ "${{ needs.changes.outputs.code }}" == "false" ]]; then
-            echo "✅ Only documentation changes detected - skipping checks"
+            echo "::notice::Only documentation changes detected - skipping checks"
             exit 0
           fi
 
-          if [[ "${{ needs.build-test-site.result }}" == "success" ]]; then
-            echo "✅ All checks passed"
+          BUILD_RESULT="${{ needs.build-test-site.result }}"
+          A11Y_RESULT="${{ needs.accessibility-checks.result }}"
+
+          if [[ "${BUILD_RESULT}" == "success" && "${A11Y_RESULT}" == "success" ]]; then
+            echo "::notice::All checks passed"
             exit 0
           fi
 
-          echo "❌ One or more checks failed"
-          echo "  build-test-site: ${{ needs.build-test-site.result }}"
+          echo "::error::One or more checks failed"
+          echo "  build-test-site: ${BUILD_RESULT}"
+          echo "  accessibility-checks: ${A11Y_RESULT}"
           exit 1

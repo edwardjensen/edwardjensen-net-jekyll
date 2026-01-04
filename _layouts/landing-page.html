@@ -9,7 +9,7 @@ content_for_head: |
 
 <!-- Top section without box, full width with matching header margins -->
 <main class="w-full" id="main-content" role="main">
-  <section class="flex items-center justify-center text-center max-w-7xl mx-auto px-4 lg:px-8 py-6 lg:py-6 mb-0" aria-labelledby="homepage-hero-section">
+  <section class="flex items-center justify-center text-center max-w-7xl mx-auto px-4 lg:px-8 py-6 lg:py-6 mb-0" aria-label="Introduction">
     <div class="prose dark:prose-invert max-w-none text-xl [&_h1]:text-3xl">
       {{ content }}
     </div>
@@ -23,10 +23,11 @@ content_for_head: |
 {% for section in sections %}
 
 <!-- Section -->
+{% assign section_id = section.section | slugify %}
 {% if section.bounded == false %}
-<section class="flex items-center justify-center text-center max-w-7xl mx-auto px-4 lg:px-8 py-6 lg:py-6 mb-8" aria-labelledby="{{ section.section | downcase }}-heading">
+<section class="flex items-center justify-center text-center max-w-7xl mx-auto px-4 lg:px-8 py-6 lg:py-6 mb-8" aria-label="{{ section.section }}">
 {% else %}
-<section class="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 dark:border-slate-700/20 overflow-hidden transition-colors duration-300 p-8 mb-8" aria-labelledby="{{ section.section | downcase }}-heading">
+<section class="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 dark:border-slate-700/20 overflow-hidden transition-colors duration-300 p-8 mb-8" aria-labelledby="{{ section_id }}-heading">
 {% endif %}
     {% if section.bounded != false %}
   <header class="flex flex-col md:flex-row items-center md:items-center gap-4 mb-8 text-center md:text-left">
@@ -35,7 +36,7 @@ content_for_head: |
   </div>
 
   <div>
-    <h2 id="{{ section.section | downcase }}-heading" class="font-header font-bold text-3xl text-slate-800 dark:text-slate-200 tracking-wide lowercase transition-colors duration-300">{{ section.section | smartify }}</h2>
+    <h2 id="{{ section_id }}-heading" class="font-header font-bold text-3xl text-slate-800 dark:text-slate-200 tracking-wide lowercase transition-colors duration-300">{{ section.section | smartify }}</h2>
     <p class="text-muted mt-1 lowercase transition-colors duration-300">{{ section.subheader }}</p>
   </div>
 
