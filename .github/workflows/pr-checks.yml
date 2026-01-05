@@ -79,6 +79,7 @@ jobs:
       - name: Build site
         run: |
           JEKYLL_ENV=staging bundle exec jekyll build --config _config.yml
+          npm run minify
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
@@ -115,7 +116,7 @@ jobs:
 
       - name: Run accessibility checks
         id: a11y
-        run: npm run a11y:ci -- --report accessibility-report.json
+        run: node ./scripts/a11y-check.js ci --report accessibility-report.json
         continue-on-error: true
 
       - name: Upload accessibility report

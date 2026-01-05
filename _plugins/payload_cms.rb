@@ -187,8 +187,8 @@ module PayloadCMS
       # Set layout
       doc.data['layout'] = layout
 
-      # Set common front matter data
-      doc.data['title'] = doc_data['title']
+      # Set common front matter data (sanitized for HTML attribute safety)
+      doc.data['title'] = sanitize_for_html_attribute(doc_data['title'])
       doc.data['date'] = parse_date(doc_data['date']) if doc_data['date']
       doc.data['slug'] = slug
       doc.data['permalink'] = permalink
@@ -207,14 +207,14 @@ module PayloadCMS
         doc.data['tags'] = doc_data['tags'].map { |t| t['tag'] }.compact
       end
 
-      # Image handling
+      # Image handling (alt text sanitized for HTML attribute safety)
       if doc_data['image']
         doc.data['image'] = doc_data['image']['url']
-        doc.data['image_alt'] = doc_data['imageAlt'] || doc_data['image']['alt']
+        doc.data['image_alt'] = sanitize_for_html_attribute(doc_data['imageAlt'] || doc_data['image']['alt'])
       end
 
-      # Optional fields with snake_case conversion
-      doc.data['excerpt'] = doc_data['excerpt'] if doc_data['excerpt']
+      # Optional fields with snake_case conversion (excerpt sanitized for HTML attribute safety)
+      doc.data['excerpt'] = sanitize_for_html_attribute(doc_data['excerpt']) if doc_data['excerpt']
       doc.data['show_image'] = doc_data['showImage'] unless doc_data['showImage'].nil?
       doc.data['render_with_liquid'] = doc_data['renderWithLiquid'] unless doc_data['renderWithLiquid'].nil?
       doc.data['post_credits'] = convert_post_credits(doc_data['postCredits']) if doc_data['postCredits']
@@ -225,10 +225,13 @@ module PayloadCMS
         doc.data['redirect_from'] = doc_data['redirectFrom'].map { |r| r['path'] }.compact
       end
 
-      # Apply any custom field mappings from config
+      # Apply any custom field mappings from config (sanitize strings for HTML attribute safety)
       if cms_config['field_mappings']
         cms_config['field_mappings'].each do |cms_field, jekyll_field|
-          doc.data[jekyll_field] = doc_data[cms_field] if doc_data.key?(cms_field)
+          next unless doc_data.key?(cms_field)
+
+          value = doc_data[cms_field]
+          doc.data[jekyll_field] = value.is_a?(String) ? sanitize_for_html_attribute(value) : value
         end
       end
 
@@ -414,6 +417,18 @@ module PayloadCMS
           .gsub('&', '&amp;')
           .gsub('<', '&lt;')
           .gsub('>', '&gt;')
+          .gsub('"', '&quot;')
+          .gsub("'", '&#39;')
+    end
+
+    # Sanitize a string for safe use in HTML attributes
+    # This is lighter than escape_html - only escapes quotes and ampersands
+    # Used for fields that will be rendered in HTML attribute values
+    def sanitize_for_html_attribute(text)
+      return '' if text.nil?
+
+      text.to_s
+          .gsub('&', '&amp;')
           .gsub('"', '&quot;')
           .gsub("'", '&#39;')
     end
