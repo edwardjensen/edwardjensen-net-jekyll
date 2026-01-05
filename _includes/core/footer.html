@@ -1,7 +1,7 @@
 {% assign site_code_version = site.data.buildinfo.build_version | default: "-staging" %}
 {% assign site_commit_sha = site.data.buildinfo.commit | default: "LOCAL" %}
 
-<div class="mt-16 w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-slate-100 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 transition-colors duration-300" x-data>
+<div class="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-slate-100 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 transition-colors duration-300" x-data>
     <div class="text-center text-sm py-6 font-mono italic tracking-tighter text-body flex flex-col space-y-3 px-4 md:px-8 lg:px-12">
         <div>
             <p>Copyright &copy; 2008-{{ "now" | date: "%Y" }} Edward Jensen. All rights reserved. Please read our <a href="#" @click.prevent="$dispatch('open-privacy-modal')" class="underline hover:text-amber-600 dark:hover:text-amber-400" aria-label="Privacy Policy">Privacy Policy</a>.</p>

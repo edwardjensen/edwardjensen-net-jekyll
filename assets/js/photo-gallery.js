@@ -34,10 +34,13 @@ window.photoGallery = function() {
     showInfo: false, // Whether info is visible (both overlay and panel when applicable)
     infoTimer: null, // Timer for auto-hiding info overlay
 
-    // Initialization
-    init() {
+    // Initialization - accepts optional custom data element ID
+    init(dataElementId = 'photo-gallery-data') {
+      // Store the data element ID for later use
+      this.dataElementId = dataElementId;
+
       // Check if we're in full mode (JSON data store exists)
-      const dataEl = document.getElementById('photo-gallery-data');
+      const dataEl = document.getElementById(dataElementId);
       this.isFullMode = !!dataEl;
 
       // Capture the current page URL as the source to return to
@@ -70,7 +73,7 @@ window.photoGallery = function() {
 
     // Load photo data from embedded JSON (full mode)
     loadPhotoData() {
-      const dataEl = document.getElementById('photo-gallery-data');
+      const dataEl = document.getElementById(this.dataElementId);
       if (!dataEl) return;
 
       try {

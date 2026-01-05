@@ -10,6 +10,15 @@
 
 /* === ACCESSIBILITY UTILITIES === */
 @layer utilities {
+    /* Hide scrollbar while preserving scroll functionality */
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+
     /* Screen reader only class */
     .sr-only {
         position: absolute;
