@@ -1,0 +1,51 @@
+{% comment %}
+  Cloudflare Image Transformation Picture Element
+
+  Usage:
+    {% include components/cf-image.html
+       src=photo.image
+       alt=photo.image_alt
+       layout="photo_strip"
+       class="w-full h-full"
+       loading="lazy"
+    %}
+
+  Parameters:
+    - src: Original image URL (required)
+    - alt: Alt text for the image (required)
+    - layout: Layout preset name from _data/cloudflare-photos.yml (required)
+    - class: CSS classes for the img element (optional)
+    - loading: "lazy" or "eager" (optional, defaults to "lazy")
+    - title: Title attribute (optional)
+
+  Note: Cloudflare handles cropping via the `fit` parameter in the layout preset,
+  so `object-cover` is not needed on the img element.
+{% endcomment %}
+
+{% assign cf_base = site.data.cloudflare-photos.base_url %}
+{% assign preset = site.data.cloudflare-photos.layouts[include.layout] %}
+{% assign img_loading = include.loading | default: "lazy" %}
+
+{% if preset %}
+  {% assign cf_params = "width=" | append: preset.width | append: ",height=" | append: preset.height | append: ",fit=" | append: preset.fit %}
+  {% assign webp_url = cf_base | append: "/" | append: cf_params | append: ",format=webp/" | append: include.src %}
+  {% assign jpeg_url = cf_base | append: "/" | append: cf_params | append: ",format=jpeg/" | append: include.src %}
+
+  <picture class="block w-full h-full select-none pointer-events-none">
+    <source srcset="{{ webp_url }}" type="image/webp">
+    <source srcset="{{ jpeg_url }}" type="image/jpeg">
+    <img src="{{ jpeg_url }}"
+         alt="{{ include.alt }}"
+         {% if include.title %}title="{{ include.title }}"{% endif %}
+         {% if include.class %}class="{{ include.class }}"{% endif %}
+         loading="{{ img_loading }}"
+         draggable="false">
+  </picture>
+{% else %}
+  <!-- Fallback: layout "{{ include.layout }}" not found, using original image -->
+  <img src="{{ include.src }}"
+       alt="{{ include.alt }}"
+       {% if include.title %}title="{{ include.title }}"{% endif %}
+       {% if include.class %}class="{{ include.class }}"{% endif %}
+       loading="{{ img_loading }}">
+{% endif %}

@@ -1,0 +1,13 @@
+base_url: https://www.edwardjensen.net/cdn-cgi/image
+
+layouts:
+  # Homepage/landing page photo strip thumbnails (standard size)
+  photo_strip:
+    width: 224
+    height: 224
+    fit: cover
+  # Homepage/landing page photo strip center image (slightly larger)
+  photo_strip_center:
+    width: 256
+    height: 256
+    fit: cover
