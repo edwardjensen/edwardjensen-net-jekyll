@@ -11,6 +11,13 @@ payload_graphql:
   url: "https://www-ts.edwardjensencms.com/api/graphql"
   fail_on_error: true
 
+# GraphQL Cache - Cloudflare-based caching layer for CMS content
+# Production builds read from cache; cache is refreshed by GitHub Actions
+# Set GRAPHQL_CACHE_URL env var to override, or set enabled: false to bypass
+graphql_cache:
+  enabled: true
+  url: https://graphql-cache.edwardjensenprojects.com
+
 plugins:
   - jekyll-postcss-v2
   - jekyll-redirect-from

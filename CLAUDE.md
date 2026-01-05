@@ -264,6 +264,63 @@ Located in `/cloudflare-workers/stream-proxy/`, this Cloudflare Worker proxies r
 
 The `_plugins/payload_cms.rb` plugin fetches content from Payload CMS via GraphQL at build time.
 
+### GraphQL Caching Layer
+
+Production builds use a Cloudflare Workers-based caching layer instead of hitting the CMS directly. This provides faster builds and decouples site builds from CMS availability.
+
+**Architecture:**
+
+```text
+[Payload CMS] <-- (Tailscale VPN) -- [GitHub Actions: cache refresh]
+                                              |
+                                              v
+                                      [Cloudflare Worker]
+                                              |
+                                              v
+                                      [Cloudflare KV]
+                                              |
+                                              v
+                                      [Jekyll Build]
+```
+
+**Key Points:**
+
+- Cache refresh happens in GitHub Actions (which can access Tailscale-protected CMS)
+- Jekyll builds read from the Cloudflare cache endpoint
+- Each collection is cached separately for granular invalidation
+- `prod_cms_publish` webhook refreshes posts, working_notes, historic_posts, pages
+- `prod_cms_photo_publish` webhook refreshes photography only
+
+**Configuration:**
+
+```yaml
+# _config.yml (production)
+graphql_cache:
+  enabled: true
+  url: https://graphql-cache.edwardjensenprojects.com
+
+# _config.local.yml (bypass cache for local dev)
+graphql_cache:
+  enabled: false
+```
+
+The `GRAPHQL_CACHE_URL` environment variable overrides the config URL.
+
+**Cache Worker Endpoints:**
+
+- `GET /cache/:collection` - Read cached collection data
+- `POST /refresh/:collection` - Write collection data (requires API key)
+- `GET /status` - Cache metadata for all collections
+- `GET /health` - Health check
+
+**Worker Location:** `cloudflare-workers/graphql-cache/`
+
+**Required Secrets:**
+
+- `GRAPHQL_CACHE_API_KEY` - GitHub secret for cache write operations
+- `CACHE_API_KEY` - Cloudflare Worker secret (same value)
+- `CMS_GRAPHQL_URL` - CMS GraphQL endpoint for cache refresh
+
 ### Build Failure on CMS Errors
 
 By default, the build **fails** when:

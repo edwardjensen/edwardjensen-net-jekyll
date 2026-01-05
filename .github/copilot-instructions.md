@@ -94,10 +94,19 @@ Screenshot of website header with site title on left, navigation menu center, so
 
 This repository is **code and templates only**. All content (posts, working notes, historic posts) lives in **Payload CMS** and is fetched via GraphQL at build time.
 
-**Content workflow**: CMS publish → webhook → GitHub Actions → Jekyll build → Deploy
+**Content workflow**: CMS publish → webhook → GitHub Actions → cache refresh → Jekyll build → Deploy
+
+**GraphQL Caching**: Production builds read from a Cloudflare KV cache instead of hitting the CMS directly:
+
+- Cache worker: `cloudflare-workers/graphql-cache/`
+- Cache URL: `https://graphql-cache.edwardjensenprojects.com`
+- Config: `graphql_cache.enabled` and `graphql_cache.url` in `_config.yml`
+- Local dev: Set `graphql_cache.enabled: false` in `_config.local.yml` to bypass cache
 
 **CMS Plugin** (`_plugins/payload_cms.rb`):
-- Fetches content from Payload CMS via GraphQL at build time
+
+- Reads from GraphQL cache (production) or CMS directly (local dev with cache disabled)
+- Falls back to direct CMS access if cache is unavailable
 - Converts Lexical rich text JSON to HTML for rendering
 - **Link handling**: Payload uses `fields.linkType` to distinguish link types:
   - External/custom links: URL in `fields.url`

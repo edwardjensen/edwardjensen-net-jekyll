@@ -1,0 +1,15 @@
+# GraphQL Cache Configuration
+#
+# This configures the Cloudflare-based caching layer for CMS content.
+# Jekyll builds read from this cache instead of hitting the CMS directly.
+#
+# The cache URL can also be set via GRAPHQL_CACHE_URL environment variable,
+# which takes precedence over this config.
+
+# Enable/disable cache (default: true if url is set)
+# Set to false to bypass cache and hit CMS directly (useful for local development)
+enabled: true
+
+# Cache endpoint URL
+# Production: https://graphql-cache.edwardjensenprojects.com
+url: https://graphql-cache.edwardjensenprojects.com
