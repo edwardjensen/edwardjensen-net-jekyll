@@ -1,11 +1,11 @@
 ---
 section: Photography
-order: 30
+order: 95
 full_bleed: true
 ---
 
 <!-- Photo Gallery Data Store (all photos with complete metadata for modal) -->
-<script id="photo-gallery-data" type="application/json">
+<script id="landing-photo-gallery-data" type="application/json">
 {
   "galleryUrl": "/photos/",
   "galleryTitle": "Photography",
@@ -43,7 +43,7 @@ full_bleed: true
 </script>
 
 <!-- Horizontal Scrolling Photo Strip -->
-<div x-data="photoGallery()" x-init="init()" class="relative">
+<div x-data="photoGallery()" x-init="init('landing-photo-gallery-data')" class="relative">
   <!-- Edge fade gradients (desktop only) -->
   <div class="hidden lg:block absolute left-0 top-4 bottom-4 w-16 bg-gradient-to-r from-white dark:from-slate-950 to-transparent z-10 pointer-events-none" aria-hidden="true"></div>
   <div class="hidden lg:block absolute right-0 top-4 bottom-4 w-16 bg-gradient-to-l from-white dark:from-slate-950 to-transparent z-10 pointer-events-none" aria-hidden="true"></div>
@@ -68,7 +68,7 @@ full_bleed: true
     {% endif %}
   {% endfor %}
 
-  <div id="photo-strip-scroll"
+  <div id="landing-photo-strip-scroll"
        class="flex overflow-x-auto gap-2 lg:gap-4 py-4 scrollbar-hide items-center"
        role="region"
        aria-label="Recent photography gallery">
@@ -99,7 +99,7 @@ full_bleed: true
 
     <!-- Center photo (newest, slightly larger) -->
     {% if center_photo %}
-    <figure id="photo-strip-center" class="flex-shrink-0 w-52 lg:w-64 aspect-square overflow-visible rounded-xl cursor-pointer transition-transform duration-300 ease-out hover:scale-105 hover:z-20">
+    <figure id="landing-photo-strip-center" class="flex-shrink-0 w-52 lg:w-64 aspect-square overflow-visible rounded-xl cursor-pointer transition-transform duration-300 ease-out hover:scale-105 hover:z-20">
       <button @click.prevent="openPhotoByUrl('{{ center_photo.url }}')"
               class="w-full h-full text-left focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 block border-0 bg-transparent p-0 appearance-none rounded-xl overflow-hidden"
               aria-label="View full size: {{ center_photo.image_alt }} (Latest photo)">
@@ -140,8 +140,8 @@ full_bleed: true
   <!-- Auto-scroll to center the newest photo on load -->
   <script>
     (function() {
-      const scrollContainer = document.getElementById('photo-strip-scroll');
-      const centerPhoto = document.getElementById('photo-strip-center');
+      const scrollContainer = document.getElementById('landing-photo-strip-scroll');
+      const centerPhoto = document.getElementById('landing-photo-strip-center');
       if (scrollContainer && centerPhoto) {
         const scrollLeft = centerPhoto.offsetLeft - (scrollContainer.offsetWidth / 2) + (centerPhoto.offsetWidth / 2);
         scrollContainer.scrollLeft = scrollLeft;
