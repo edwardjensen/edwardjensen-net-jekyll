@@ -43,7 +43,7 @@ full_bleed: true
 </script>
 
 <!-- Horizontal Scrolling Photo Strip -->
-<div x-data="photoGallery()" x-init="init()" class="relative">
+<div x-data="photoGallery()" x-init="init()" class="relative w-full">
   <!-- Edge fade gradients (desktop only) -->
   <div class="hidden lg:block absolute left-0 top-4 bottom-4 w-16 bg-gradient-to-r from-white dark:from-slate-950 to-transparent z-10 pointer-events-none" aria-hidden="true"></div>
   <div class="hidden lg:block absolute right-0 top-4 bottom-4 w-16 bg-gradient-to-l from-white dark:from-slate-950 to-transparent z-10 pointer-events-none" aria-hidden="true"></div>
@@ -69,7 +69,7 @@ full_bleed: true
   {% endfor %}
 
   <div id="photo-strip-scroll"
-       class="flex overflow-x-auto gap-2 lg:gap-4 py-4 scrollbar-hide items-center"
+       class="flex flex-nowrap overflow-x-scroll gap-2 lg:gap-4 py-4 scrollbar-hide items-center cursor-grab active:cursor-grabbing"
        role="region"
        aria-label="Recent photography gallery">
 
@@ -88,11 +88,7 @@ full_bleed: true
       <button @click.prevent="openPhotoByUrl('{{ photo.url }}')"
               class="w-full h-full text-left focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 block border-0 bg-transparent p-0 appearance-none rounded-lg overflow-hidden"
               aria-label="View full size: {{ photo.image_alt }}">
-        <img src="{{ photo.image }}"
-             class="w-full h-full object-cover"
-             alt="{{ photo.image_alt }}"
-             title="{{ photo.title }}"
-             loading="lazy">
+        {% include components/cf-image.html src=photo.image alt=photo.image_alt title=photo.title layout="photo_strip" class="w-full h-full" loading="lazy" %}
       </button>
     </figure>
     {% endfor %}
@@ -103,11 +99,7 @@ full_bleed: true
       <button @click.prevent="openPhotoByUrl('{{ center_photo.url }}')"
               class="w-full h-full text-left focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 block border-0 bg-transparent p-0 appearance-none rounded-xl overflow-hidden"
               aria-label="View full size: {{ center_photo.image_alt }} (Latest photo)">
-        <img src="{{ center_photo.image }}"
-             class="w-full h-full object-cover"
-             alt="{{ center_photo.image_alt }}"
-             title="{{ center_photo.title }}"
-             loading="eager">
+        {% include components/cf-image.html src=center_photo.image alt=center_photo.image_alt title=center_photo.title layout="photo_strip_center" class="w-full h-full" loading="eager" %}
       </button>
     </figure>
     {% endif %}
@@ -119,11 +111,7 @@ full_bleed: true
       <button @click.prevent="openPhotoByUrl('{{ photo.url }}')"
               class="w-full h-full text-left focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 block border-0 bg-transparent p-0 appearance-none rounded-lg overflow-hidden"
               aria-label="View full size: {{ photo.image_alt }}">
-        <img src="{{ photo.image }}"
-             class="w-full h-full object-cover"
-             alt="{{ photo.image_alt }}"
-             title="{{ photo.title }}"
-             loading="lazy">
+        {% include components/cf-image.html src=photo.image alt=photo.image_alt title=photo.title layout="photo_strip" class="w-full h-full" loading="lazy" %}
       </button>
     </figure>
     {% endfor %}
@@ -137,14 +125,27 @@ full_bleed: true
 
   </div>
 
-  <!-- Auto-scroll to center the newest photo on load -->
+  <!-- Auto-scroll to center + drag-to-scroll functionality -->
   <script>
     (function() {
       const scrollContainer = document.getElementById('photo-strip-scroll');
       const centerPhoto = document.getElementById('photo-strip-center');
+
+      // Auto-scroll to center the newest photo on load
       if (scrollContainer && centerPhoto) {
         const scrollLeft = centerPhoto.offsetLeft - (scrollContainer.offsetWidth / 2) + (centerPhoto.offsetWidth / 2);
         scrollContainer.scrollLeft = scrollLeft;
+      }
+
+      // Convert vertical scroll to horizontal scroll
+      if (scrollContainer) {
+        scrollContainer.addEventListener('wheel', (e) => {
+          // Only intercept vertical scroll (deltaY)
+          if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+            e.preventDefault();
+            scrollContainer.scrollLeft += e.deltaY;
+          }
+        }, { passive: false });
       }
     })();
   </script>
