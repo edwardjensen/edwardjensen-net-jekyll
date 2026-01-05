@@ -18,9 +18,9 @@
     - title: Friday Five
       url: /tags/friday-five
       icon: bi-5-square-fill
-    - title: Site Meta
-      url: /tags/site-meta
-      icon: bi-code-slash
+    - title: ...on Saint Paul
+      url: /tags/on-saint-paul
+      icon: bi-building
 - title: Working Notes
   url: /notes
   icon: bi-journal-text
