@@ -7,7 +7,7 @@
 {%- assign page_title = page.title | default: site.title -%}
 {%- comment -%}
   Description fallback chain: excerpt > caption (photography) > description > title > site.description
-  Note: caption is plain text from CMS plugin, no escaping needed to avoid double-encoding quotes
+  Note: escape filter required for HTML attribute safety (curly quotes, etc.)
 {%- endcomment -%}
 {%- if page.caption -%}
   {%- assign page_description = page.caption | strip_newlines -%}
@@ -28,12 +28,12 @@
 
 <!-- Jekyll SEO Tags -->
 <title>{{ page_title | escape }}{% if page_title != site.title %} | {{ site.title | escape }}{% endif %}</title>
-<meta name="description" content="{{ page_description }}">
+<meta name="description" content="{{ page_description | escape }}">
 <link rel="canonical" href="{{ page_url }}">
 
 <!-- Open Graph (Facebook, LinkedIn, Bluesky, Mastodon) -->
 <meta property="og:title" content="{{ page_title | escape }}">
-<meta property="og:description" content="{{ page_description }}">
+<meta property="og:description" content="{{ page_description | escape }}">
 <meta property="og:url" content="{{ page_url }}">
 <meta property="og:site_name" content="{{ site.title | escape }}">
 <meta property="og:locale" content="{{ site.lang | default: 'en_US' | replace: '-', '_' }}">
@@ -54,7 +54,7 @@
 <!-- Twitter/X Cards -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{{ page_title | escape}}">
-<meta name="twitter:description" content="{{ page_description }}">
+<meta name="twitter:description" content="{{ page_description | escape }}">
 <meta name="twitter:image" content="{{ page_image | escape }}">
 <meta name="twitter:image:alt" content="{{ page_image_alt | escape }}">
 {%- if site.twitter_username %}

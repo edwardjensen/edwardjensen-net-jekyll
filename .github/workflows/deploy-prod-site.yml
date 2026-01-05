@@ -123,7 +123,8 @@ jobs:
       - name: Build site
         run: |
           JEKYLL_ENV=production bundle exec jekyll build
-      
+          npm run minify
+
       - name: Create built site artifact
         uses: actions/upload-artifact@v5
         with:

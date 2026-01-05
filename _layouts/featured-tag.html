@@ -7,7 +7,7 @@ layout: content-wrapper
   <figure class="relative" role="doc-illustration">
     <img class="w-full h-auto object-cover max-h-96"
          src="{{ page.image | relative_url }}"
-         alt="{{ page.image_alt | default: page.title }}"
+         alt="{{ page.image_alt | default: page.title | escape }}"
          loading="eager">
   </figure>
   {% endif %}
