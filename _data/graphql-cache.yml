@@ -1,15 +1,122 @@
-# GraphQL Cache Configuration
+# GraphQL Cache and Query Configuration
 #
-# This configures the Cloudflare-based caching layer for CMS content.
-# Jekyll builds read from this cache instead of hitting the CMS directly.
+# This file serves as the SINGLE SOURCE OF TRUTH for:
+# - GraphQL query definitions for each CMS collection
+# - Field lists, query names, and sort orders
 #
-# The cache URL can also be set via GRAPHQL_CACHE_URL environment variable,
-# which takes precedence over this config.
+# Used by:
+# - _plugins/payload_cms.rb (Jekyll builds)
+# - .github/workflows/republish-prod.yml (cache refresh)
+#
+# URLs are configured via environment variables:
+# - GRAPHQL_CACHE_URL: Cache endpoint (Cloudflare Worker)
+# - CMS_GRAPHQL_URL: Direct CMS GraphQL endpoint
 
-# Enable/disable cache (default: true if url is set)
-# Set to false to bypass cache and hit CMS directly (useful for local development)
+# Enable/disable cache (set to false for local development without cache)
 enabled: true
 
-# Cache endpoint URL
-# Production: https://graphql-cache.edwardjensenprojects.com
-url: https://graphql-cache.edwardjensenprojects.com
+# Collection GraphQL query definitions
+collections:
+  posts:
+    query_name: "Posts"
+    sort: "-date"
+    fields:
+      - id
+      - title
+      - slug
+      - date
+      - categories { category }
+      - tags { tag }
+      - image { url alt filename }
+      - imageAlt
+      - excerpt
+      - showImage
+      - renderWithLiquid
+      - postCredits
+      - landingFeatured
+      - redirectFrom { path }
+      - content
+      - markdown
+      - permalink
+      - sitemap
+      - updatedAt
+      - createdAt
+
+  photography:
+    query_name: "Photographies"
+    sort: "-date"
+    fields:
+      - id
+      - title
+      - slug
+      - date
+      - image { url alt filename }
+      - imageAlt
+      - tags { tag }
+      - content
+      - exifCamera
+      - exifLens
+      - exifFocalLength
+      - exifAperture
+      - exifShutterSpeed
+      - exifIso
+      - locationLat
+      - locationLng
+      - locationName
+      - locationFormatted
+      - locationCity
+      - locationCountry
+      - permalink
+      - sitemap
+      - updatedAt
+      - createdAt
+
+  working_notes:
+    query_name: "WorkingNotes"
+    sort: "-date"
+    fields:
+      - id
+      - title
+      - slug
+      - date
+      - tags { tag }
+      - content
+      - markdown
+      - permalink
+      - sitemap
+      - updatedAt
+      - createdAt
+
+  historic_posts:
+    query_name: "HistoricPosts"
+    sort: "-date"
+    fields:
+      - id
+      - title
+      - slug
+      - date
+      - tags { tag }
+      - content
+      - markdown
+      - permalink
+      - sitemap
+      - updatedAt
+      - createdAt
+
+  pages:
+    query_name: "Pages"
+    sort: "title"
+    fields:
+      - id
+      - title
+      - slug
+      - permalink
+      - searchable
+      - sitemap
+      - image { url alt filename }
+      - imageAlt
+      - content
+      - markdown
+      - redirectFrom { path }
+      - updatedAt
+      - createdAt

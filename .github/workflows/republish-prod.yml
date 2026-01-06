@@ -44,6 +44,11 @@ jobs:
             echo "Refreshing posts, working_notes, historic_posts, and pages collections"
           fi
 
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
       - name: Refresh GraphQL cache
         env:
           CMS_GRAPHQL_URL: ${{ secrets.CMS_URL }}/api/graphql
@@ -51,6 +56,7 @@ jobs:
           CACHE_API_KEY: ${{ secrets.GRAPHQL_CACHE_API_KEY }}
         run: |
           COLLECTIONS="${{ steps.collections.outputs.list }}"
+          CONFIG_FILE="_data/graphql-cache.yml"
 
           echo "Refreshing collections: $COLLECTIONS"
 
@@ -64,43 +70,21 @@ jobs:
             echo "Processing collection: $collection"
             echo "=========================================="
 
-            # Build GraphQL query based on collection
-            case "$collection" in
-              posts)
-                QUERY_NAME="Posts"
-                FIELDS="id title slug date categories { category } tags { tag } image { url alt filename } imageAlt excerpt showImage renderWithLiquid postCredits landingFeatured redirectFrom { path } content markdown permalink sitemap updatedAt createdAt"
-                SORT="-date"
-                ;;
-              photography)
-                QUERY_NAME="Photographies"
-                FIELDS="id title slug date image { url alt filename } imageAlt tags { tag } content exifCamera exifLens exifFocalLength exifAperture exifShutterSpeed exifIso locationLat locationLng locationName locationFormatted locationCity locationCountry permalink sitemap updatedAt createdAt"
-                SORT="-date"
-                ;;
-              working_notes)
-                QUERY_NAME="WorkingNotes"
-                FIELDS="id title slug date tags { tag } content markdown permalink sitemap updatedAt createdAt"
-                SORT="-date"
-                ;;
-              historic_posts)
-                QUERY_NAME="HistoricPosts"
-                FIELDS="id title slug date tags { tag } content markdown permalink sitemap updatedAt createdAt"
-                SORT="-date"
-                ;;
-              pages)
-                QUERY_NAME="Pages"
-                FIELDS="id title slug permalink searchable sitemap image { url alt filename } imageAlt content markdown redirectFrom { path } updatedAt createdAt"
-                SORT="title"
-                ;;
-              *)
-                echo "::error::Unknown collection: $collection"
-                exit 1
-                ;;
-            esac
+            # Read collection config from data file (single source of truth)
+            QUERY_NAME=$(yq ".collections.${collection}.query_name" "$CONFIG_FILE")
+            SORT=$(yq ".collections.${collection}.sort" "$CONFIG_FILE")
+            FIELDS=$(yq ".collections.${collection}.fields | join(\" \")" "$CONFIG_FILE")
+
+            # Validate collection exists in config
+            if [[ "$QUERY_NAME" == "null" || -z "$QUERY_NAME" ]]; then
+              echo "::error::Unknown collection '$collection' - not found in $CONFIG_FILE"
+              exit 1
+            fi
 
             echo "Fetching $QUERY_NAME from CMS..."
 
-            # Build GraphQL query
-            QUERY="query { ${QUERY_NAME}(where: { _status: { equals: published } }, limit: 0, sort: \"${SORT}\") { docs { ${FIELDS} } totalDocs } }"
+            # Build GraphQL query (omit limit to fetch all documents)
+            QUERY="query { ${QUERY_NAME}(where: { _status: { equals: published } }, sort: \"${SORT}\") { docs { ${FIELDS} } totalDocs } }"
 
             # Execute GraphQL query against CMS
             RESPONSE=$(curl -sf -X POST "$CMS_GRAPHQL_URL" \

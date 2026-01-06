@@ -20,8 +20,11 @@ module PayloadCMS
       @cache_url = ENV['GRAPHQL_CACHE_URL'] || @cache_config['url']
       @use_cache = @cache_config['enabled'] != false && @cache_url && !@cache_url.empty?
 
-      # Direct CMS URL (fallback when cache is disabled or unavailable)
-      @endpoint = @config['url']
+      # Direct CMS URL from environment variable or config (fallback when cache is disabled or unavailable)
+      @endpoint = ENV['CMS_GRAPHQL_URL'] || @config['url']
+
+      # Load GraphQL query configurations from data file (single source of truth)
+      @graphql_collections = site.data.dig('graphql-cache', 'collections') || {}
       # Default to true - builds fail on CMS errors unless explicitly disabled
       @fail_on_error = @config['fail_on_error'] != false
 
@@ -52,13 +55,15 @@ module PayloadCMS
     private
 
     def fetch_collection(name, collection, cms_config)
+      # Get GraphQL config from data file (single source of truth), fall back to _config.yml
+      graphql_config = @graphql_collections[name] || {}
+
+      # Query name priority: data file > _config.yml graphql_query > _config.yml collection > capitalized name
+      graphql_query = graphql_config['query_name'] || cms_config['graphql_query'] || cms_config['collection'] || name.capitalize
       cms_collection = cms_config['collection'] || name.capitalize
-      # Allow explicit GraphQL query name for collections with irregular pluralization
-      # (e.g., Photography -> Photographies in Payload's GraphQL API)
-      graphql_query = cms_config['graphql_query'] || cms_collection
       layout = cms_config['layout'] || 'page'
-      # Default to 0 (unlimited) if no limit specified - Payload returns all docs when limit=0
-      limit = cms_config['limit'] || 0
+      # Default to nil (unlimited) - Payload returns all docs when limit is not specified
+      limit = cms_config['limit']
 
       Jekyll.logger.info 'PayloadCMS:', "Fetching #{graphql_query} for #{name} collection"
 
@@ -69,10 +74,10 @@ module PayloadCMS
           data = fetch_from_cache(name)
           if data.nil? && @endpoint
             Jekyll.logger.warn 'PayloadCMS:', "Cache miss for #{name}, falling back to CMS"
-            data = fetch_from_cms(graphql_query, cms_config, limit)
+            data = fetch_from_cms(name, graphql_query, cms_config, limit)
           end
         else
-          data = fetch_from_cms(graphql_query, cms_config, limit)
+          data = fetch_from_cms(name, graphql_query, cms_config, limit)
         end
 
         docs = data&.dig('docs') || []
@@ -137,20 +142,21 @@ module PayloadCMS
     end
 
     # Fetch collection data directly from CMS via GraphQL
-    def fetch_from_cms(graphql_query, cms_config, limit)
-      query = build_query(graphql_query, cms_config)
+    def fetch_from_cms(collection_name, graphql_query, cms_config, limit)
+      query = build_query(graphql_query, cms_config, collection_name)
       result = execute_query(query, limit)
       result.dig('data', graphql_query)
     end
 
-    def build_query(cms_collection, cms_config)
-      # Build a dynamic query based on the fields specified in config
-      # or use a sensible default for common fields
-      fields = cms_config['fields'] || default_fields
-      
-      # Allow custom sort field (default to -date for backward compatibility)
-      # Use 'title' for collections without dates like pages
-      sort_field = cms_config['sort'] || '-date'
+    def build_query(cms_collection, cms_config, collection_name = nil)
+      # Get GraphQL config from data file (single source of truth)
+      graphql_config = collection_name ? (@graphql_collections[collection_name] || {}) : {}
+
+      # Field priority: data file > _config.yml > default_fields
+      fields = graphql_config['fields'] || cms_config['fields'] || default_fields
+
+      # Sort priority: data file > _config.yml > default (-date)
+      sort_field = graphql_config['sort'] || cms_config['sort'] || '-date'
 
       <<~GRAPHQL
         query GetPublished($limit: Int) {

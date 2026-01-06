@@ -247,7 +247,16 @@ jobs:
           echo "google_maps_api_key: ${{ secrets.GOOGLE_MAPS_API_KEY }}" > _config.runtime.yml
 
       - name: Build site
+        env:
+          # Use GraphQL cache when building with production CMS data
+          # Falls back to config file URL if secret not available in staging environment
+          GRAPHQL_CACHE_URL: ${{ secrets.GRAPHQL_CACHE_URL }}
         run: |
+          # Only use cache URL when building with production CMS
+          if [[ "${{ needs.resolve-config.outputs.cms_source }}" != "production" ]]; then
+            unset GRAPHQL_CACHE_URL
+          fi
+
           CONFIG_FILES="_config.yml,_config.staging.yml"
           if [[ -f "_config.runtime.yml" ]]; then
             CONFIG_FILES="${CONFIG_FILES},_config.runtime.yml"
