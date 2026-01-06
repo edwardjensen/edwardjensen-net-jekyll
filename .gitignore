@@ -52,3 +52,7 @@ edwardjensen-net-jekyll.code-workspace
 context-docs/
 .claude_data/hi-redirects.json
 .claude
+
+.env
+.env.*
+!.env.example

@@ -234,6 +234,7 @@ jobs:
 
       - name: Connect to Tailscale VPN
         uses: tailscale/github-action@v4
+        if: needs.resolve-config.outputs.cms_source == 'staging'
         with:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_CLIENT_SECRET }}

@@ -14,17 +14,30 @@ module PayloadCMS
     def generate(site)
       @site = site
       @config = site.config['payload_graphql'] || {}
+      @cache_config = site.config['graphql_cache'] || {}
+
+      # Cache URL from environment variable takes precedence over config
+      @cache_url = ENV['GRAPHQL_CACHE_URL'] || @cache_config['url']
+      @use_cache = @cache_config['enabled'] != false && @cache_url && !@cache_url.empty?
+
+      # Direct CMS URL (fallback when cache is disabled or unavailable)
       @endpoint = @config['url']
       # Default to true - builds fail on CMS errors unless explicitly disabled
       @fail_on_error = @config['fail_on_error'] != false
 
-      unless @endpoint
-        message = 'No payload_graphql.url configured in _config.yml'
+      unless @cache_url || @endpoint
+        message = 'No graphql_cache.url or payload_graphql.url configured'
         if @fail_on_error
           raise "PayloadCMS: #{message}"
         end
         Jekyll.logger.warn 'PayloadCMS:', "#{message}, skipping CMS fetch"
         return
+      end
+
+      if @use_cache
+        Jekyll.logger.info 'PayloadCMS:', "Using GraphQL cache at #{@cache_url}"
+      else
+        Jekyll.logger.info 'PayloadCMS:', "Using direct CMS at #{@endpoint}"
       end
 
       # Iterate through Jekyll collections and find ones with cms config
@@ -47,16 +60,25 @@ module PayloadCMS
       # Default to 0 (unlimited) if no limit specified - Payload returns all docs when limit=0
       limit = cms_config['limit'] || 0
 
-      Jekyll.logger.info 'PayloadCMS:', "Fetching #{graphql_query} from CMS for #{name} collection"
+      Jekyll.logger.info 'PayloadCMS:', "Fetching #{graphql_query} for #{name} collection"
 
-      query = build_query(graphql_query, cms_config)
-      
       begin
-        data = execute_query(query, limit)
-        docs = data.dig('data', graphql_query, 'docs') || []
+        # Try cache first if enabled, fall back to direct CMS if cache fails
+        data = nil
+        if @use_cache
+          data = fetch_from_cache(name)
+          if data.nil? && @endpoint
+            Jekyll.logger.warn 'PayloadCMS:', "Cache miss for #{name}, falling back to CMS"
+            data = fetch_from_cms(graphql_query, cms_config, limit)
+          end
+        else
+          data = fetch_from_cms(graphql_query, cms_config, limit)
+        end
+
+        docs = data&.dig('docs') || []
 
         if docs.empty?
-          message = "No published #{graphql_query} found in CMS"
+          message = "No published #{graphql_query} found"
           if @fail_on_error
             raise "PayloadCMS: #{message} - this may indicate a connectivity issue"
           end
@@ -82,6 +104,43 @@ module PayloadCMS
         Jekyll.logger.debug 'PayloadCMS:', e.backtrace.join("\n") if e.backtrace
         raise if @fail_on_error
       end
+    end
+
+    # Fetch collection data from the GraphQL cache
+    def fetch_from_cache(collection_name)
+      uri = URI.parse("#{@cache_url}/cache/#{collection_name}")
+
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = uri.scheme == 'https'
+      # Use default OpenSSL certificate store without CRL checking
+      # This resolves issues with Cloudflare certs where CRL endpoints may be unreachable
+      http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+      http.cert_store = OpenSSL::X509::Store.new
+      http.cert_store.set_default_paths
+      http.open_timeout = 10
+      http.read_timeout = 30
+
+      request = Net::HTTP::Get.new(uri.path)
+      request['Accept'] = 'application/json'
+
+      response = http.request(request)
+
+      unless response.is_a?(Net::HTTPSuccess)
+        Jekyll.logger.warn 'PayloadCMS:', "Cache returned #{response.code} for #{collection_name}"
+        return nil
+      end
+
+      JSON.parse(response.body)
+    rescue StandardError => e
+      Jekyll.logger.warn 'PayloadCMS:', "Cache fetch failed for #{collection_name}: #{e.message}"
+      nil
+    end
+
+    # Fetch collection data directly from CMS via GraphQL
+    def fetch_from_cms(graphql_query, cms_config, limit)
+      query = build_query(graphql_query, cms_config)
+      result = execute_query(query, limit)
+      result.dig('data', graphql_query)
     end
 
     def build_query(cms_collection, cms_config)

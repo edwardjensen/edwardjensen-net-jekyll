@@ -1,0 +1,21 @@
+name = "ejnet_graphql_cache"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# Disable workers.dev subdomain (using custom domain only)
+workers_dev = false
+
+# Custom domain routing
+routes = [
+  { pattern = "graphql.edwardjensen.net", custom_domain = true }
+]
+
+# KV namespace binding
+# Create with: wrangler kv:namespace create GRAPHQL_CACHE
+# Then update the id below with the returned namespace ID
+[[kv_namespaces]]
+binding = "GRAPHQL_CACHE"
+id = "59005b7fe1ea487486881a985876ba2d"
+
+# Secrets (set via wrangler secret put):
+#   CACHE_API_KEY - API key for write operations (POST /refresh/:collection)
