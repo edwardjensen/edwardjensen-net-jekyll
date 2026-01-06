@@ -16,7 +16,7 @@ payload_graphql:
 # Set GRAPHQL_CACHE_URL env var to override, or set enabled: false to bypass
 graphql_cache:
   enabled: true
-  url: https://graphql-cache.edwardjensenprojects.com
+  url: https://graphql.edwardjensen.net
 
 plugins:
   - jekyll-postcss-v2

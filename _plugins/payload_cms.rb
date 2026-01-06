@@ -112,6 +112,11 @@ module PayloadCMS
 
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = uri.scheme == 'https'
+      # Use default OpenSSL certificate store without CRL checking
+      # This resolves issues with Cloudflare certs where CRL endpoints may be unreachable
+      http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+      http.cert_store = OpenSSL::X509::Store.new
+      http.cert_store.set_default_paths
       http.open_timeout = 10
       http.read_timeout = 30
 
