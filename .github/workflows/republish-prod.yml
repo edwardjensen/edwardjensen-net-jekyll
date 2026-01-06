@@ -133,14 +133,18 @@ jobs:
 
             echo "Fetched $DOC_COUNT documents (totalDocs: $TOTAL_DOCS) for $collection"
 
-            # Write to cache
+            # Write to cache using temp file (data may be too large for command line)
             echo "Writing to cache..."
+            TEMP_FILE=$(mktemp)
+            echo "{\"data\": $DATA}" > "$TEMP_FILE"
             CACHE_RESPONSE=$(curl -sf -X POST "${CACHE_API_URL}/refresh/${collection}" \
               -H "Content-Type: application/json" \
               -H "Authorization: Bearer ${CACHE_API_KEY}" \
-              -d "{\"data\": $DATA}")
+              -d @"$TEMP_FILE")
+            CURL_EXIT=$?
+            rm -f "$TEMP_FILE"
 
-            if [[ $? -ne 0 ]]; then
+            if [[ $CURL_EXIT -ne 0 ]]; then
               echo "::error::Failed to write $collection to cache"
               exit 1
             fi
