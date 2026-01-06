@@ -46,7 +46,7 @@ jobs:
 
       - name: Refresh GraphQL cache
         env:
-          CMS_GRAPHQL_URL: ${{ secrets.CMS_URL }}
+          CMS_GRAPHQL_URL: ${{ secrets.CMS_URL }}/api/graphql
           CACHE_API_URL: ${{ secrets.GRAPHQL_CACHE_URL }}
           CACHE_API_KEY: ${{ secrets.GRAPHQL_CACHE_API_KEY }}
         run: |
@@ -109,6 +109,13 @@ jobs:
 
             if [[ $? -ne 0 ]]; then
               echo "::error::Failed to fetch $collection from CMS"
+              exit 1
+            fi
+
+            # Validate response is JSON before parsing
+            if ! echo "$RESPONSE" | jq empty 2>/dev/null; then
+              echo "::error::CMS returned non-JSON response for $collection"
+              echo "Response (first 500 chars): ${RESPONSE:0:500}"
               exit 1
             fi
 
