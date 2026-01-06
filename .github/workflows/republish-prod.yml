@@ -46,7 +46,7 @@ jobs:
 
       - name: Refresh GraphQL cache
         env:
-          CMS_GRAPHQL_URL: ${{ secrets.CMS_GRAPHQL_URL }}
+          CMS_GRAPHQL_URL: ${{ secrets.GRAPHQL_CACHE_URL }}
           CACHE_API_URL: https://graphql-cache.edwardjensenprojects.com
           CACHE_API_KEY: ${{ secrets.GRAPHQL_CACHE_API_KEY }}
         run: |
