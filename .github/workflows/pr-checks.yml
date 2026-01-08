@@ -42,6 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: changes
     if: needs.changes.outputs.code == 'true'
+    environment: production
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -77,6 +78,9 @@ jobs:
           args: --accept-dns=true
 
       - name: Build site
+        env:
+          GRAPHQL_ENDPOINT: ${{ secrets.GRAPHQL_CACHE_URL }}/api/graphql
+          GRAPHQL_API_KEY: ${{ secrets.GRAPHQL_API_KEY }}
         run: |
           JEKYLL_ENV=staging bundle exec jekyll build --config _config.yml
           npm run minify
