@@ -69,14 +69,6 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
-      - name: Connect to Tailscale VPN
-        uses: tailscale/github-action@v4
-        with:
-          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TS_OAUTH_CLIENT_SECRET }}
-          tags: tag:ci
-          args: --accept-dns=true
-
       - name: Build site
         env:
           GRAPHQL_ENDPOINT: ${{ secrets.GRAPHQL_CACHE_URL }}/api/graphql
