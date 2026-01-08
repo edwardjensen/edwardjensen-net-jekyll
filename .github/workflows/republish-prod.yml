@@ -31,132 +31,13 @@ jobs:
           tags: tag:ci
           args: --accept-dns=true
 
-      - name: Determine collections to refresh
-        id: collections
-        run: |
-          # For photo publish, only refresh photography
-          # For general publish or manual trigger, refresh non-photography collections
-          if [[ "${{ github.event.action }}" == "prod_cms_photo_publish" ]]; then
-            echo "list=photography" >> $GITHUB_OUTPUT
-            echo "Refreshing photography collection only"
-          else
-            echo "list=posts,working_notes,historic_posts,pages" >> $GITHUB_OUTPUT
-            echo "Refreshing posts, working_notes, historic_posts, and pages collections"
-          fi
-
       - name: Refresh GraphQL cache
         env:
           CMS_GRAPHQL_URL: ${{ secrets.CMS_URL }}/api/graphql
           CACHE_API_URL: ${{ secrets.GRAPHQL_CACHE_URL }}
           CACHE_API_KEY: ${{ secrets.GRAPHQL_CACHE_API_KEY }}
-        run: |
-          COLLECTIONS="${{ steps.collections.outputs.list }}"
-
-          echo "Refreshing collections: $COLLECTIONS"
-
-          # Split by comma and refresh each collection
-          IFS=',' read -ra COLL_ARRAY <<< "$COLLECTIONS"
-          for collection in "${COLL_ARRAY[@]}"; do
-            collection=$(echo "$collection" | xargs) # trim whitespace
-
-            echo ""
-            echo "=========================================="
-            echo "Processing collection: $collection"
-            echo "=========================================="
-
-            # Build GraphQL query based on collection
-            case "$collection" in
-              posts)
-                QUERY_NAME="Posts"
-                FIELDS="id title slug date categories { category } tags { tag } image { url alt filename } imageAlt excerpt showImage renderWithLiquid postCredits landingFeatured redirectFrom { path } content markdown permalink sitemap updatedAt createdAt"
-                SORT="-date"
-                ;;
-              photography)
-                QUERY_NAME="Photographies"
-                FIELDS="id title slug date image { url alt filename } imageAlt tags { tag } content exifCamera exifLens exifFocalLength exifAperture exifShutterSpeed exifIso locationLat locationLng locationName locationFormatted locationCity locationCountry permalink sitemap updatedAt createdAt"
-                SORT="-date"
-                ;;
-              working_notes)
-                QUERY_NAME="WorkingNotes"
-                FIELDS="id title slug date tags { tag } content markdown permalink sitemap updatedAt createdAt"
-                SORT="-date"
-                ;;
-              historic_posts)
-                QUERY_NAME="HistoricPosts"
-                FIELDS="id title slug date tags { tag } content markdown permalink sitemap updatedAt createdAt"
-                SORT="-date"
-                ;;
-              pages)
-                QUERY_NAME="Pages"
-                FIELDS="id title slug permalink searchable sitemap image { url alt filename } imageAlt content markdown redirectFrom { path } updatedAt createdAt"
-                SORT="title"
-                ;;
-              *)
-                echo "::error::Unknown collection: $collection"
-                exit 1
-                ;;
-            esac
-
-            echo "Fetching $QUERY_NAME from CMS..."
-
-            # Build GraphQL query
-            QUERY="query { ${QUERY_NAME}(where: { _status: { equals: published } }, limit: 0, sort: \"${SORT}\") { docs { ${FIELDS} } totalDocs } }"
-
-            # Execute GraphQL query against CMS
-            RESPONSE=$(curl -sf -X POST "$CMS_GRAPHQL_URL" \
-              -H "Content-Type: application/json" \
-              -d "{\"query\": $(echo "$QUERY" | jq -Rs .)}")
-
-            if [[ $? -ne 0 ]]; then
-              echo "::error::Failed to fetch $collection from CMS"
-              exit 1
-            fi
-
-            # Validate response is JSON before parsing
-            if ! echo "$RESPONSE" | jq empty 2>/dev/null; then
-              echo "::error::CMS returned non-JSON response for $collection"
-              echo "Response (first 500 chars): ${RESPONSE:0:500}"
-              exit 1
-            fi
-
-            # Check for GraphQL errors
-            ERRORS=$(echo "$RESPONSE" | jq '.errors')
-            if [[ "$ERRORS" != "null" ]]; then
-              echo "::error::GraphQL errors for $collection: $ERRORS"
-              exit 1
-            fi
-
-            # Extract the data for this collection
-            DATA=$(echo "$RESPONSE" | jq ".data.${QUERY_NAME}")
-            DOC_COUNT=$(echo "$DATA" | jq '.docs | length')
-            TOTAL_DOCS=$(echo "$DATA" | jq '.totalDocs')
-
-            echo "Fetched $DOC_COUNT documents (totalDocs: $TOTAL_DOCS) for $collection"
-
-            # Write to cache using temp file (data may be too large for command line)
-            echo "Writing to cache..."
-            TEMP_FILE=$(mktemp)
-            echo "{\"data\": $DATA}" > "$TEMP_FILE"
-            CACHE_RESPONSE=$(curl -sf -X POST "${CACHE_API_URL}/refresh/${collection}" \
-              -H "Content-Type: application/json" \
-              -H "Authorization: Bearer ${CACHE_API_KEY}" \
-              -d @"$TEMP_FILE")
-            CURL_EXIT=$?
-            rm -f "$TEMP_FILE"
-
-            if [[ $CURL_EXIT -ne 0 ]]; then
-              echo "::error::Failed to write $collection to cache"
-              exit 1
-            fi
-
-            echo "Successfully cached $collection"
-            echo "$CACHE_RESPONSE" | jq .
-          done
-
-          echo ""
-          echo "=========================================="
-          echo "Cache refresh complete"
-          echo "=========================================="
+        shell: pwsh
+        run: ./scripts/refresh-graphql-cache.ps1
 
   republish:
     runs-on: ubuntu-latest
@@ -218,7 +99,8 @@ jobs:
 
       - name: Build site
         env:
-          GRAPHQL_CACHE_URL: ${{ secrets.GRAPHQL_CACHE_URL }}
+          GRAPHQL_ENDPOINT: ${{ secrets.GRAPHQL_CACHE_URL }}/api/graphql
+          GRAPHQL_API_KEY: ${{ secrets.GRAPHQL_API_KEY }}
         run: |
           JEKYLL_ENV=production bundle exec jekyll build
           npm run minify

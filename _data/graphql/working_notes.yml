@@ -1,0 +1,17 @@
+# GraphQL configuration for working_notes collection
+# Used by Jekyll plugin and cache refresh workflow
+
+query_name: "WorkingNotes"
+sort: "-date"
+fields:
+  - id
+  - title
+  - slug
+  - date
+  - tags { tag }
+  - content
+  - markdown
+  - permalink
+  - sitemap
+  - updatedAt
+  - createdAt

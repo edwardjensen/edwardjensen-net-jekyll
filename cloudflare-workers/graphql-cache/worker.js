@@ -1,19 +1,26 @@
 /**
- * GraphQL Cache Worker
+ * GraphQL Endpoint Worker
  *
- * Provides a caching layer for Payload CMS GraphQL responses using Cloudflare KV.
- * Jekyll builds read from this cache instead of hitting the CMS directly.
- * Cache is refreshed by GitHub Actions which can access the Tailscale-protected CMS.
+ * Provides a GraphQL endpoint that mirrors the Payload CMS GraphQL API.
+ * The endpoint path (/api/graphql) matches Payload CMS exactly, allowing
+ * Jekyll builds to use the same code path regardless of whether they're
+ * hitting this worker or the CMS directly.
+ *
+ * The collection mapping is stored in KV and updated by the cache refresh workflow,
+ * making it easy to add new content types without code changes.
  *
  * Environment bindings:
- *   GRAPHQL_CACHE - KV namespace for cached data
- *   CACHE_API_KEY - Secret API key for write operations (set via wrangler secret put)
+ *   GRAPHQL_CACHE   - KV namespace for cached data
+ *   CACHE_API_KEY   - Secret API key for write operations (set via wrangler secret put)
+ *   GRAPHQL_API_KEY - Secret API key for read operations on /api/graphql (set via wrangler secret put)
  *
  * Endpoints:
- *   GET /cache/:collection     - Read cached collection data (origin-validated)
- *   POST /refresh/:collection  - Write collection data to cache (requires API key)
- *   GET /status                - Cache status and metadata
- *   GET /health                - Health check
+ *   POST /api/graphql            - GraphQL queries (requires GRAPHQL_API_KEY)
+ *   POST /refresh/:collection    - Write collection data (requires CACHE_API_KEY)
+ *   POST /config/:key            - Write configuration (requires CACHE_API_KEY)
+ *   GET /config/:key             - Read configuration
+ *   GET /status                  - Status and metadata
+ *   GET /health                  - Health check
  */
 
 // Allowed origin patterns for read operations
@@ -24,9 +31,6 @@ const ALLOWED_ORIGINS = [
   /^http:\/\/localhost(:\d+)?$/,
   /^http:\/\/127\.0\.0\.1(:\d+)?$/,
 ];
-
-// Valid collection names (must match Jekyll collection names)
-const VALID_COLLECTIONS = ['posts', 'photography', 'working_notes', 'historic_posts', 'pages'];
 
 /**
  * Check if origin is allowed for read operations
@@ -56,15 +60,32 @@ function isOriginAllowed(request) {
 }
 
 /**
- * Validate API key for write operations
+ * Validate API key for write operations (CACHE_API_KEY)
  */
-function isApiKeyValid(request, env) {
+function isWriteApiKeyValid(request, env) {
   const authHeader = request.headers.get('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return false;
   }
   const token = authHeader.slice(7);
   return token === env.CACHE_API_KEY;
+}
+
+/**
+ * Validate API key for GraphQL read operations (GRAPHQL_API_KEY)
+ */
+function isGraphqlApiKeyValid(request, env) {
+  // If GRAPHQL_API_KEY is not configured, allow requests (for backwards compatibility during migration)
+  if (!env.GRAPHQL_API_KEY) {
+    return true;
+  }
+
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return false;
+  }
+  const token = authHeader.slice(7);
+  return token === env.GRAPHQL_API_KEY;
 }
 
 /**
@@ -79,6 +100,13 @@ function getCollectionKey(collection) {
  */
 function getMetadataKey(collection) {
   return `metadata:${collection}`;
+}
+
+/**
+ * Generate KV key for configuration
+ */
+function getConfigKey(key) {
+  return `config:${key}`;
 }
 
 /**
@@ -112,6 +140,48 @@ function handleCors(request) {
   });
 }
 
+/**
+ * Extract the collection name from a GraphQL query.
+ *
+ * Handles queries in the format:
+ * - query { Posts(...) { ... } }
+ * - query GetPublished($limit: Int) { Posts(...) { ... } }
+ * - query { WorkingNotes(where: {...}) { docs { ... } } }
+ *
+ * @param {string} query - The GraphQL query string
+ * @returns {string|null} The collection name or null if parsing fails
+ */
+function extractCollectionFromQuery(query) {
+  // Remove comments and normalize whitespace
+  const normalized = query
+    .replace(/#[^\n]*/g, '')  // Remove comments
+    .replace(/\s+/g, ' ')     // Normalize whitespace
+    .trim();
+
+  // Match pattern: query [optional_name] [optional_variables] { CollectionName
+  const match = normalized.match(/query\s*(?:\w+)?\s*(?:\([^)]*\))?\s*\{\s*(\w+)/);
+
+  return match ? match[1] : null;
+}
+
+/**
+ * Get collection mapping from KV storage
+ * Returns a map of GraphQL query names to Jekyll collection names
+ * e.g., { "Posts": "posts", "Photographies": "photography", ... }
+ */
+async function getCollectionMap(env) {
+  const map = await env.GRAPHQL_CACHE.get(getConfigKey('collections'), 'json');
+  return map || {};
+}
+
+/**
+ * Get list of valid Jekyll collection names from the mapping
+ */
+async function getValidCollections(env) {
+  const map = await getCollectionMap(env);
+  return Object.values(map);
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -133,47 +203,149 @@ export default {
 
     // Status endpoint - show cache metadata for all collections
     if (path === '/status' && request.method === 'GET') {
+      const collectionMap = await getCollectionMap(env);
+      const validCollections = Object.values(collectionMap);
+
       const status = {};
-      for (const collection of VALID_COLLECTIONS) {
+      for (const collection of validCollections) {
         const metadata = await env.GRAPHQL_CACHE.get(getMetadataKey(collection), 'json');
         status[collection] = metadata || { cached: false };
       }
       return jsonResponse({
         collections: status,
-        validCollections: VALID_COLLECTIONS,
+        collectionMap,
         timestamp: new Date().toISOString(),
       });
     }
 
-    // Read cached collection: GET /cache/:collection
-    const readMatch = path.match(/^\/cache\/(\w+)$/);
-    if (readMatch && request.method === 'GET') {
-      const collection = readMatch[1];
-
-      // Validate collection name
-      if (!VALID_COLLECTIONS.includes(collection)) {
-        return jsonResponse(
-          { error: `Invalid collection: ${collection}`, validCollections: VALID_COLLECTIONS },
-          400
-        );
+    // GraphQL endpoint: POST /api/graphql (matches Payload CMS path)
+    if (path === '/api/graphql' && request.method === 'POST') {
+      // Validate API key (required when GRAPHQL_API_KEY is configured)
+      if (!isGraphqlApiKeyValid(request, env)) {
+        return jsonResponse({ error: 'Unauthorized - valid GRAPHQL_API_KEY required' }, 401, origin);
       }
 
-      // Validate origin
-      if (!isOriginAllowed(request)) {
-        return jsonResponse({ error: 'Forbidden' }, 403);
-      }
+      try {
+        const body = await request.json();
+        const query = body.query;
 
-      // Fetch from KV
-      const data = await env.GRAPHQL_CACHE.get(getCollectionKey(collection), 'json');
+        if (!query) {
+          return jsonResponse({
+            errors: [{ message: 'Missing query in request body' }]
+          }, 400, origin);
+        }
+
+        // Extract collection name from query
+        const graphqlCollection = extractCollectionFromQuery(query);
+
+        if (!graphqlCollection) {
+          return jsonResponse({
+            errors: [{
+              message: 'Could not parse collection from query',
+              hint: 'Query must follow pattern: query { CollectionName(...) { docs { ... } } }'
+            }]
+          }, 400, origin);
+        }
+
+        // Get collection mapping from KV
+        const collectionMap = await getCollectionMap(env);
+
+        if (Object.keys(collectionMap).length === 0) {
+          return jsonResponse({
+            errors: [{
+              message: 'Collection mapping not configured',
+              hint: 'Run cache refresh workflow to populate collection mapping'
+            }]
+          }, 500, origin);
+        }
+
+        // Map GraphQL collection name to Jekyll collection name
+        const jekyllCollection = collectionMap[graphqlCollection];
+
+        if (!jekyllCollection) {
+          return jsonResponse({
+            errors: [{
+              message: `Unknown collection: ${graphqlCollection}`,
+              validCollections: Object.keys(collectionMap)
+            }]
+          }, 400, origin);
+        }
+
+        // Fetch from KV
+        const data = await env.GRAPHQL_CACHE.get(getCollectionKey(jekyllCollection), 'json');
+
+        if (!data) {
+          return jsonResponse({
+            errors: [{
+              message: `No cached data for collection: ${graphqlCollection}`,
+              hint: 'Cache may need to be refreshed'
+            }]
+          }, 404, origin);
+        }
+
+        // Return in CMS-compatible format
+        return jsonResponse({
+          data: {
+            [graphqlCollection]: data
+          }
+        }, 200, origin);
+
+      } catch (error) {
+        console.error('GraphQL request error:', error);
+        return jsonResponse({
+          errors: [{
+            message: 'Failed to process GraphQL request',
+            details: error.message
+          }]
+        }, 500, origin);
+      }
+    }
+
+    // Read configuration: GET /config/:key
+    const configReadMatch = path.match(/^\/config\/(\w+)$/);
+    if (configReadMatch && request.method === 'GET') {
+      const key = configReadMatch[1];
+
+      const data = await env.GRAPHQL_CACHE.get(getConfigKey(key), 'json');
 
       if (!data) {
-        return jsonResponse(
-          { error: `No cached data for collection: ${collection}` },
-          404
-        );
+        return jsonResponse({ error: `No configuration found for key: ${key}` }, 404, origin);
       }
 
-      return jsonResponse(data, 200, origin);
+      return jsonResponse({ key, data }, 200, origin);
+    }
+
+    // Write configuration: POST /config/:key
+    if (configReadMatch && request.method === 'POST') {
+      const key = configReadMatch[1];
+
+      // Validate API key
+      if (!isWriteApiKeyValid(request, env)) {
+        return jsonResponse({ error: 'Unauthorized - valid CACHE_API_KEY required' }, 401, origin);
+      }
+
+      try {
+        const body = await request.json();
+
+        if (!body.data) {
+          return jsonResponse({ error: 'Request body must contain "data" field' }, 400, origin);
+        }
+
+        await env.GRAPHQL_CACHE.put(getConfigKey(key), JSON.stringify(body.data));
+
+        return jsonResponse({
+          success: true,
+          key,
+          timestamp: new Date().toISOString(),
+        });
+      } catch (error) {
+        console.error('Error storing config:', error);
+        return jsonResponse(
+          { error: 'Failed to store configuration', details: error.message },
+          500,
+          origin
+        );
+      }
     }
 
     // Refresh single collection: POST /refresh/:collection
@@ -181,17 +353,9 @@ export default {
     if (refreshMatch && request.method === 'POST') {
       const collection = refreshMatch[1];
 
-      // Validate collection name
-      if (!VALID_COLLECTIONS.includes(collection)) {
-        return jsonResponse(
-          { error: `Invalid collection: ${collection}`, validCollections: VALID_COLLECTIONS },
-          400
-        );
-      }
-
       // Validate API key
-      if (!isApiKeyValid(request, env)) {
-        return jsonResponse({ error: 'Unauthorized - valid API key required' }, 401);
+      if (!isWriteApiKeyValid(request, env)) {
+        return jsonResponse({ error: 'Unauthorized - valid CACHE_API_KEY required' }, 401, origin);
       }
 
       try {
@@ -199,7 +363,7 @@ export default {
 
         // Validate body structure
         if (!body.data) {
-          return jsonResponse({ error: 'Request body must contain "data" field' }, 400);
+          return jsonResponse({ error: 'Request body must contain "data" field' }, 400, origin);
         }
 
         // Store the collection data
@@ -229,14 +393,15 @@ export default {
         console.error('Error storing cache:', error);
         return jsonResponse(
           { error: 'Failed to store cache data', details: error.message },
-          500
+          500,
+          origin
         );
       }
     }
 
     // Method not allowed for known paths
-    if (readMatch || refreshMatch) {
-      return jsonResponse({ error: 'Method not allowed' }, 405);
+    if (refreshMatch || configReadMatch) {
+      return jsonResponse({ error: 'Method not allowed' }, 405, origin);
     }
 
     // Not found
@@ -246,11 +411,14 @@ export default {
         availableEndpoints: [
           'GET /health',
           'GET /status',
-          'GET /cache/:collection',
+          'POST /api/graphql',
+          'GET /config/:key',
+          'POST /config/:key',
           'POST /refresh/:collection',
         ],
       },
-      404
+      404,
+      origin
     );
   },
 };

@@ -13,7 +13,10 @@
     "jekyll": "bundle exec jekyll serve --config _config.yml,_config.local.yml,_config.runtime.yml --livereload",
     "jekyll:staging": "bundle exec jekyll serve --config _config.yml,_config.local.yml,_config.runtime.yml --livereload",
     "jekyll:kill": "lsof -ti :4000 | xargs kill",
-    "minify": "node ./scripts/minify-html.js"
+    "minify": "node ./scripts/minify-html.js",
+    "cache:refresh": "pwsh ./scripts/refresh-graphql-cache.ps1",
+    "cache:refresh:posts": "pwsh ./scripts/refresh-graphql-cache.ps1 -Collection posts",
+    "cache:refresh:photography": "pwsh ./scripts/refresh-graphql-cache.ps1 -Collection photography"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.16",

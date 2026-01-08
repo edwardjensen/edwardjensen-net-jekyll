@@ -190,13 +190,8 @@ jobs:
           TITLE=$(yq ".titles.\"${TITLE_KEY}\"" "$CONFIG_FILE")
           echo "title: \"${TITLE}\"" >> _config.staging.yml
 
-          # Add staging CMS config if using staging CMS
-          if [[ "${CMS_SOURCE}" == "staging" ]]; then
-            STAGING_CMS_URL=$(yq '.staging_cms.payload_graphql.url' "$CONFIG_FILE")
-            echo "" >> _config.staging.yml
-            echo "payload_graphql:" >> _config.staging.yml
-            echo "  url: \"${STAGING_CMS_URL}\"" >> _config.staging.yml
-          fi
+          # Note: CMS endpoint is now set via environment variables (CMS_GRAPHQL_URL or GRAPHQL_CACHE_URL)
+          # The staging CMS URL from config is passed as env var in the build step
 
           # Apply deploy target overrides
           if [[ "${DEPLOY_TARGET}" == "cloudflare" ]]; then
@@ -247,7 +242,23 @@ jobs:
           echo "google_maps_api_key: ${{ secrets.GOOGLE_MAPS_API_KEY }}" > _config.runtime.yml
 
       - name: Build site
+        env:
+          GRAPHQL_API_KEY: ${{ secrets.GRAPHQL_API_KEY }}
         run: |
+          # Set GraphQL endpoint based on CMS source
+          if [[ "${{ needs.resolve-config.outputs.cms_source }}" == "production" ]]; then
+            # Production CMS: use public GraphQL cache endpoint (requires API key)
+            export GRAPHQL_ENDPOINT="${{ secrets.GRAPHQL_CACHE_URL }}/api/graphql"
+            echo "Using GraphQL endpoint: ${GRAPHQL_ENDPOINT}"
+          else
+            # Staging CMS: use staging CMS directly (requires Tailscale VPN, no API key)
+            # Read URL from staging config file
+            CONFIG_FILE="_data/staging-config.yml"
+            export GRAPHQL_ENDPOINT=$(yq '.staging_cms.payload_graphql.url' "$CONFIG_FILE")
+            unset GRAPHQL_API_KEY  # Not needed for direct CMS access
+            echo "Using staging CMS: ${GRAPHQL_ENDPOINT}"
+          fi
+
           CONFIG_FILES="_config.yml,_config.staging.yml"
           if [[ -f "_config.runtime.yml" ]]; then
             CONFIG_FILES="${CONFIG_FILES},_config.runtime.yml"

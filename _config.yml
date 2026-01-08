@@ -7,16 +7,11 @@ description: "Edward Jensen is a nonprofit technology professional who writes ab
 logo: "/assets/images/bluebackground.png"
 timezone: "America/Chicago"
 
+# GraphQL endpoint for CMS content
+# Set via GRAPHQL_ENDPOINT env var, or defaults to this URL
 payload_graphql:
-  url: "https://www-ts.edwardjensencms.com/api/graphql"
+  url: "https://graphql.edwardjensen.net/api/graphql"
   fail_on_error: true
-
-# GraphQL Cache - Cloudflare-based caching layer for CMS content
-# Production builds read from cache; cache is refreshed by GitHub Actions
-# Set GRAPHQL_CACHE_URL env var to override, or set enabled: false to bypass
-graphql_cache:
-  enabled: true
-  url: https://graphql.edwardjensen.net
 
 plugins:
   - jekyll-postcss-v2
@@ -62,33 +57,11 @@ collections:
     cms:
       collection: "Posts"
       layout: "single-post"
-      fields:
-        - id
-        - title
-        - slug
-        - date
-        - categories { category }
-        - tags { tag }
-        - image { url alt filename }
-        - imageAlt
-        - excerpt
-        - showImage
-        - renderWithLiquid
-        - postCredits
-        - landingFeatured
-        - redirectFrom { path }
-        - content
-        - markdown
-        - permalink
-        - sitemap
-        - updatedAt
-        - createdAt
   photography:
     output: true
     permalink: /photos/:year/:year-:month/:title
     cms:
       collection: "Photography"
-      graphql_query: "Photographies"
       layout: "single-photo"
       field_mappings:
         exifCamera: exif_camera
@@ -103,31 +76,6 @@ collections:
         locationFormatted: location_formatted
         locationCity: location_city
         locationCountry: location_country
-      fields:
-        - id
-        - title
-        - slug
-        - date
-        - image { url alt filename }
-        - imageAlt
-        - tags { tag }
-        - content
-        - exifCamera
-        - exifLens
-        - exifFocalLength
-        - exifAperture
-        - exifShutterSpeed
-        - exifIso
-        - locationLat
-        - locationLng
-        - locationName
-        - locationFormatted
-        - locationCity
-        - locationCountry
-        - permalink
-        - sitemap
-        - updatedAt
-        - createdAt
   portfolio:
     output: true
     permalink: /portfolio/:title
@@ -143,18 +91,6 @@ collections:
     cms:
       collection: "WorkingNotes"
       layout: "single-working-note"
-      fields:
-        - id
-        - title
-        - slug
-        - date
-        - tags { tag }
-        - content
-        - markdown
-        - permalink
-        - sitemap
-        - updatedAt
-        - createdAt
   sections_landing:
     output: false
   historic_posts:
@@ -163,38 +99,11 @@ collections:
     cms:
       collection: "HistoricPosts"
       layout: "single-post"
-      fields:
-        - id
-        - title
-        - slug
-        - date
-        - tags { tag }
-        - content
-        - markdown
-        - permalink
-        - sitemap
-        - updatedAt
-        - createdAt
   pages:
     output: true
     cms:
       collection: "Pages"
       layout: "page"
-      sort: "title"
-      fields:
-        - id
-        - title
-        - slug
-        - permalink
-        - searchable
-        - sitemap
-        - image { url alt filename }
-        - imageAlt
-        - content
-        - markdown
-        - redirectFrom { path }
-        - updatedAt
-        - createdAt
   featured-tags:
     output: true
     permalink: /tags/:title
