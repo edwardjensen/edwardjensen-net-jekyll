@@ -242,17 +242,20 @@ jobs:
           echo "google_maps_api_key: ${{ secrets.GOOGLE_MAPS_API_KEY }}" > _config.runtime.yml
 
       - name: Build site
+        env:
+          GRAPHQL_API_KEY: ${{ secrets.GRAPHQL_API_KEY }}
         run: |
           # Set GraphQL endpoint based on CMS source
           if [[ "${{ needs.resolve-config.outputs.cms_source }}" == "production" ]]; then
-            # Production CMS: use public GraphQL endpoint
+            # Production CMS: use public GraphQL cache endpoint (requires API key)
             export GRAPHQL_ENDPOINT="${{ secrets.GRAPHQL_CACHE_URL }}/api/graphql"
             echo "Using GraphQL endpoint: ${GRAPHQL_ENDPOINT}"
           else
-            # Staging CMS: use staging CMS directly (requires Tailscale VPN)
+            # Staging CMS: use staging CMS directly (requires Tailscale VPN, no API key)
             # Read URL from staging config file
             CONFIG_FILE="_data/staging-config.yml"
             export GRAPHQL_ENDPOINT=$(yq '.staging_cms.payload_graphql.url' "$CONFIG_FILE")
+            unset GRAPHQL_API_KEY  # Not needed for direct CMS access
             echo "Using staging CMS: ${GRAPHQL_ENDPOINT}"
           fi
 

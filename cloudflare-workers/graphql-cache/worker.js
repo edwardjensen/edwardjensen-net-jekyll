@@ -10,13 +10,14 @@
  * making it easy to add new content types without code changes.
  *
  * Environment bindings:
- *   GRAPHQL_CACHE - KV namespace for cached data
- *   CACHE_API_KEY - Secret API key for write operations (set via wrangler secret put)
+ *   GRAPHQL_CACHE   - KV namespace for cached data
+ *   CACHE_API_KEY   - Secret API key for write operations (set via wrangler secret put)
+ *   GRAPHQL_API_KEY - Secret API key for read operations on /api/graphql (set via wrangler secret put)
  *
  * Endpoints:
- *   POST /api/graphql            - GraphQL queries (primary endpoint for Jekyll builds)
- *   POST /refresh/:collection    - Write collection data (requires API key)
- *   POST /config/:key            - Write configuration (requires API key)
+ *   POST /api/graphql            - GraphQL queries (requires GRAPHQL_API_KEY)
+ *   POST /refresh/:collection    - Write collection data (requires CACHE_API_KEY)
+ *   POST /config/:key            - Write configuration (requires CACHE_API_KEY)
  *   GET /config/:key             - Read configuration
  *   GET /status                  - Status and metadata
  *   GET /health                  - Health check
@@ -59,15 +60,32 @@ function isOriginAllowed(request) {
 }
 
 /**
- * Validate API key for write operations
+ * Validate API key for write operations (CACHE_API_KEY)
  */
-function isApiKeyValid(request, env) {
+function isWriteApiKeyValid(request, env) {
   const authHeader = request.headers.get('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return false;
   }
   const token = authHeader.slice(7);
   return token === env.CACHE_API_KEY;
+}
+
+/**
+ * Validate API key for GraphQL read operations (GRAPHQL_API_KEY)
+ */
+function isGraphqlApiKeyValid(request, env) {
+  // If GRAPHQL_API_KEY is not configured, allow requests (for backwards compatibility during migration)
+  if (!env.GRAPHQL_API_KEY) {
+    return true;
+  }
+
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return false;
+  }
+  const token = authHeader.slice(7);
+  return token === env.GRAPHQL_API_KEY;
 }
 
 /**
@@ -202,9 +220,9 @@ export default {
 
     // GraphQL endpoint: POST /api/graphql (matches Payload CMS path)
     if (path === '/api/graphql' && request.method === 'POST') {
-      // Validate origin
-      if (!isOriginAllowed(request)) {
-        return jsonResponse({ error: 'Forbidden' }, 403, origin);
+      // Validate API key (required when GRAPHQL_API_KEY is configured)
+      if (!isGraphqlApiKeyValid(request, env)) {
+        return jsonResponse({ error: 'Unauthorized - valid GRAPHQL_API_KEY required' }, 401, origin);
       }
 
       try {
@@ -302,8 +320,8 @@ export default {
       const key = configReadMatch[1];
 
       // Validate API key
-      if (!isApiKeyValid(request, env)) {
-        return jsonResponse({ error: 'Unauthorized - valid API key required' }, 401, origin);
+      if (!isWriteApiKeyValid(request, env)) {
+        return jsonResponse({ error: 'Unauthorized - valid CACHE_API_KEY required' }, 401, origin);
       }
 
       try {
@@ -336,8 +354,8 @@ export default {
       const collection = refreshMatch[1];
 
       // Validate API key
-      if (!isApiKeyValid(request, env)) {
-        return jsonResponse({ error: 'Unauthorized - valid API key required' }, 401, origin);
+      if (!isWriteApiKeyValid(request, env)) {
+        return jsonResponse({ error: 'Unauthorized - valid CACHE_API_KEY required' }, 401, origin);
       }
 
       try {

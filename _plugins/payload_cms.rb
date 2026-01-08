@@ -62,6 +62,17 @@ module PayloadCMS
       @config['url']
     end
 
+    # Get the GraphQL API key for authenticated requests
+    # Priority: GRAPHQL_API_KEY env var > config key
+    def graphql_api_key
+      # Check environment variable first
+      api_key = ENV['GRAPHQL_API_KEY']
+      return api_key if api_key && !api_key.empty?
+
+      # Fall back to config key (e.g., from _config.local.yml)
+      @config['key']
+    end
+
     def fetch_collection(collection_name, graphql_config)
       # Get the Jekyll collection
       collection = @site.collections[collection_name]
@@ -168,6 +179,10 @@ module PayloadCMS
       request = Net::HTTP::Post.new(uri.path.empty? ? '/' : uri.path)
       request['Content-Type'] = 'application/json'
       request['Accept'] = 'application/json'
+
+      # Add Authorization header if API key is configured
+      api_key = graphql_api_key
+      request['Authorization'] = "Bearer #{api_key}" if api_key && !api_key.empty?
 
       variables = {}
       # Always pass limit when specified (including 0 for unlimited)
