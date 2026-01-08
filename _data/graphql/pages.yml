@@ -1,0 +1,19 @@
+# GraphQL configuration for pages collection
+# Used by Jekyll plugin and cache refresh workflow
+
+query_name: "Pages"
+sort: "title"
+fields:
+  - id
+  - title
+  - slug
+  - permalink
+  - searchable
+  - sitemap
+  - image { url alt filename }
+  - imageAlt
+  - content
+  - markdown
+  - redirectFrom { path }
+  - updatedAt
+  - createdAt

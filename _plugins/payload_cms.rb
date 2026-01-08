@@ -7,6 +7,8 @@ require 'json'
 
 module PayloadCMS
   # Generator that fetches content from Payload CMS via GraphQL
+  # Uses file-driven discovery: iterates over _data/graphql/*.yml files
+  # Each file defines a collection's GraphQL query configuration
   class ContentGenerator < Jekyll::Generator
     safe true
     priority :high
@@ -14,22 +16,15 @@ module PayloadCMS
     def generate(site)
       @site = site
       @config = site.config['payload_graphql'] || {}
-      @cache_config = site.config['graphql_cache'] || {}
 
-      # Cache URL from environment variable takes precedence over config
-      @cache_url = ENV['GRAPHQL_CACHE_URL'] || @cache_config['url']
-      @use_cache = @cache_config['enabled'] != false && @cache_url && !@cache_url.empty?
-
-      # Direct CMS URL from environment variable or config (fallback when cache is disabled or unavailable)
-      @endpoint = ENV['CMS_GRAPHQL_URL'] || @config['url']
-
-      # Load GraphQL query configurations from data file (single source of truth)
-      @graphql_collections = site.data.dig('graphql-cache', 'collections') || {}
       # Default to true - builds fail on CMS errors unless explicitly disabled
       @fail_on_error = @config['fail_on_error'] != false
 
-      unless @cache_url || @endpoint
-        message = 'No graphql_cache.url or payload_graphql.url configured'
+      # Determine GraphQL endpoint from environment variable or config default
+      @endpoint = resolve_graphql_endpoint
+
+      unless @endpoint
+        message = 'No GraphQL endpoint configured (set GRAPHQL_ENDPOINT environment variable)'
         if @fail_on_error
           raise "PayloadCMS: #{message}"
         end
@@ -37,53 +32,70 @@ module PayloadCMS
         return
       end
 
-      if @use_cache
-        Jekyll.logger.info 'PayloadCMS:', "Using GraphQL cache at #{@cache_url}"
-      else
-        Jekyll.logger.info 'PayloadCMS:', "Using direct CMS at #{@endpoint}"
+      # Load GraphQL configurations from _data/graphql/*.yml files
+      # Jekyll auto-loads these as site.data['graphql']['posts'], etc.
+      graphql_configs = site.data['graphql']
+
+      unless graphql_configs && !graphql_configs.empty?
+        Jekyll.logger.warn 'PayloadCMS:', 'No GraphQL config files found in _data/graphql/'
+        return
       end
 
-      # Iterate through Jekyll collections and find ones with cms config
-      site.collections.each do |name, collection|
-        cms_config = collection.metadata['cms']
-        next unless cms_config
+      Jekyll.logger.info 'PayloadCMS:', "Using GraphQL endpoint: #{@endpoint}"
 
-        fetch_collection(name, collection, cms_config)
+      # Iterate through GraphQL config files (file-driven discovery)
+      graphql_configs.each do |collection_name, graphql_config|
+        fetch_collection(collection_name, graphql_config)
       end
     end
 
     private
 
-    def fetch_collection(name, collection, cms_config)
-      # Get GraphQL config from data file (single source of truth), fall back to _config.yml
-      graphql_config = @graphql_collections[name] || {}
+    # Resolve the GraphQL endpoint
+    # Priority: GRAPHQL_ENDPOINT env var > config default URL
+    def resolve_graphql_endpoint
+      # Check environment variable first
+      endpoint = ENV['GRAPHQL_ENDPOINT']
+      return endpoint if endpoint && !endpoint.empty?
 
-      # Query name priority: data file > _config.yml graphql_query > _config.yml collection > capitalized name
-      graphql_query = graphql_config['query_name'] || cms_config['graphql_query'] || cms_config['collection'] || name.capitalize
-      cms_collection = cms_config['collection'] || name.capitalize
+      # Fall back to config default URL
+      @config['url']
+    end
+
+    def fetch_collection(collection_name, graphql_config)
+      # Get the Jekyll collection
+      collection = @site.collections[collection_name]
+      unless collection
+        Jekyll.logger.warn 'PayloadCMS:', "Collection '#{collection_name}' not found in Jekyll config, skipping"
+        return
+      end
+
+      # Get Jekyll-specific CMS config (layout, field_mappings, etc.)
+      cms_config = collection.metadata['cms'] || {}
+
+      # Query name from GraphQL config file
+      query_name = graphql_config['query_name']
+      unless query_name
+        Jekyll.logger.error 'PayloadCMS:', "No query_name defined for #{collection_name}"
+        return
+      end
+
       layout = cms_config['layout'] || 'page'
       # Default to nil (unlimited) - Payload returns all docs when limit is not specified
       limit = cms_config['limit']
 
-      Jekyll.logger.info 'PayloadCMS:', "Fetching #{graphql_query} for #{name} collection"
+      Jekyll.logger.info 'PayloadCMS:', "Fetching #{query_name} for #{collection_name} collection"
 
       begin
-        # Try cache first if enabled, fall back to direct CMS if cache fails
-        data = nil
-        if @use_cache
-          data = fetch_from_cache(name)
-          if data.nil? && @endpoint
-            Jekyll.logger.warn 'PayloadCMS:', "Cache miss for #{name}, falling back to CMS"
-            data = fetch_from_cms(name, graphql_query, cms_config, limit)
-          end
-        else
-          data = fetch_from_cms(name, graphql_query, cms_config, limit)
-        end
+        # Build and execute GraphQL query
+        query = build_query(query_name, graphql_config)
+        result = execute_query(query, limit)
+        data = result.dig('data', query_name)
 
         docs = data&.dig('docs') || []
 
         if docs.empty?
-          message = "No published #{graphql_query} found"
+          message = "No published #{query_name} found"
           if @fail_on_error
             raise "PayloadCMS: #{message} - this may indicate a connectivity issue"
           end
@@ -91,7 +103,7 @@ module PayloadCMS
           return
         end
 
-        Jekyll.logger.info 'PayloadCMS:', "Found #{docs.length} published #{graphql_query}"
+        Jekyll.logger.info 'PayloadCMS:', "Found #{docs.length} published #{query_name}"
 
         docs.each do |doc_data|
           doc = create_document(collection, doc_data, layout, cms_config)
@@ -103,64 +115,21 @@ module PayloadCMS
           collection.docs.sort_by! { |doc| -(doc.data['date']&.to_i || 0) }
         end
 
-        Jekyll.logger.info 'PayloadCMS:', "Added #{docs.length} #{graphql_query} to #{name}"
+        Jekyll.logger.info 'PayloadCMS:', "Added #{docs.length} #{query_name} to #{collection_name}"
       rescue StandardError => e
-        Jekyll.logger.error 'PayloadCMS:', "Failed to fetch #{graphql_query}: #{e.message}"
+        Jekyll.logger.error 'PayloadCMS:', "Failed to fetch #{query_name}: #{e.message}"
         Jekyll.logger.debug 'PayloadCMS:', e.backtrace.join("\n") if e.backtrace
         raise if @fail_on_error
       end
     end
 
-    # Fetch collection data from the GraphQL cache
-    def fetch_from_cache(collection_name)
-      uri = URI.parse("#{@cache_url}/cache/#{collection_name}")
-
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = uri.scheme == 'https'
-      # Use default OpenSSL certificate store without CRL checking
-      # This resolves issues with Cloudflare certs where CRL endpoints may be unreachable
-      http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-      http.cert_store = OpenSSL::X509::Store.new
-      http.cert_store.set_default_paths
-      http.open_timeout = 10
-      http.read_timeout = 30
-
-      request = Net::HTTP::Get.new(uri.path)
-      request['Accept'] = 'application/json'
-
-      response = http.request(request)
-
-      unless response.is_a?(Net::HTTPSuccess)
-        Jekyll.logger.warn 'PayloadCMS:', "Cache returned #{response.code} for #{collection_name}"
-        return nil
-      end
-
-      JSON.parse(response.body)
-    rescue StandardError => e
-      Jekyll.logger.warn 'PayloadCMS:', "Cache fetch failed for #{collection_name}: #{e.message}"
-      nil
-    end
-
-    # Fetch collection data directly from CMS via GraphQL
-    def fetch_from_cms(collection_name, graphql_query, cms_config, limit)
-      query = build_query(graphql_query, cms_config, collection_name)
-      result = execute_query(query, limit)
-      result.dig('data', graphql_query)
-    end
-
-    def build_query(cms_collection, cms_config, collection_name = nil)
-      # Get GraphQL config from data file (single source of truth)
-      graphql_config = collection_name ? (@graphql_collections[collection_name] || {}) : {}
-
-      # Field priority: data file > _config.yml > default_fields
-      fields = graphql_config['fields'] || cms_config['fields'] || default_fields
-
-      # Sort priority: data file > _config.yml > default (-date)
-      sort_field = graphql_config['sort'] || cms_config['sort'] || '-date'
+    def build_query(query_name, graphql_config)
+      fields = graphql_config['fields'] || default_fields
+      sort_field = graphql_config['sort'] || '-date'
 
       <<~GRAPHQL
         query GetPublished($limit: Int) {
-          #{cms_collection}(where: { _status: { equals: published } }, limit: $limit, sort: "#{sort_field}") {
+          #{query_name}(where: { _status: { equals: published } }, limit: $limit, sort: "#{sort_field}") {
             docs {
               #{fields.join("\n              ")}
             }
@@ -176,19 +145,8 @@ module PayloadCMS
         'title',
         'slug',
         'date',
-        'categories { category }',
-        'tags { tag }',
-        'image { url alt filename }',
-        'imageAlt',
-        'excerpt',
-        'showImage',
-        'renderWithLiquid',
-        'postCredits',
-        'landingFeatured',
-        'redirectFrom { path }',
         'content',
         'permalink',
-        'sitemap',
         'updatedAt',
         'createdAt',
       ]
@@ -200,14 +158,14 @@ module PayloadCMS
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = uri.scheme == 'https'
       # Use default OpenSSL certificate store without CRL checking
-      # This resolves issues with Let's Encrypt certs where CRL endpoints may be unreachable
+      # This resolves issues with Let's Encrypt/Cloudflare certs where CRL endpoints may be unreachable
       http.verify_mode = OpenSSL::SSL::VERIFY_PEER
       http.cert_store = OpenSSL::X509::Store.new
       http.cert_store.set_default_paths
       http.open_timeout = 10
       http.read_timeout = 30
 
-      request = Net::HTTP::Post.new(uri.path)
+      request = Net::HTTP::Post.new(uri.path.empty? ? '/' : uri.path)
       request['Content-Type'] = 'application/json'
       request['Accept'] = 'application/json'
 
@@ -238,7 +196,7 @@ module PayloadCMS
 
     def create_document(collection, doc_data, layout, cms_config)
       slug = doc_data['slug'] || doc_data['id']
-      
+
       # Build permalink from doc data or use the one from Payload
       permalink = doc_data['permalink'] || build_permalink(doc_data, cms_config)
 
@@ -258,7 +216,7 @@ module PayloadCMS
       doc.data['slug'] = slug
       doc.data['permalink'] = permalink
       doc.data['cms_id'] = doc_data['id']
-      
+
       # Searchable - for pages collection
       doc.data['searchable'] = doc_data['searchable'] unless doc_data['searchable'].nil?
 
@@ -289,6 +247,12 @@ module PayloadCMS
       if doc_data['redirectFrom'] && !doc_data['redirectFrom'].empty?
         doc.data['redirect_from'] = doc_data['redirectFrom'].map { |r| r['path'] }.compact
       end
+
+      # sitemap field - for sitemap generator
+      doc.data['sitemap'] = doc_data['sitemap'] unless doc_data['sitemap'].nil?
+
+      # updatedAt - for sitemap lastmod
+      doc.data['updatedAt'] = doc_data['updatedAt'] if doc_data['updatedAt']
 
       # Apply any custom field mappings from config (sanitize strings for HTML attribute safety)
       if cms_config['field_mappings']
@@ -334,7 +298,7 @@ module PayloadCMS
 
       # Use permalink pattern from config or default
       pattern = cms_config['permalink_pattern'] || '/posts/:year/:year-:month/:slug'
-      
+
       pattern
         .gsub(':year', year)
         .gsub(':month', month)
@@ -355,20 +319,20 @@ module PayloadCMS
     # Used for post_credits field where each paragraph becomes a credit line
     def convert_post_credits(credits_data)
       return [] if credits_data.nil?
-      
+
       # If it's already an array of strings (legacy format), return as-is
       return credits_data if credits_data.is_a?(Array) && credits_data.all? { |c| c.is_a?(String) }
-      
+
       # If it's a Lexical JSON object, extract paragraphs as HTML strings
       return [] unless credits_data.is_a?(Hash) && credits_data['root']
-      
+
       root = credits_data['root']
       return [] unless root['children'].is_a?(Array)
-      
+
       # Extract each top-level paragraph as a separate credit line
       root['children'].filter_map do |node|
         next unless node['type'] == 'paragraph' && node['children']
-        
+
         # Convert paragraph children to HTML (preserves links, formatting, etc.)
         convert_children(node['children'])
       end.reject(&:empty?)

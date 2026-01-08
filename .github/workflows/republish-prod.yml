@@ -56,7 +56,6 @@ jobs:
           CACHE_API_KEY: ${{ secrets.GRAPHQL_CACHE_API_KEY }}
         run: |
           COLLECTIONS="${{ steps.collections.outputs.list }}"
-          CONFIG_FILE="_data/graphql-cache.yml"
 
           echo "Refreshing collections: $COLLECTIONS"
 
@@ -64,20 +63,27 @@ jobs:
           IFS=',' read -ra COLL_ARRAY <<< "$COLLECTIONS"
           for collection in "${COLL_ARRAY[@]}"; do
             collection=$(echo "$collection" | xargs) # trim whitespace
+            CONFIG_FILE="_data/graphql/${collection}.yml"
 
             echo ""
             echo "=========================================="
             echo "Processing collection: $collection"
             echo "=========================================="
 
-            # Read collection config from data file (single source of truth)
-            QUERY_NAME=$(yq ".collections.${collection}.query_name" "$CONFIG_FILE")
-            SORT=$(yq ".collections.${collection}.sort" "$CONFIG_FILE")
-            FIELDS=$(yq ".collections.${collection}.fields | join(\" \")" "$CONFIG_FILE")
+            # Validate config file exists
+            if [[ ! -f "$CONFIG_FILE" ]]; then
+              echo "::error::Config file not found: $CONFIG_FILE"
+              exit 1
+            fi
 
-            # Validate collection exists in config
+            # Read collection config from per-collection file
+            QUERY_NAME=$(yq '.query_name' "$CONFIG_FILE")
+            SORT=$(yq '.sort' "$CONFIG_FILE")
+            FIELDS=$(yq '.fields | join(" ")' "$CONFIG_FILE")
+
+            # Validate query_name exists
             if [[ "$QUERY_NAME" == "null" || -z "$QUERY_NAME" ]]; then
-              echo "::error::Unknown collection '$collection' - not found in $CONFIG_FILE"
+              echo "::error::No query_name defined in $CONFIG_FILE"
               exit 1
             fi
 
@@ -142,6 +148,45 @@ jobs:
           echo "Cache refresh complete"
           echo "=========================================="
 
+      - name: Update collection mapping in cache
+        env:
+          CACHE_API_URL: ${{ secrets.GRAPHQL_CACHE_URL }}
+          CACHE_API_KEY: ${{ secrets.GRAPHQL_CACHE_API_KEY }}
+        run: |
+          echo "Building collection mapping from _data/graphql/*.yml files..."
+
+          # Build mapping of GraphQL query names to Jekyll collection names
+          # by reading all per-collection config files
+          # e.g., {"Posts": "posts", "Photographies": "photography", ...}
+          MAPPING="{}"
+          for file in _data/graphql/*.yml; do
+            collection=$(basename "$file" .yml)
+            query_name=$(yq '.query_name' "$file")
+            if [[ "$query_name" != "null" && -n "$query_name" ]]; then
+              MAPPING=$(echo "$MAPPING" | jq --arg qn "$query_name" --arg col "$collection" '. + {($qn): $col}')
+            fi
+          done
+
+          echo "Collection mapping: $MAPPING"
+
+          # Write mapping to cache
+          TEMP_FILE=$(mktemp)
+          echo "{\"data\": $MAPPING}" > "$TEMP_FILE"
+          RESPONSE=$(curl -sf -X POST "${CACHE_API_URL}/config/collections" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${CACHE_API_KEY}" \
+            -d @"$TEMP_FILE")
+          CURL_EXIT=$?
+          rm -f "$TEMP_FILE"
+
+          if [[ $CURL_EXIT -ne 0 ]]; then
+            echo "::error::Failed to update collection mapping in cache"
+            exit 1
+          fi
+
+          echo "Successfully updated collection mapping"
+          echo "$RESPONSE" | jq .
+
   republish:
     runs-on: ubuntu-latest
     name: Build and Deploy Site
@@ -202,7 +247,7 @@ jobs:
 
       - name: Build site
         env:
-          GRAPHQL_CACHE_URL: ${{ secrets.GRAPHQL_CACHE_URL }}
+          GRAPHQL_ENDPOINT: ${{ secrets.GRAPHQL_CACHE_URL }}/api/graphql
         run: |
           JEKYLL_ENV=production bundle exec jekyll build
           npm run minify

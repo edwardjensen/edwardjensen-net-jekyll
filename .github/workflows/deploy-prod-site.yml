@@ -114,7 +114,7 @@ jobs:
 
       - name: Build site
         env:
-          GRAPHQL_CACHE_URL: ${{ secrets.GRAPHQL_CACHE_URL }}
+          GRAPHQL_ENDPOINT: ${{ secrets.GRAPHQL_CACHE_URL }}/api/graphql
         run: |
           JEKYLL_ENV=production bundle exec jekyll build
           npm run minify

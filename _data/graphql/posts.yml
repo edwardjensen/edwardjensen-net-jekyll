@@ -1,0 +1,26 @@
+# GraphQL configuration for posts collection
+# Used by Jekyll plugin and cache refresh workflow
+
+query_name: "Posts"
+sort: "-date"
+fields:
+  - id
+  - title
+  - slug
+  - date
+  - categories { category }
+  - tags { tag }
+  - image { url alt filename }
+  - imageAlt
+  - excerpt
+  - showImage
+  - renderWithLiquid
+  - postCredits
+  - landingFeatured
+  - redirectFrom { path }
+  - content
+  - markdown
+  - permalink
+  - sitemap
+  - updatedAt
+  - createdAt

@@ -7,17 +7,11 @@ description: "Edward Jensen is a nonprofit technology professional who writes ab
 logo: "/assets/images/bluebackground.png"
 timezone: "America/Chicago"
 
-# CMS GraphQL endpoint (fallback if CMS_GRAPHQL_URL env var not set)
+# GraphQL endpoint for CMS content
+# Set via GRAPHQL_ENDPOINT env var, or defaults to this URL
 payload_graphql:
-  url: "https://www-ts.edwardjensencms.com/api/graphql"
+  url: "https://graphql.edwardjensen.net/api/graphql"
   fail_on_error: true
-
-# GraphQL Cache - Cloudflare-based caching layer for CMS content
-# URL can be overridden via GRAPHQL_CACHE_URL env var
-# Set enabled: false to bypass cache and hit CMS directly
-graphql_cache:
-  enabled: true
-  url: https://graphql.edwardjensen.net
 
 plugins:
   - jekyll-postcss-v2
