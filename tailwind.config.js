@@ -15,6 +15,15 @@ module.exports = {
     darkMode: 'media', // Enable system-based dark mode
     theme: {
       extend: {
+        colors: {
+          brand: {
+            ink: '#001524',       // Dark mode background, light mode text
+            orange: '#F58F29',    // Primary accent
+            grey: '#767B91',      // Secondary text, muted elements
+            chestnut: '#772E25',  // Hover states, focus outlines
+            smoke: '#F3F3F3',     // Light mode background, dark mode text
+          },
+        },
         fontSize: {
           'xs': ['0.75rem', { lineHeight: '1rem' }],
           'sm': ['0.875rem', { lineHeight: '1.25rem' }],

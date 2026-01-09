@@ -33,7 +33,7 @@ layout: content-wrapper
           {% if page.tags and page.tags.size > 0 %}
           <div class="flex flex-wrap gap-2" role="list" aria-label="Photo tags">
             {% for tag in page.tags %}
-            <span class="bg-amber-500/20 text-amber-700 dark:text-amber-300 px-2 py-1 rounded-md text-xs font-medium border border-amber-400/30 transition-colors duration-300" role="listitem">
+            <span class="bg-brand-orange/20 text-brand-chestnut dark:text-brand-orange px-2 py-1 rounded-md text-xs font-medium border border-brand-orange/30 transition-colors duration-300" role="listitem">
               #{{ tag }}
             </span>
             {% endfor %}
@@ -64,7 +64,7 @@ layout: content-wrapper
       {% include components/photo-navigation.html %}
 
       <!-- Back to Gallery Link -->
-      <div class="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
+      <div class="mt-8 pt-6 border-t border-brand-grey/20">
         <a href="/photos/" class="link-accent">
           <i class="bi bi-arrow-left me-2"></i>Back to Photography Gallery
         </a>

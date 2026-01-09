@@ -4,7 +4,7 @@ subtitle: Curated collections of posts around key themes
 layout: gallery-page
 permalink: /tags/
 header_icon: bi-tags
-header_gradient: from-amber-500 to-amber-600
+header_gradient: bg-brand-orange
 searchable: false
 ---
 

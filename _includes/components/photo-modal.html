@@ -101,11 +101,11 @@
 
     <!-- Details panel (part of layout, hidden by default) -->
     <div id="modal-details-panel"
-         class="fixed top-0 right-0 bottom-0 w-full sm:w-[480px] bg-slate-900 z-[10000] overflow-y-auto"
+         class="fixed top-0 right-0 bottom-0 w-full sm:w-[480px] bg-brand-ink z-[10000] overflow-y-auto"
          style="display: none;">
 
       <!-- Panel header -->
-      <div class="sticky top-0 bg-slate-900 p-4 pt-20 border-b border-slate-700 flex justify-between items-center">
+      <div class="sticky top-0 bg-brand-ink p-4 pt-20 border-b border-brand-grey/30 flex justify-between items-center">
         <h2 class="text-white font-semibold">Photo Details</h2>
         <button onclick="window.photoGalleryInstance?.toggleInfo()"
                 class="text-white/70 hover:text-white p-2 transition-colors"
@@ -120,16 +120,16 @@
         <!-- Title and date -->
         <header>
           <div id="modal-photo-title-container"></div>
-          <time id="modal-photo-date" class="text-slate-400 text-base block mb-3"></time>
+          <time id="modal-photo-date" class="text-brand-grey text-base block mb-3"></time>
           <div id="modal-photo-tags" class="flex flex-wrap gap-2"></div>
         </header>
 
         <!-- Description (if any) -->
-        <div id="modal-photo-content" class="text-slate-300 text-base" style="display: none;"></div>
+        <div id="modal-photo-content" class="text-brand-smoke text-base" style="display: none;"></div>
 
         <!-- EXIF Metadata -->
-        <div id="modal-exif-section" class="bg-slate-800/50 rounded-lg" style="display: none;">
-          <div class="p-4 flex items-center gap-2 text-sm font-semibold text-white uppercase tracking-wide border-b border-slate-700/50">
+        <div id="modal-exif-section" class="bg-brand-grey/20 rounded-lg" style="display: none;">
+          <div class="p-4 flex items-center gap-2 text-sm font-semibold text-white uppercase tracking-wide border-b border-brand-grey/30">
             <i class="bi bi-camera"></i>
             <span>Camera Details</span>
           </div>
@@ -137,14 +137,14 @@
         </div>
 
         <!-- Location Map -->
-        <div id="modal-location-section" class="bg-slate-800/50 rounded-lg" style="display: none;">
-          <div class="p-4 flex items-center gap-2 text-sm font-semibold text-white uppercase tracking-wide border-b border-slate-700/50">
+        <div id="modal-location-section" class="bg-brand-grey/20 rounded-lg" style="display: none;">
+          <div class="p-4 flex items-center gap-2 text-sm font-semibold text-white uppercase tracking-wide border-b border-brand-grey/30">
             <i class="bi bi-geo-alt"></i>
             <span>Location</span>
           </div>
           <div class="p-4">
-            <p id="modal-location-name" class="text-slate-300 text-base mb-3" style="display: none;"></p>
-            <div class="aspect-video w-full rounded-lg overflow-hidden bg-slate-700">
+            <p id="modal-location-name" class="text-brand-smoke text-base mb-3" style="display: none;"></p>
+            <div class="aspect-video w-full rounded-lg overflow-hidden bg-brand-grey/30">
               <img id="modal-location-map"
                    src=""
                    alt=""

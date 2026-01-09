@@ -556,7 +556,7 @@ window.photoGallery = function() {
       // Format tags HTML (for details panel)
       const tagsHtml = (photo.tags && photo.tags.length > 0)
         ? photo.tags.map(tag =>
-            `<span class="bg-amber-500/20 text-amber-300 px-2 py-1 rounded-md text-xs font-medium border border-amber-400/30">#${tag}</span>`
+            `<span class="bg-brand-orange/20 text-brand-orange px-2 py-1 rounded-md text-xs font-medium border border-brand-orange/30">#${tag}</span>`
           ).join('')
         : '';
 
@@ -613,12 +613,12 @@ window.photoGallery = function() {
           const e = photo.exif;
           let exifHtml = '';
 
-          if (e.camera) exifHtml += `<div><dt class="text-slate-500">Camera</dt><dd class="text-slate-300">${e.camera}</dd></div>`;
-          if (e.lens) exifHtml += `<div><dt class="text-slate-500">Lens</dt><dd class="text-slate-300">${e.lens}</dd></div>`;
-          if (e.focalLength) exifHtml += `<div><dt class="text-slate-500">Focal Length</dt><dd class="text-slate-300">${e.focalLength}</dd></div>`;
-          if (e.aperture) exifHtml += `<div><dt class="text-slate-500">Aperture</dt><dd class="text-slate-300">${e.aperture}</dd></div>`;
-          if (e.shutterSpeed) exifHtml += `<div><dt class="text-slate-500">Shutter Speed</dt><dd class="text-slate-300">${e.shutterSpeed}</dd></div>`;
-          if (e.iso) exifHtml += `<div><dt class="text-slate-500">ISO</dt><dd class="text-slate-300">${e.iso}</dd></div>`;
+          if (e.camera) exifHtml += `<div><dt class="text-brand-grey">Camera</dt><dd class="text-brand-smoke">` + e.camera + `</dd></div>`;
+          if (e.lens) exifHtml += `<div><dt class="text-brand-grey">Lens</dt><dd class="text-brand-smoke">` + e.lens + `</dd></div>`;
+          if (e.focalLength) exifHtml += `<div><dt class="text-brand-grey">Focal Length</dt><dd class="text-brand-smoke">` + e.focalLength + `</dd></div>`;
+          if (e.aperture) exifHtml += `<div><dt class="text-brand-grey">Aperture</dt><dd class="text-brand-smoke">` + e.aperture + `</dd></div>`;
+          if (e.shutterSpeed) exifHtml += `<div><dt class="text-brand-grey">Shutter Speed</dt><dd class="text-brand-smoke">` + e.shutterSpeed + `</dd></div>`;
+          if (e.iso) exifHtml += `<div><dt class="text-brand-grey">ISO</dt><dd class="text-brand-smoke">` + e.iso + `</dd></div>`;
 
           exifGrid.innerHTML = exifHtml;
           exifSection.style.display = '';

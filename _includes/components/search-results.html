@@ -7,21 +7,21 @@
   <!-- Results list -->
   <div class="space-y-6" x-show="results.length > 0">
     <template x-for="result in results" :key="result.ref">
-      <article class="border-l-4 border-amber-600 dark:border-amber-400 pl-4 pb-4">
+      <article class="border-l-4 border-brand-orange pl-4 pb-4">
         <!-- Result type badge -->
         <div class="flex items-center gap-2 mb-2">
           <span
             class="inline-block text-xs font-semibold uppercase tracking-wide px-2 py-1 rounded"
             :class="{
-              'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200': data[result.ref].type === 'post',
-              'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300': data[result.ref].type === 'page',
-              'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300': data[result.ref].type === 'photography'
+              'bg-brand-orange/20 text-brand-orange dark:text-brand-orange': data[result.ref].type === 'post',
+              'bg-brand-grey/20 text-brand-grey': data[result.ref].type === 'page',
+              'bg-brand-chestnut/20 text-brand-chestnut': data[result.ref].type === 'photography'
             }"
             x-text="data[result.ref].type"
           ></span>
           <time 
             v-if="data[result.ref].date"
-            class="text-xs text-slate-500 dark:text-slate-400"
+            class="text-xs text-brand-grey"
             x-show="data[result.ref].date"
             x-text="new Date(data[result.ref].date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })"
           ></time>

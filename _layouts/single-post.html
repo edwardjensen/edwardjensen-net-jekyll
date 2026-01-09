@@ -15,14 +15,14 @@ content_for_head: |
       <span class="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full font-bold text-white" role="note" aria-label="Category">
         {{ page.categories }}
       </span>
-      <time datetime="{{ page.date | date_to_xmlschema }}" class="text-slate-200">
+      <time datetime="{{ page.date | date_to_xmlschema }}" class="text-brand-smoke/80">
         {{ page.date | date: "%-d %B %Y" }}
       </time>
     </div>
     {% if page.tags and page.tags.size > 0 %}
     <div class="flex flex-wrap gap-2 justify-center lg:justify-end" role="list" aria-label="Post tags">
       {% for tag in page.tags %}
-      <span class="bg-amber-500/20 backdrop-blur-sm text-amber-100 px-2 py-1 rounded-md text-sm font-medium border border-amber-400/30" role="listitem">
+      <span class="bg-brand-orange/20 backdrop-blur-sm text-brand-smoke px-2 py-1 rounded-md text-sm font-medium border border-brand-orange/30" role="listitem">
         #{{ tag }}
       </span>
       {% endfor %}
@@ -31,14 +31,14 @@ content_for_head: |
   </div>
   {% endcapture %}
 
-  <header class="bg-gradient-to-r from-slate-800 to-slate-700 dark:from-slate-900 dark:to-slate-800 text-white px-8 lg:px-12 pt-8 lg:pt-12 pb-6 lg:pb-8 transition-colors duration-300">
+  <header class="bg-brand-ink text-white px-8 lg:px-12 pt-8 lg:pt-12 pb-6 lg:pb-8 transition-colors duration-300">
     <div class="space-y-4 text-center lg:text-left">
       <h1 class="font-header font-bold text-3xl lg:text-5xl leading-tight tracking-wide">
         {{ page.title }}
       </h1>
       {{ post_metadata }}
       {% if page.excerpt or page.description %}
-      <p class="text-slate-200 text-base lg:text-lg leading-relaxed max-w-3xl italic text-center lg:text-left">
+      <p class="text-brand-smoke/80 text-base lg:text-lg leading-relaxed max-w-3xl italic text-center lg:text-left">
         {{ page.excerpt | default: page.description }}
       </p>
       {% endif %}
