@@ -449,8 +449,8 @@ window.photoGallery = function() {
       // Update toggle button state
       if (detailsToggle && hasDetails) {
         detailsToggle.innerHTML = this.showInfo
-          ? '<i class="bi bi-info-circle-fill"></i>'
-          : '<i class="bi bi-info-circle"></i>';
+          ? '<i class="ph ph-info-fill"></i>'
+          : '<i class="ph ph-info"></i>';
         detailsToggle.title = this.showInfo ? 'Hide info (i)' : 'Show info (i)';
       }
     },

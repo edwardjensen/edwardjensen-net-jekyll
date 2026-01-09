@@ -1,20 +1,23 @@
 - site: LinkedIn
   url: https://www.linkedin.com/in/edwardjensen
-  bootstrap-icon: bi-linkedin
+  icon: linkedin-logo
   hover: hover:text-black
+  text: Connect on LinkedIn
 - site: Bluesky
   url: https://bsky.app/profile/edwardjensen.net
-  bootstrap-icon: bi-bluesky
+  icon: butterfly
   hover: hover:text-black
+  text: Follow on Bluesky
 - site: GitHub
   url: https://www.github.com/edwardjensen
-  bootstrap-icon: bi-github
+  icon: github-logo
   hover: hover:text-black
 - site: RSS
   url: /feed.xml
-  bootstrap-icon: bi-rss-fill
+  icon: rss
   hover: hover:text-orange-500
+  text: Subscribe to RSS
 - site: JSON Feed
   url: /feed.json
-  bootstrap-icon: bi-braces
+  icon: brackets-curly
   hover: hover:text-black

@@ -23,7 +23,7 @@
               <span class="group-hover:text-brand-chestnut transition-colors duration-200 relative">
                 {{ item.title }}
               </span>
-              <i class="bi bi-chevron-down text-sm text-muted group-hover:text-body transition-transform duration-200 group-hover:rotate-180 ml-0.5" aria-hidden="true"></i>
+              <i class="ph ph-caret-down text-sm text-muted group-hover:text-body transition-transform duration-200 group-hover:rotate-180 ml-0.5" aria-hidden="true"></i>
             </a>
             
             <!-- Dropdown Menu -->
@@ -61,7 +61,7 @@
         <a href="/search" 
            class="icon-interactive flex items-center h-full p-1" 
            aria-label="Search site content">
-            <i class="bi bi-search text-xl" aria-hidden="true"></i>
+            <i class="ph ph-magnifying-glass text-xl" aria-hidden="true"></i>
         </a>
         
         <!-- Social Links -->
@@ -72,7 +72,7 @@
              target="_blank" 
              rel="noopener noreferrer"
              aria-label="{{ item.title }} (opens in new tab)">
-              <i class="bi {{ item.bootstrap-icon }} text-xl" aria-hidden="true"></i>
+              <i class="ph ph-{{ item.icon }} text-xl" aria-hidden="true"></i>
           </a>
           {% endfor %}
         </div>
@@ -86,7 +86,7 @@
                 class="p-2 rounded-md text-body hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 transition-colors duration-200 flex items-center h-full"
                 aria-label="Toggle navigation menu"
                 :aria-expanded="open">
-          <i class="bi bi-list text-2xl" aria-hidden="true"></i>
+          <i class="ph ph-list text-2xl" aria-hidden="true"></i>
         </button>
 
         <!-- Mobile Menu (Alpine.js controlled) -->
@@ -108,7 +108,7 @@
                 <a href="/search" 
                    class="block px-4 py-2 text-body hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 hover:text-brand-chestnut transition-colors duration-200 lowercase flex items-center gap-2"
                    @click="open = false">
-                   <i class="bi bi-search" aria-hidden="true"></i>
+                   <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
                    search
                 </a>
               </li>
@@ -127,7 +127,7 @@
                             class="px-4 py-2 text-body hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 transition-colors duration-200"
                             :aria-expanded="expanded"
                             aria-label="Toggle {{ item.title }} submenu">
-                      <i class="bi bi-chevron-down transition-transform duration-200" :class="{ 'rotate-180': expanded }" aria-hidden="true"></i>
+                      <i class="ph ph-caret-down transition-transform duration-200" :class="{ 'rotate-180': expanded }" aria-hidden="true"></i>
                     </button>
                   </div>
                   

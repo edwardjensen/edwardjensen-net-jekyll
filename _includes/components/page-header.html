@@ -3,7 +3,7 @@
   - page_title (required): Main heading text
   - page_subtitle: Subtitle or description text
   - page_excerpt: Optional excerpt/description (italic, secondary text)
-  - header_icon: Bootstrap icon class (e.g., 'bi-pen', 'bi-file-text')
+  - header_icon: Phosphor icon name (e.g., 'pen', 'file-text')
   - header_icon_color: Tailwind color class for icon (e.g., 'text-brand-orange')
   - show_icon_badge: Boolean to show/hide icon badge (default: true)
   - center_text: Boolean to center text (default: false)
@@ -15,7 +15,7 @@
     <div class="flex items-center {% if include.center_text %}justify-center{% endif %} gap-4 mb-4">
       {% if include.header_icon %}
       <div class="text-brand-orange flex-shrink-0" aria-hidden="true">
-        <i class="bi {{ include.header_icon }} text-4xl"></i>
+        <i class="ph ph-{{ include.header_icon }} text-4xl"></i>
       </div>
       {% endif %}
       <h1 class="font-header font-bold text-4xl lg:text-5xl leading-tight tracking-normal">

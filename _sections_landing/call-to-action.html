@@ -8,10 +8,15 @@ bounded: false
   <h2 class="text-3xl mb-2">Let's stay connected!</h2>
   
   <div class="text-xl flex flex-col sm:flex-row gap-4 justify-center items-center">
-  <a href="https://www.linkedin.com/in/edwardjensen/" class="btn-primary inline-flex items-center gap-2 px-6 py-2 font-semibold" aria-label="Follow Edward Jensen on LinkedIn"><i class="bi bi-linkedin"></i> Connect on LinkedIn</a>
-
-  <a href="https://bsky.app/profile/edwardjensen.net" class="btn-primary inline-flex items-center gap-2 px-6 py-2 font-semibold" aria-label="Follow Edward Jensen on Bluesky"><i class="bi bi-bluesky"></i> Follow on Bluesky</a>
-
-  <a href="{{ "/feed.xml" | relative_url }}" class="btn-primary inline-flex items-center gap-2 px-6 py-2 font-semibold" aria-label="Subscribe to edwardjensen.net via RSS"><i class="bi bi-rss-fill"></i> Subscribe via RSS</a>
+    {% for item in site.data.social %}
+      {% if item.text %}
+      <a href="{{ item.url | relative_url }}" 
+         class="btn-primary inline-flex items-center gap-2 px-6 py-2 font-semibold" 
+         aria-label="{{ item.text }}"
+         {% if item.url contains 'http' %}target="_blank" rel="noopener noreferrer"{% endif %}>
+        <i class="ph ph-{{ item.icon }}"></i> {{ item.text }}
+      </a>
+      {% endif %}
+    {% endfor %}
   </div>
 </div>
