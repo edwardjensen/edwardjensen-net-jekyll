@@ -155,6 +155,13 @@ window.photoGallery = function() {
       return div.innerHTML;
     },
 
+    // Decode HTML entities (for content that may be double-escaped)
+    decodeHtml(text) {
+      const textarea = document.createElement('textarea');
+      textarea.innerHTML = text;
+      return textarea.value;
+    },
+
     // Setup popstate listener for back/forward navigation (full mode only)
     setupHistoryListener() {
       window.addEventListener('popstate', (event) => {
@@ -566,7 +573,7 @@ window.photoGallery = function() {
       const overlayTitleContainer = document.getElementById('modal-overlay-title-container');
       if (overlayTitleContainer) {
         if (photo.title) {
-          overlayTitleContainer.innerHTML = `<h1 class="font-header font-bold text-2xl lg:text-3xl text-white drop-shadow-lg truncate">${this.escapeHtml(photo.title)}</h1>`;
+          overlayTitleContainer.innerHTML = `<h1 class="font-header font-bold text-2xl lg:text-3xl text-white drop-shadow-lg truncate">${this.escapeHtml(this.decodeHtml(photo.title))}</h1>`;
         } else {
           overlayTitleContainer.innerHTML = '';
         }
@@ -586,7 +593,7 @@ window.photoGallery = function() {
       const titleContainer = document.getElementById('modal-photo-title-container');
       if (titleContainer) {
         if (photo.title) {
-          titleContainer.innerHTML = `<h1 class="font-header font-bold text-2xl text-white mb-1">${this.escapeHtml(photo.title)}</h1>`;
+          titleContainer.innerHTML = `<h1 class="font-header font-bold text-2xl text-white mb-1">${this.escapeHtml(this.decodeHtml(photo.title))}</h1>`;
         } else {
           titleContainer.innerHTML = '';
         }
@@ -600,7 +607,7 @@ window.photoGallery = function() {
       // Update content
       if (content) {
         if (hasContent) {
-          content.textContent = photo.content.trim();
+          content.textContent = this.decodeHtml(photo.content.trim());
           content.style.display = '';
         } else {
           content.style.display = 'none';
