@@ -164,20 +164,22 @@ Portfolio items remain file-based in the `_portfolio/` directory.
 
 ## Design System
 
-### Color Palette
+### Color Palette (2026 Brand Colors)
 
-The site uses a warm amber/slate color scheme (not blue):
+The site uses a custom brand color palette:
 
-| Purpose         | Light Mode        | Dark Mode             |
-| --------------- | ----------------- | --------------------- |
-| **Backgrounds** | `bg-white`        | `dark:bg-slate-950`   |
-| **Text**        | `text-slate-900`  | `dark:text-slate-50`  |
-| **Accent**      | `text-amber-600`  | `dark:text-amber-400` |
+| Color           | Hex Code   | Purpose                                    |
+| --------------- | ---------- | ------------------------------------------ |
+| **brand-ink**   | `#001524`  | Dark navy - dark mode bg, light mode text  |
+| **brand-orange**| `#F58F29`  | Primary accent - links, buttons, highlights|
+| **brand-grey**  | `#767B91`  | Secondary text, muted elements, borders    |
+| **brand-chestnut**| `#772E25`| Hover states, focus outlines               |
+| **brand-smoke** | `#F3F3F3`  | Light mode backgrounds, dark mode text     |
 
 ### Typography
 
-- **Serif Headers**: `museo-slab`
-- **Body Text**: `basic-sans`
+- **Headers**: `Fraunces` (Google Fonts, optical sizing, 700/600 weights)
+- **Body Text**: `Source Sans 3` (Google Fonts)
 - All header navigation text uses `.lowercase` class
 
 ### Layout

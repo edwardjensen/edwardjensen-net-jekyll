@@ -2,13 +2,14 @@
 
 ## Tech Stack
 - **Framework**: Jekyll 4.4.1 (Ruby static site generator)
-- **Styling**: Tailwind CSS 4.0.x with custom amber/slate color scheme + reusable CSS classes
+- **Styling**: Tailwind CSS 4.0.x with custom brand color palette + reusable CSS classes
+- **Fonts**: Google Fonts (Fraunces for headings, Source Sans 3 for body)
 - **Interactivity**: AlpineJS v3 (lightweight component state/transitions)
 - **Runtime**: Ruby 3.4.5 + Node 25.1.0
 - **Content Source**: Payload CMS (headless, content via GraphQL at build time)
 - **Deployment**: Environment promotion model (staging → production)
 
-## Reusable CSS Classes (Oct 2025)
+## Reusable CSS Classes (2026 Refresh)
 
 The site uses **custom Tailwind classes** defined in `assets/css/main.css` (@layer components). Always use these instead of inline utilities for consistency.
 
@@ -17,17 +18,17 @@ The site uses **custom Tailwind classes** defined in `assets/css/main.css` (@lay
 ### Quick Reference
 
 **Text & Typography**:
-- `.text-body` - Standard body text (`text-slate-900 dark:text-slate-50`)
-- `.text-muted` - Secondary/muted text (`text-slate-600 dark:text-slate-400`)
+- `.text-body` - Standard body text (`text-brand-ink dark:text-brand-smoke`)
+- `.text-muted` - Secondary/muted text (`text-brand-grey`)
 - `.text-heading` - Heading text with dark mode opacity
 
 **Links & Interactions**:
-- `.link-accent` - Amber links with hover (use for all standard links)
+- `.link-accent` - Orange links with chestnut hover (use for all standard links)
 - `.icon-interactive` - Interactive icons (social icons, nav icons)
 
 **Buttons**:
-- `.btn-primary` - Primary CTA (filled amber)
-- `.btn-secondary` - Secondary action (outline amber)
+- `.btn-primary` - Primary CTA (filled orange)
+- `.btn-secondary` - Secondary action (outline orange)
 - `.btn-ghost` - Tertiary/cancel (minimal style)
 
 **UI Components**:
@@ -61,15 +62,16 @@ The site uses **custom Tailwind classes** defined in `assets/css/main.css` (@lay
 - Mobile: hamburger menu only (nav links inside dropdown, slides down/up with animation)
 - All text in header is lowercase (use `lowercase` class)
 
-### Color Palette (Warm, not blue)
-- **Light**: White backgrounds (`bg-white`), slate text (`text-slate-900`)
-- **Dark**: Slate-950 backgrounds (`dark:bg-slate-950`), slate-50 text (`dark:text-slate-50`)
-- **Accent**: Amber (`text-amber-600`, hover `dark:text-amber-400`) - replaces blue throughout
-- Apply warm color scheme to all new components (avoid blue/purple)
+### Color Palette (2026 Brand Colors)
+- **brand-ink** (#001524): Dark navy - dark mode backgrounds, light mode text
+- **brand-orange** (#F58F29): Primary accent - links, buttons, highlights
+- **brand-grey** (#767B91): Secondary text, muted elements, borders
+- **brand-chestnut** (#772E25): Hover states, focus outlines
+- **brand-smoke** (#F3F3F3): Light mode backgrounds, dark mode text
 - **Important**: Use reusable classes (`.text-body`, `.text-muted`, `.link-accent`) instead of inline color utilities
 
 ### Typography
-- Font family: `basic-sans` (sans), `museo-slab` (headers)
+- Font family: `Fraunces` (headers - optical sizing, 700 for H1/H2, 600 for H3/H4), `Source Sans 3` (body)
 - Use normal title case (not UPPERCASE) - apply `lowercase` class to header elements only
 - Improved line-heights and spacing defined in tailwind.config.js
 - **Text colors**: Use `.text-body` for main text, `.text-muted` for secondary text, `.text-heading` for headings
@@ -86,7 +88,7 @@ Screenshot of website header with site title on left, navigation menu center, so
 
 **Build & serve locally**: `bundle exec jekyll serve`  
 **Build production**: `JEKYLL_ENV=production bundle exec jekyll build`  
-**Color references**: Amber (`amber-600`/`dark:amber-400`), Slate backgrounds, white text on dark
+**Color references**: Brand palette (orange primary, chestnut hover, grey muted, ink/smoke for text/bg)
 
 **Note on rebuilding**: Edits to files in `site-docs/`, `.github/`, or `.claude/` folders do NOT require rebuilding the Jekyll site, as these folders are not processed by Jekyll. Only changes to layouts, includes, posts, pages, assets, or config files require a rebuild.
 

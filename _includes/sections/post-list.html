@@ -9,15 +9,15 @@ Iterates through site.posts grouped by year (deduplicated and sorted by date, ne
 <div class="space-y-8">
   {% for year in posts_by_year %}
     <div>
-      <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-4 border-b border-slate-200 dark:border-slate-700 pb-2">
+      <h2 class="text-2xl font-bold text-brand-ink dark:text-brand-smoke mb-4 border-b border-brand-grey/20 dark:border-brand-grey/30 pb-2">
         {{ year.name }}
       </h2>
       <div class="space-y-3">
         {% for post in year.items %}
           <article class="group">
-            <a href="{{ post.url | relative_url }}" class="block hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-lg p-3 -m-3 transition-colors duration-200">
+            <a href="{{ post.url | relative_url }}" class="block hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 rounded-lg p-3 -m-3 transition-colors duration-200">
               <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-2">
-                <h3 class="{% if post.ejnet %}italic{% endif %} text-slate-900 dark:text-slate-100 group-hover:text-amber-600 dark:group-hover:text-amber-400 font-bold transition-colors duration-200">
+                <h3 class="{% if post.ejnet %}italic{% endif %} text-brand-ink dark:text-brand-smoke group-hover:text-brand-orange font-bold transition-colors duration-200">
                   {{ post.title }}
                 </h3>
                 <time class="text-sm text-muted lg:ml-4 flex-shrink-0" datetime="{{ post.date | date: '%Y-%m-%d' }}">
@@ -37,9 +37,9 @@ Iterates through site.posts grouped by year (deduplicated and sorted by date, ne
   {% endfor %}
 </div>
 
-<div class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-700">
-  <a href="/archive" class="inline-flex items-center gap-2 text-lg font-semibold text-slate-800 dark:text-slate-200 hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200">
-    <i class="bi bi-archive"></i>
+<div class="mt-12 pt-8 border-t border-brand-grey/20 dark:border-brand-grey/30">
+  <a href="/archive" class="inline-flex items-center gap-2 text-lg font-semibold text-brand-ink dark:text-brand-smoke hover:text-brand-chestnut transition-colors duration-200">
+    <i class="ph ph-archive"></i>
     Historical and Retired Posts
   </a>
 </div>

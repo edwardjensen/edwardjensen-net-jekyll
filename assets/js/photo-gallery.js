@@ -155,6 +155,13 @@ window.photoGallery = function() {
       return div.innerHTML;
     },
 
+    // Decode HTML entities (for content that may be double-escaped)
+    decodeHtml(text) {
+      const textarea = document.createElement('textarea');
+      textarea.innerHTML = text;
+      return textarea.value;
+    },
+
     // Setup popstate listener for back/forward navigation (full mode only)
     setupHistoryListener() {
       window.addEventListener('popstate', (event) => {
@@ -449,8 +456,8 @@ window.photoGallery = function() {
       // Update toggle button state
       if (detailsToggle && hasDetails) {
         detailsToggle.innerHTML = this.showInfo
-          ? '<i class="bi bi-info-circle-fill"></i>'
-          : '<i class="bi bi-info-circle"></i>';
+          ? '<i class="ph ph-info-fill"></i>'
+          : '<i class="ph ph-info"></i>';
         detailsToggle.title = this.showInfo ? 'Hide info (i)' : 'Show info (i)';
       }
     },
@@ -556,7 +563,7 @@ window.photoGallery = function() {
       // Format tags HTML (for details panel)
       const tagsHtml = (photo.tags && photo.tags.length > 0)
         ? photo.tags.map(tag =>
-            `<span class="bg-amber-500/20 text-amber-300 px-2 py-1 rounded-md text-xs font-medium border border-amber-400/30">#${tag}</span>`
+            `<span class="bg-brand-orange/20 text-brand-orange px-2 py-1 rounded-md text-xs font-medium border border-brand-orange/30">#${tag}</span>`
           ).join('')
         : '';
 
@@ -566,7 +573,7 @@ window.photoGallery = function() {
       const overlayTitleContainer = document.getElementById('modal-overlay-title-container');
       if (overlayTitleContainer) {
         if (photo.title) {
-          overlayTitleContainer.innerHTML = `<h1 class="font-header font-bold text-2xl lg:text-3xl text-white drop-shadow-lg truncate">${this.escapeHtml(photo.title)}</h1>`;
+          overlayTitleContainer.innerHTML = `<h1 class="font-header font-bold text-2xl lg:text-3xl text-white drop-shadow-lg truncate">${this.escapeHtml(this.decodeHtml(photo.title))}</h1>`;
         } else {
           overlayTitleContainer.innerHTML = '';
         }
@@ -586,7 +593,7 @@ window.photoGallery = function() {
       const titleContainer = document.getElementById('modal-photo-title-container');
       if (titleContainer) {
         if (photo.title) {
-          titleContainer.innerHTML = `<h1 class="font-header font-bold text-2xl text-white mb-1">${this.escapeHtml(photo.title)}</h1>`;
+          titleContainer.innerHTML = `<h1 class="font-header font-bold text-2xl text-white mb-1">${this.escapeHtml(this.decodeHtml(photo.title))}</h1>`;
         } else {
           titleContainer.innerHTML = '';
         }
@@ -600,7 +607,7 @@ window.photoGallery = function() {
       // Update content
       if (content) {
         if (hasContent) {
-          content.textContent = photo.content.trim();
+          content.textContent = this.decodeHtml(photo.content.trim());
           content.style.display = '';
         } else {
           content.style.display = 'none';
@@ -613,12 +620,12 @@ window.photoGallery = function() {
           const e = photo.exif;
           let exifHtml = '';
 
-          if (e.camera) exifHtml += `<div><dt class="text-slate-500">Camera</dt><dd class="text-slate-300">${e.camera}</dd></div>`;
-          if (e.lens) exifHtml += `<div><dt class="text-slate-500">Lens</dt><dd class="text-slate-300">${e.lens}</dd></div>`;
-          if (e.focalLength) exifHtml += `<div><dt class="text-slate-500">Focal Length</dt><dd class="text-slate-300">${e.focalLength}</dd></div>`;
-          if (e.aperture) exifHtml += `<div><dt class="text-slate-500">Aperture</dt><dd class="text-slate-300">${e.aperture}</dd></div>`;
-          if (e.shutterSpeed) exifHtml += `<div><dt class="text-slate-500">Shutter Speed</dt><dd class="text-slate-300">${e.shutterSpeed}</dd></div>`;
-          if (e.iso) exifHtml += `<div><dt class="text-slate-500">ISO</dt><dd class="text-slate-300">${e.iso}</dd></div>`;
+          if (e.camera) exifHtml += `<div><dt class="text-brand-grey">Camera</dt><dd class="text-brand-smoke">` + e.camera + `</dd></div>`;
+          if (e.lens) exifHtml += `<div><dt class="text-brand-grey">Lens</dt><dd class="text-brand-smoke">` + e.lens + `</dd></div>`;
+          if (e.focalLength) exifHtml += `<div><dt class="text-brand-grey">Focal Length</dt><dd class="text-brand-smoke">` + e.focalLength + `</dd></div>`;
+          if (e.aperture) exifHtml += `<div><dt class="text-brand-grey">Aperture</dt><dd class="text-brand-smoke">` + e.aperture + `</dd></div>`;
+          if (e.shutterSpeed) exifHtml += `<div><dt class="text-brand-grey">Shutter Speed</dt><dd class="text-brand-smoke">` + e.shutterSpeed + `</dd></div>`;
+          if (e.iso) exifHtml += `<div><dt class="text-brand-grey">ISO</dt><dd class="text-brand-smoke">` + e.iso + `</dd></div>`;
 
           exifGrid.innerHTML = exifHtml;
           exifSection.style.display = '';

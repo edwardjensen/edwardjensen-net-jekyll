@@ -137,7 +137,7 @@ Embed styles are defined in `assets/css/main.css` using BEM naming convention (`
 
 This project uses Tailwind CSS 4.x with the following configuration:
 
-- **[tailwind.config.js](tailwind.config.js)** - Defines content sources, custom fonts (basic-sans, museo-slab), and includes @tailwindcss/typography plugin
+- **[tailwind.config.js](tailwind.config.js)** - Defines content sources, custom fonts (Fraunces for headers, Source Sans 3 for body), brand color palette, and includes @tailwindcss/typography plugin
 - **[postcss.config.js](postcss.config.js)** - PostCSS processes Tailwind and applies cssnano minification
 - **[assets/css/main.css](assets/css/main.css)** - Custom reusable CSS classes in @layer components (buttons, links, text colors, etc.)
 - Tailwind is integrated via jekyll-postcss-v2 plugin
@@ -481,7 +481,7 @@ The `_includes/components/pagination.html` component provides a reusable paginat
 
 - Previous/Next buttons with disabled state
 - Page number buttons with ellipsis for large page counts
-- Current page highlight (amber-600)
+- Current page highlight (brand-orange)
 - Accessibility: `aria-current="page"`, proper `role="navigation"`
 
 ### CMS Integration Note
@@ -680,8 +680,8 @@ The site uses custom Tailwind classes defined in `assets/css/main.css` (@layer c
 
 - **Layout**: Full-width stacked with sticky header (refactored Oct 2025, no sidebar)
 - **Header**: Sticky top navigation with backdrop blur, horizontal on desktop, hamburger on mobile
-- **Colors**: Warm amber/slate palette (not blue) - amber-600/400 for accents, slate-900/50 for text
-- **Typography**: `basic-sans` for body, `museo-slab` for headers, lowercase class for header text
+- **Colors**: Brand palette (2026) - brand-orange for accents, brand-chestnut for hovers, brand-grey for muted, brand-ink/smoke for text/backgrounds
+- **Typography**: `Source Sans 3` for body, `Fraunces` for headers, lowercase class for header text
 - **Content Container**: max-w-7xl, centered with proper spacing
 
 ## Photography Collection

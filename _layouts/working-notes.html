@@ -4,7 +4,7 @@ layout: content-wrapper
 <div class="article-container">
   <!-- Page Header -->
   {% capture icon %}{{ page.header_icon | default: 'bi-pencil-square' }}{% endcapture %}
-  {% capture gradient %}{{ page.header_gradient | default: 'from-amber-500 to-amber-600' }}{% endcapture %}
+  {% capture gradient %}{{ page.header_gradient | default: 'bg-brand-orange' }}{% endcapture %}
 
   {% include components/page-header.html
     page_title=page.title
@@ -33,13 +33,13 @@ layout: content-wrapper
     {% include components/pagination.html %}
 
     <!-- Feed Links Footer -->
-    <div class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-700 flex flex-wrap gap-6 justify-center items-center">
+    <div class="mt-12 pt-8 border-t border-brand-grey/20 flex flex-wrap gap-6 justify-center items-center">
       <a href="{{ '/feeds/notes.xml' | relative_url }}" class="inline-flex items-center gap-2 link-accent font-medium" title="Subscribe to Working Notes RSS feed">
-        <i class="bi bi-rss text-lg" aria-hidden="true"></i>
+        <i class="ph ph-rss text-lg" aria-hidden="true"></i>
         <span>RSS Feed</span>
       </a>
       <a href="{{ '/feeds/notes.json' | relative_url }}" class="inline-flex items-center gap-2 link-accent font-medium" title="Subscribe to Working Notes JSON feed">
-        <i class="bi bi-braces text-lg" aria-hidden="true"></i>
+        <i class="ph ph-brackets-curly text-lg" aria-hidden="true"></i>
         <span>JSON Feed</span>
       </a>
     </div>

@@ -3,8 +3,8 @@ title: Writing
 subtitle: Essays, thoughts, and observations
 layout: page
 permalink: /writing/
-header_icon: bi-pen
-header_gradient: from-blue-500 to-purple-600
+header_icon: pen
+header_gradient: bg-brand-orange
 searchable: false
 prose: false
 ---

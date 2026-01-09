@@ -4,8 +4,16 @@
 @import "tailwindcss";
 
 @theme {
-    --font-sans: 'basic-sans', sans-serif;
-    --font-header: 'museo-slab', serif;
+    /* Brand Colors (2026 Refresh) */
+    --color-brand-ink: #001524;
+    --color-brand-orange: #F58F29;
+    --color-brand-grey: #767B91;
+    --color-brand-chestnut: #772E25;
+    --color-brand-smoke: #F3F3F3;
+    
+    /* Typography */
+    --font-sans: 'Source Sans 3', sans-serif;
+    --font-header: 'Fraunces', serif;
 }
 
 /* === ACCESSIBILITY UTILITIES === */
@@ -59,31 +67,18 @@
     input:focus,
     textarea:focus,
     select:focus {
-        outline: 2px solid #3b82f6;
+        outline: 2px solid #772E25;
         outline-offset: 2px;
-    }
-
-    /* Ensure focus is visible in dark mode */
-    @media (prefers-color-scheme: dark) {
-        a:focus,
-        button:focus,
-        input:focus,
-        textarea:focus,
-        select:focus {
-            outline-color: #60a5fa;
-        }
     }
 
     /* High contrast mode adjustments */
     @media (prefers-contrast: high) {
-        .bg-white\/70,
-        .dark\:bg-slate-800\/70 {
-            background-color: rgba(255, 255, 255, 0.95);
+        .bg-brand-smoke\/70 {
+            background-color: rgba(243, 243, 243, 0.95);
         }
 
-        .dark .bg-white\/70,
-        .dark .dark\:bg-slate-800\/70 {
-            background-color: rgba(30, 41, 59, 0.95);
+        .dark .bg-brand-ink\/70 {
+            background-color: rgba(0, 21, 36, 0.95);
         }
     }
 
@@ -157,47 +152,47 @@
 
 @layer components {
     body {
-        @apply bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-50 transition-colors duration-300;
+        @apply bg-brand-smoke dark:bg-brand-ink text-brand-ink dark:text-brand-smoke transition-colors duration-300;
     }
 
     /* Links with warm accent color */
     a {
-        @apply text-amber-600 dark:text-amber-400 transition-colors duration-200;
+        @apply text-brand-orange transition-colors duration-200;
         
         &:hover {
-            @apply text-amber-700 dark:text-amber-300 underline;
+            @apply text-brand-chestnut underline;
         }
     }
 
     .hyperlink-container a {
-        @apply text-amber-600 dark:text-amber-400 underline;
+        @apply text-brand-orange underline;
         
         &:hover {
-            @apply text-amber-700 dark:text-amber-300 font-bold underline;
+            @apply text-brand-chestnut underline;
         }
     }
 
     /* === REUSABLE TEXT COLOR UTILITIES === */
     .text-body {
-        @apply text-slate-700 dark:text-slate-300;
+        @apply text-brand-ink dark:text-brand-smoke;
     }
     
     .text-muted {
-        @apply text-slate-600 dark:text-slate-400;
+        @apply text-brand-grey;
     }
     
     .text-heading {
-        @apply text-slate-900 dark:text-slate-50;
+        @apply text-brand-ink dark:text-brand-smoke;
     }
     
     /* === REUSABLE LINK STYLES === */
     .link-accent {
-        @apply text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 transition-colors duration-200;
+        @apply text-brand-orange hover:text-brand-chestnut transition-colors duration-200;
     }
     
     /* === REUSABLE BUTTON STYLES === */
     .btn-primary {
-        @apply px-4 py-2 rounded-lg bg-amber-600 text-white hover:bg-amber-700 dark:bg-amber-500 dark:hover:bg-amber-600 transition-colors duration-200 font-medium no-underline;
+        @apply px-4 py-2 rounded-lg bg-brand-orange text-white hover:bg-brand-chestnut transition-colors duration-200 font-medium no-underline;
 
         &:hover {
             @apply text-white no-underline;
@@ -205,63 +200,64 @@
     }
 
     .btn-secondary {
-        @apply px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors duration-200 font-medium no-underline;
+        @apply px-3 py-2 rounded-lg bg-brand-smoke dark:bg-brand-ink text-brand-ink dark:text-brand-smoke border border-brand-grey/30 hover:border-brand-orange transition-colors duration-200 font-medium no-underline;
 
         &:hover {
-            @apply text-slate-900 dark:text-slate-100 no-underline;
+            @apply text-brand-ink dark:text-brand-smoke no-underline;
         }
     }
 
     .btn-ghost {
-        @apply px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-200 no-underline;
+        @apply px-3 py-2 rounded-lg text-brand-ink dark:text-brand-smoke hover:bg-brand-grey/10 transition-colors duration-200 no-underline;
 
         &:hover {
-            @apply text-slate-700 dark:text-slate-300 no-underline;
+            @apply text-brand-ink dark:text-brand-smoke no-underline;
         }
     }
     
     /* === REUSABLE CONTAINER/CARD STYLES === */
     .article-container {
-        @apply bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 dark:border-slate-700/20 overflow-hidden transition-colors duration-300;
+        @apply bg-brand-smoke/70 dark:bg-brand-ink/70 backdrop-blur-sm rounded-2xl shadow-lg border border-brand-grey/20 overflow-hidden transition-colors duration-300;
     }
 
     .dropdown-menu {
-        @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg;
+        @apply bg-brand-smoke dark:bg-brand-ink border border-brand-grey/30 rounded-lg shadow-lg;
     }
 
     .info-box {
-        @apply bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 text-slate-600 dark:text-slate-400;
+        @apply bg-brand-orange/10 border border-brand-orange/30 rounded-lg p-4 text-brand-grey;
     }
 
     .badge-accent {
-        @apply bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 px-2 py-1 rounded text-xs font-medium border border-amber-200 dark:border-amber-800;
+        @apply bg-brand-orange/15 text-brand-chestnut dark:text-brand-orange px-2 py-1 rounded text-xs font-medium border border-brand-orange/30;
     }
     
     /* === REUSABLE SECTION BACKGROUNDS === */
     .section-bg {
-        @apply bg-slate-100 dark:bg-slate-800;
+        @apply bg-brand-grey/10 dark:bg-brand-grey/10;
     }
     
     .section-bg-white {
-        @apply bg-white dark:bg-slate-900;
+        @apply bg-brand-smoke dark:bg-brand-ink;
     }
     
     /* === REUSABLE ICON STYLES === */
     .icon-interactive {
-        @apply text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200;
+        @apply text-brand-grey hover:text-brand-orange transition-colors duration-200;
     }
     
     /* === REUSABLE INPUT STYLES === */
     .input-default {
-        @apply w-full px-4 py-3 rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-50 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:border-amber-600 dark:focus:border-amber-400 transition-colors;
+        @apply w-full px-4 py-3 rounded-lg border-2 border-brand-grey/30 bg-brand-smoke dark:bg-brand-ink text-brand-ink dark:text-brand-smoke placeholder-brand-grey focus:outline-none focus:border-brand-orange transition-colors;
     }
 
     /* === PROSE/ARTICLE STYLING === */
     .prose {
-        @apply text-slate-900 dark:text-slate-50 text-lg;
+        @apply text-brand-ink dark:text-brand-smoke text-lg;
 
         h2 {
-            @apply mt-12 mb-6 pt-6 pb-3 border-t-2 border-amber-100 dark:border-amber-900 relative font-bold text-slate-900 dark:text-slate-50 text-2xl;
+            @apply mt-12 mb-6 pt-6 pb-3 border-t-2 border-brand-grey/20 relative font-bold text-brand-ink dark:text-brand-smoke text-2xl font-header;
+            font-weight: 700;
 
             &:first-of-type {
                 @apply mt-8 border-t-0 pt-0;
@@ -269,12 +265,13 @@
 
             &::before {
                 content: '';
-                @apply absolute -top-0.5 left-0 w-16 h-0.5 bg-gradient-to-r from-amber-600 to-orange-600 dark:from-amber-400 dark:to-orange-400 rounded-sm;
+                @apply absolute -top-0.5 left-0 w-16 h-0.5 bg-brand-chestnut rounded-sm;
             }
         }
 
         h3 {
-            @apply text-xl font-bold text-slate-800 dark:text-slate-100 mt-8 mb-4;
+            @apply text-xl font-bold text-brand-ink dark:text-brand-smoke mt-8 mb-4 font-header;
+            font-weight: 600;
         }
 
         p {
@@ -282,7 +279,7 @@
         }
 
         a {
-            @apply text-amber-600 dark:text-amber-400 underline hover:no-underline;
+            @apply text-brand-orange underline hover:text-brand-chestnut hover:no-underline;
         }
 
         ul, ol {
@@ -299,20 +296,20 @@
         }
 
         li {
-            @apply text-slate-900 dark:text-slate-50 mb-2;
+            @apply text-brand-ink dark:text-brand-smoke mb-2;
             margin-left: 0;
         }
 
         blockquote {
-            @apply border-l-4 border-amber-500 pl-4 italic text-slate-700 dark:text-slate-200;
+            @apply border-l-4 border-brand-orange pl-4 italic text-brand-grey;
         }
 
         code {
-            @apply bg-slate-100 dark:bg-slate-900 px-2 py-1 rounded text-sm font-mono text-slate-900 dark:text-slate-100;
+            @apply bg-brand-grey/10 px-2 py-1 rounded text-sm font-mono text-brand-ink dark:text-brand-smoke;
         }
 
         pre {
-            @apply bg-slate-800 p-4 rounded-lg overflow-x-auto my-4;
+            @apply bg-brand-ink p-4 rounded-lg overflow-x-auto my-4;
 
             code {
                 @apply bg-transparent p-0 rounded-none text-inherit;
@@ -322,7 +319,7 @@
 
     /* === CARD/SECTION STYLING === */
     .card, .section-card {
-        @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm transition-all duration-300;
+        @apply bg-brand-smoke dark:bg-brand-ink border border-brand-grey/20 rounded-lg shadow-sm transition-all duration-300;
 
         &:hover {
             @apply shadow-md;
@@ -334,19 +331,19 @@
        Uses BEM naming convention for structured component styling.
        Template: _includes/embeds/working-note.html */
     .embedded-working-note {
-        @apply my-6 rounded-lg border-l-4 border-amber-400 bg-slate-50 dark:bg-slate-800/50 p-4 shadow-sm transition-colors duration-200;
+        @apply my-6 rounded-lg border-l-4 border-brand-orange bg-brand-grey/10 p-4 shadow-sm transition-colors duration-200;
     }
 
     .embedded-working-note__header {
-        @apply mb-3 pb-2 border-b border-slate-200 dark:border-slate-700;
+        @apply mb-3 pb-2 border-b border-brand-grey/20;
     }
 
     .embedded-working-note__title {
-        @apply font-bold text-base text-slate-900 dark:text-slate-100 m-0;
+        @apply font-bold text-base text-brand-ink dark:text-brand-smoke m-0;
     }
 
     .embedded-working-note__content {
-        @apply text-sm text-slate-700 dark:text-slate-300;
+        @apply text-sm text-brand-ink dark:text-brand-smoke;
 
         p {
             @apply my-2 leading-relaxed;
@@ -361,53 +358,53 @@
         }
 
         a {
-            @apply text-amber-600 dark:text-amber-400 underline hover:text-amber-700 dark:hover:text-amber-300;
+            @apply text-brand-orange underline hover:text-brand-chestnut;
         }
     }
 
     .embedded-working-note__footer {
-        @apply mt-3 pt-2 border-t border-slate-200 dark:border-slate-700;
+        @apply mt-3 pt-2 border-t border-brand-grey/20;
     }
 
     .embedded-working-note__link {
-        @apply text-xs font-medium text-amber-600 dark:text-amber-400 no-underline;
+        @apply text-xs font-medium text-brand-orange no-underline;
 
         &:hover {
-            @apply text-amber-700 dark:text-amber-300 underline;
+            @apply text-brand-chestnut underline;
         }
     }
 }
 
 /* Syntax highlighting - ensure colors display */
 .highlight {
-    @apply text-slate-50;
+    @apply text-brand-smoke;
 }
 
 .highlight pre {
-    @apply bg-slate-800;
-    background-color: #1e293b !important;
+    @apply bg-brand-ink;
+    background-color: #001524 !important;
 }
 
 .highlight .c, .highlight .cm, .highlight .c1, .highlight .cs {
-    @apply text-gray-500 italic;
+    @apply text-brand-grey italic;
 }
 
 .highlight .k, .highlight .kc, .highlight .kd, .highlight .kn, .highlight .kp, .highlight .kr, .highlight .kt {
-    @apply text-lime-400 font-semibold;
+    @apply text-brand-orange font-semibold;
 }
 
 .highlight .s, .highlight .sa, .highlight .sb, .highlight .sc, .highlight .sd, .highlight .s1, .highlight .s2, .highlight .se, .highlight .sh, .highlight .si, .highlight .sx, .highlight .sr, .highlight .s3, .highlight .ss {
-    @apply text-yellow-300;
+    color: #F58F29;
 }
 
 .highlight .n, .highlight .na, .highlight .nb, .highlight .nc, .highlight .no, .highlight .nd, .highlight .ni, .highlight .ne, .highlight .nf, .highlight .nl, .highlight .nn, .highlight .nx, .highlight .py, .highlight .nt, .highlight .nv {
-    @apply text-slate-200;
+    @apply text-brand-smoke;
 }
 
 .highlight .m, .highlight .mf, .highlight .mh, .highlight .mi, .highlight .il, .highlight .mo {
-    @apply text-cyan-400;
+    color: #767B91;
 }
 
 .highlight .o, .highlight .ow {
-    @apply text-slate-300;
+    @apply text-brand-smoke;
 }

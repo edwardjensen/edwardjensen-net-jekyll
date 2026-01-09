@@ -13,7 +13,7 @@
 {% endcomment %}
 
 {% if paginator and paginator.total_pages > 1 %}
-<nav class="mt-12 mb-8 pt-8 border-t border-slate-200 dark:border-slate-700" role="navigation" aria-label="Pagination">
+<nav class="mt-12 mb-8 pt-8 border-t border-brand-grey/20 dark:border-brand-grey/30" role="navigation" aria-label="Pagination">
   <div class="flex flex-wrap gap-2 justify-center items-center">
 
     {%- comment -%} Previous Page Link {%- endcomment -%}
@@ -22,7 +22,7 @@
         &larr; Previous
       </a>
     {% else %}
-      <span class="px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed" aria-hidden="true">
+      <span class="px-4 py-2 rounded-lg bg-brand-grey/20 text-brand-grey cursor-not-allowed" aria-hidden="true">
         &larr; Previous
       </span>
     {% endif %}
@@ -32,7 +32,7 @@
       {% for page_num in paginator.page_numbers %}
         {% if page_num == paginator.page %}
           {%- comment -%} Current page {%- endcomment -%}
-          <span class="px-3 py-2 rounded-lg bg-amber-600 text-white font-bold" aria-current="page">
+          <span class="px-3 py-2 rounded-lg bg-brand-orange text-brand-smoke font-bold" aria-current="page">
             {{ page_num }}
           </span>
         {% else %}
@@ -63,7 +63,7 @@
         Next &rarr;
       </a>
     {% else %}
-      <span class="px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed" aria-hidden="true">
+      <span class="px-4 py-2 rounded-lg bg-brand-grey/20 text-brand-grey cursor-not-allowed" aria-hidden="true">
         Next &rarr;
       </span>
     {% endif %}

@@ -2,13 +2,13 @@
     {% if page.previous.url %}
     <div class="flex flex-col leading-none">
         <div class="italic">Previously...</div>
-        <a href="{{ page.previous.url }}" class="font-bold link-accent underline"><i class="bi bi-arrow-left"></i> {{ page.previous.title }}</a>
+        <a href="{{ page.previous.url }}" class="font-bold link-accent underline"><i class="ph ph-arrow-left"></i> {{ page.previous.title }}</a>
         </div>
     {% endif %}
     {% if page.next.url %}
     <div class="flex flex-col leading-none">
         <div class="italic">More recently...</div>
-        <a href="{{ page.next.url }}" class="font-bold link-accent underline">{{ page.next.title }} <i class="bi bi-arrow-right"></i></a>
+        <a href="{{ page.next.url }}" class="font-bold link-accent underline">{{ page.next.title }} <i class="ph ph-arrow-right"></i></a>
     </div>
     {% endif %}
 </div>

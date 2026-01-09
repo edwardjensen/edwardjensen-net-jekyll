@@ -9,8 +9,8 @@ Displays all featured tags with thumbnail, title, description, and post count
 <div class="space-y-6">
   {% for tag in sorted_tags %}
   {% assign post_count = site.posts | where_exp: "post", "post.tags contains tag.tag" | size %}
-  <article class="group border-b border-slate-200 dark:border-slate-700 pb-6 last:border-b-0 last:pb-0">
-    <a href="{{ tag.url | relative_url }}" class="flex flex-col md:flex-row md:items-center gap-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-lg p-4 -m-4 transition-colors duration-200">
+  <article class="group border-b border-brand-grey/20 pb-6 last:border-b-0 last:pb-0">
+    <a href="{{ tag.url | relative_url }}" class="flex flex-col md:flex-row md:items-center gap-4 hover:bg-brand-grey/10 rounded-lg p-4 -m-4 transition-colors duration-200">
       {% if tag.image %}
       <div class="flex-shrink-0 w-full md:w-48 h-32 overflow-hidden rounded-lg">
         <img src="{{ tag.image | relative_url }}"
@@ -20,7 +20,7 @@ Displays all featured tags with thumbnail, title, description, and post count
       </div>
       {% endif %}
       <div class="flex-grow">
-        <h2 class="text-slate-900 dark:text-slate-100 group-hover:text-amber-600 dark:group-hover:text-amber-400 font-bold text-lg transition-colors duration-200">
+        <h2 class="text-brand-ink dark:text-brand-smoke group-hover:text-brand-orange font-bold text-lg transition-colors duration-200">
           {{ tag.title }}
         </h2>
         <p class="text-sm text-muted mt-1">

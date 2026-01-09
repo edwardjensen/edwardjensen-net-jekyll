@@ -45,8 +45,8 @@ full_bleed: true
 <!-- Horizontal Scrolling Photo Strip -->
 <div x-data="photoGallery()" x-init="init('landing-photo-gallery-data')" class="relative w-full overflow-hidden">
   <!-- Edge fade gradients (desktop only) -->
-  <div class="hidden lg:block absolute left-0 top-4 bottom-4 w-16 bg-gradient-to-r from-white dark:from-slate-950 to-transparent z-10 pointer-events-none" aria-hidden="true"></div>
-  <div class="hidden lg:block absolute right-0 top-4 bottom-4 w-16 bg-gradient-to-l from-white dark:from-slate-950 to-transparent z-10 pointer-events-none" aria-hidden="true"></div>
+  <div class="hidden lg:block absolute left-0 top-4 bottom-4 w-16 bg-gradient-to-r from-brand-smoke dark:from-brand-ink to-transparent z-10 pointer-events-none" aria-hidden="true"></div>
+  <div class="hidden lg:block absolute right-0 top-4 bottom-4 w-16 bg-gradient-to-l from-brand-smoke dark:from-brand-ink to-transparent z-10 pointer-events-none" aria-hidden="true"></div>
 
   {% assign recent_photos = site.photography | sort: 'date' | reverse | slice: 0, 15 %}
   {% assign photo_count = recent_photos.size %}
@@ -75,9 +75,9 @@ full_bleed: true
 
     <!-- "See more" link (left side) -->
     <a href="/photos/"
-       class="flex-shrink-0 w-48 lg:w-56 aspect-square rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors duration-300 no-underline"
+       class="flex-shrink-0 w-48 lg:w-56 aspect-square rounded-lg bg-brand-grey/10 flex items-center justify-center hover:bg-brand-grey/20 transition-colors duration-300 no-underline"
        aria-label="View all photos">
-      <span class="text-amber-600 dark:text-amber-400 font-medium text-center px-4">← More photos</span>
+      <span class="text-brand-orange font-medium text-center px-4">← More photos</span>
     </a>
 
     <!-- Left side photos (oldest to newer, reversed so older are at edges) -->
@@ -86,7 +86,7 @@ full_bleed: true
     {% assign rotate_dir = forloop.index | modulo: 2 %}
     <figure class="flex-shrink-0 w-48 lg:w-56 aspect-square overflow-visible rounded-lg cursor-pointer transition-transform duration-300 ease-out hover:scale-105 {% if rotate_dir == 0 %}hover:rotate-2{% else %}hover:-rotate-2{% endif %} hover:z-20">
       <button @click.prevent="openPhotoByUrl('{{ photo.url }}')"
-              class="w-full h-full text-left focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 block border-0 bg-transparent p-0 appearance-none rounded-lg overflow-hidden"
+              class="w-full h-full text-left focus:outline-none focus:ring-2 focus:ring-brand-chestnut focus:ring-offset-2 block border-0 bg-transparent p-0 appearance-none rounded-lg overflow-hidden"
               aria-label="View full size: {{ photo.image_alt }}">
         {% include components/cf-image.html src=photo.image alt=photo.image_alt title=photo.title layout="photo_strip" class="w-full h-full" loading="lazy" %}
       </button>
@@ -97,7 +97,7 @@ full_bleed: true
     {% if center_photo %}
     <figure id="landing-photo-strip-center" class="flex-shrink-0 w-52 lg:w-64 aspect-square overflow-visible rounded-xl cursor-pointer transition-transform duration-300 ease-out hover:scale-105 hover:z-20">
       <button @click.prevent="openPhotoByUrl('{{ center_photo.url }}')"
-              class="w-full h-full text-left focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 block border-0 bg-transparent p-0 appearance-none rounded-xl overflow-hidden"
+              class="w-full h-full text-left focus:outline-none focus:ring-2 focus:ring-brand-chestnut focus:ring-offset-2 block border-0 bg-transparent p-0 appearance-none rounded-xl overflow-hidden"
               aria-label="View full size: {{ center_photo.image_alt }} (Latest photo)">
         {% include components/cf-image.html src=center_photo.image alt=center_photo.image_alt title=center_photo.title layout="photo_strip_center" class="w-full h-full" loading="eager" %}
       </button>
@@ -109,7 +109,7 @@ full_bleed: true
     {% assign rotate_dir = forloop.index | modulo: 2 %}
     <figure class="flex-shrink-0 w-48 lg:w-56 aspect-square overflow-visible rounded-lg cursor-pointer transition-transform duration-300 ease-out hover:scale-105 {% if rotate_dir == 0 %}hover:-rotate-2{% else %}hover:rotate-2{% endif %} hover:z-20">
       <button @click.prevent="openPhotoByUrl('{{ photo.url }}')"
-              class="w-full h-full text-left focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 block border-0 bg-transparent p-0 appearance-none rounded-lg overflow-hidden"
+              class="w-full h-full text-left focus:outline-none focus:ring-2 focus:ring-brand-chestnut focus:ring-offset-2 block border-0 bg-transparent p-0 appearance-none rounded-lg overflow-hidden"
               aria-label="View full size: {{ photo.image_alt }}">
         {% include components/cf-image.html src=photo.image alt=photo.image_alt title=photo.title layout="photo_strip" class="w-full h-full" loading="lazy" %}
       </button>
@@ -118,9 +118,9 @@ full_bleed: true
 
     <!-- "See more" link (right side) -->
     <a href="/photos/"
-       class="flex-shrink-0 w-48 lg:w-56 aspect-square rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors duration-300 no-underline"
+       class="flex-shrink-0 w-48 lg:w-56 aspect-square rounded-lg bg-brand-grey/10 flex items-center justify-center hover:bg-brand-grey/20 transition-colors duration-300 no-underline"
        aria-label="View all photos">
-      <span class="text-amber-600 dark:text-amber-400 font-medium text-center px-4">More photos →</span>
+      <span class="text-brand-orange font-medium text-center px-4">More photos →</span>
     </a>
 
   </div>

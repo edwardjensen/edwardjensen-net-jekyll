@@ -3,19 +3,19 @@
   - page_title (required): Main heading text
   - page_subtitle: Subtitle or description text
   - page_excerpt: Optional excerpt/description (italic, secondary text)
-  - header_icon: Bootstrap icon class (e.g., 'bi-pen', 'bi-file-text')
-  - header_icon_color: Tailwind color class for icon (e.g., 'text-amber-600')
+  - header_icon: Phosphor icon name (e.g., 'pen', 'file-text')
+  - header_icon_color: Tailwind color class for icon (e.g., 'text-brand-orange')
   - show_icon_badge: Boolean to show/hide icon badge (default: true)
   - center_text: Boolean to center text (default: false)
   - metadata: Optional metadata section content to display
 -->
-<header class="bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-50 px-6 lg:px-12 py-10 lg:py-14 transition-colors duration-300">
+<header class="bg-brand-grey/10 dark:bg-brand-grey/20 border-b border-brand-grey/20 dark:border-brand-grey/30 text-brand-ink dark:text-brand-smoke px-6 lg:px-12 py-10 lg:py-14 transition-colors duration-300">
   <div class="{% if include.center_text %}text-center{% else %}lg:text-left{% endif %}">
     {% if include.show_icon_badge != false %}
     <div class="flex items-center {% if include.center_text %}justify-center{% endif %} gap-4 mb-4">
       {% if include.header_icon %}
-      <div class="text-amber-600 dark:text-amber-400 flex-shrink-0" aria-hidden="true">
-        <i class="bi {{ include.header_icon }} text-4xl"></i>
+      <div class="text-brand-orange flex-shrink-0" aria-hidden="true">
+        <i class="ph ph-{{ include.header_icon }} text-4xl"></i>
       </div>
       {% endif %}
       <h1 class="font-header font-bold text-4xl lg:text-5xl leading-tight tracking-normal">

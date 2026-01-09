@@ -1,11 +1,11 @@
 <!-- Sticky Header Navigation -->
-<header class="sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700 transition-colors duration-300" role="banner">
+<header class="sticky top-0 z-40 bg-brand-smoke/80 dark:bg-brand-ink/80 backdrop-blur-sm border-b border-brand-grey/20 dark:border-brand-grey/30 transition-colors duration-300" role="banner">
   <div class="max-w-7xl mx-auto px-4 lg:px-8">
     <div class="flex items-center justify-between h-16 gap-4">
       
       <!-- Site Title/Logo -->
       <div class="flex items-center flex-shrink-0 h-full">
-        <a href="/" class="font-header font-bold text-2xl text-slate-900 dark:text-slate-50 hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200 flex items-center h-full lowercase" aria-label="Home">
+        <a href="/" class="font-header font-bold text-2xl text-brand-ink dark:text-brand-smoke hover:text-brand-chestnut transition-colors duration-200 flex items-center h-full lowercase" aria-label="Home">
           {{ site.title }}
         </a>
       </div>
@@ -18,12 +18,12 @@
             {% if item.items %}
             <!-- Parent item with dropdown -->
             <a href="{{ item.url }}"
-               class="font-header text-lg text-body hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200 flex items-center h-full lowercase relative"
+               class="font-header text-lg text-body hover:text-brand-chestnut transition-colors duration-200 flex items-center h-full lowercase relative"
                aria-haspopup="true" aria-expanded="false">
-              <span class="group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors duration-200 relative">
+              <span class="group-hover:text-brand-chestnut transition-colors duration-200 relative">
                 {{ item.title }}
               </span>
-              <i class="bi bi-chevron-down text-sm text-muted group-hover:text-body transition-transform duration-200 group-hover:rotate-180 ml-0.5" aria-hidden="true"></i>
+              <i class="ph ph-caret-down text-sm text-muted group-hover:text-body transition-transform duration-200 group-hover:rotate-180 ml-0.5" aria-hidden="true"></i>
             </a>
             
             <!-- Dropdown Menu -->
@@ -32,7 +32,7 @@
                 {% for subitem in item.items %}
                 <li>
                   <a href="{{ subitem.url }}" 
-                     class="block px-4 py-2 text-body hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200 lowercase text-base">
+                     class="block px-4 py-2 text-body hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 hover:text-brand-chestnut transition-colors duration-200 lowercase text-base">
                      {{ subitem.title }}
                   </a>
                 </li>
@@ -42,7 +42,7 @@
             {% else %}
             <!-- Regular link without dropdown -->
             <a href="{{ item.url }}" 
-               class="font-header text-lg text-body hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200 flex items-center h-full lowercase relative group"
+               class="font-header text-lg text-body hover:text-brand-chestnut transition-colors duration-200 flex items-center h-full lowercase relative group"
                {% if item.newTab %}target="_blank" rel="noopener noreferrer" aria-label="{{ item.title }} (opens in new tab)"{% endif %}>
                <span class="relative inline-flex items-center">
                  {% if item.icon %}<i class="bi {{ item.icon }} absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-10 transition-opacity duration-200 text-4xl text-body pointer-events-none -z-10" aria-hidden="true"></i>{% endif %}
@@ -61,7 +61,7 @@
         <a href="/search" 
            class="icon-interactive flex items-center h-full p-1" 
            aria-label="Search site content">
-            <i class="bi bi-search text-xl" aria-hidden="true"></i>
+            <i class="ph ph-magnifying-glass text-xl" aria-hidden="true"></i>
         </a>
         
         <!-- Social Links -->
@@ -72,7 +72,7 @@
              target="_blank" 
              rel="noopener noreferrer"
              aria-label="{{ item.title }} (opens in new tab)">
-              <i class="bi {{ item.bootstrap-icon }} text-xl" aria-hidden="true"></i>
+              <i class="ph ph-{{ item.icon }} text-xl" aria-hidden="true"></i>
           </a>
           {% endfor %}
         </div>
@@ -83,10 +83,10 @@
         <!-- Hamburger Button -->
         <button @click="open = !open" 
                 @click.away="open = false"
-                class="p-2 rounded-md text-body hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-200 flex items-center h-full"
+                class="p-2 rounded-md text-body hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 transition-colors duration-200 flex items-center h-full"
                 aria-label="Toggle navigation menu"
                 :aria-expanded="open">
-          <i class="bi bi-list text-2xl" aria-hidden="true"></i>
+          <i class="ph ph-list text-2xl" aria-hidden="true"></i>
         </button>
 
         <!-- Mobile Menu (Alpine.js controlled) -->
@@ -106,9 +106,9 @@
               <!-- Search Link for Mobile -->
               <li>
                 <a href="/search" 
-                   class="block px-4 py-2 text-body hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200 lowercase flex items-center gap-2"
+                   class="block px-4 py-2 text-body hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 hover:text-brand-chestnut transition-colors duration-200 lowercase flex items-center gap-2"
                    @click="open = false">
-                   <i class="bi bi-search" aria-hidden="true"></i>
+                   <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
                    search
                 </a>
               </li>
@@ -119,15 +119,15 @@
                 <div x-data="{ expanded: false }">
                   <div class="flex items-center">
                     <a href="{{ item.url }}"
-                       class="flex-1 px-4 py-2 text-body hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200 lowercase"
+                       class="flex-1 px-4 py-2 text-body hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 hover:text-brand-chestnut transition-colors duration-200 lowercase"
                        @click="open = false">
                       {{ item.title }}
                     </a>
                     <button @click.stop="expanded = !expanded"
-                            class="px-4 py-2 text-body hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-200"
+                            class="px-4 py-2 text-body hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 transition-colors duration-200"
                             :aria-expanded="expanded"
                             aria-label="Toggle {{ item.title }} submenu">
-                      <i class="bi bi-chevron-down transition-transform duration-200" :class="{ 'rotate-180': expanded }" aria-hidden="true"></i>
+                      <i class="ph ph-caret-down transition-transform duration-200" :class="{ 'rotate-180': expanded }" aria-hidden="true"></i>
                     </button>
                   </div>
                   
@@ -139,11 +139,11 @@
                       x-transition:leave="transition ease-in duration-100"
                       x-transition:leave-start="opacity-100 translate-y-0"
                       x-transition:leave-end="opacity-0 -translate-y-1"
-                      class="flex flex-col list-none m-0 p-0 bg-slate-50 dark:bg-slate-800/50">
+                      class="flex flex-col list-none m-0 p-0 bg-brand-grey/10 dark:bg-brand-grey/20">
                     {% for subitem in item.items %}
                     <li>
                       <a href="{{ subitem.url }}"
-                         class="block px-8 py-2 text-sm text-muted hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200 lowercase"
+                         class="block px-8 py-2 text-sm text-muted hover:bg-brand-grey/15 dark:hover:bg-brand-grey/30 hover:text-brand-chestnut transition-colors duration-200 lowercase"
                          @click="open = false">
                          {{ subitem.title }}
                       </a>
@@ -154,7 +154,7 @@
                 {% else %}
                 <!-- Regular link without accordion -->
                 <a href="{{ item.url }}" 
-                   class="block px-4 py-2 text-body hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200 lowercase"
+                   class="block px-4 py-2 text-body hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 hover:text-brand-chestnut transition-colors duration-200 lowercase"
                    {% if item.newTab %}target="_blank" rel="noopener noreferrer"{% endif %}
                    @click="open = false">
                    {{ item.title }}
@@ -164,7 +164,7 @@
               {% endfor %}
             </ul>
             <!-- Social Links -->
-            <div class="border-t border-slate-200 dark:border-slate-700 mt-2 pt-2 px-2">
+            <div class="border-t border-brand-grey/20 dark:border-brand-grey/30 mt-2 pt-2 px-2">
               <div class="grid grid-cols-3 gap-2">
                 {% for item in site.data.social %}
                 <a href="{{ item.url | relative_url }}" 
