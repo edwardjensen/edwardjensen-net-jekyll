@@ -56,3 +56,5 @@ context-docs/
 .env
 .env.*
 !.env.example
+
+new-layout
