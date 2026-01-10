@@ -9,7 +9,7 @@ Parameters:
   <div class="space-y-3">
     <!-- Note Title + Tags Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-      <h3 class="text-brand-ink dark:text-brand-smoke font-bold text-lg">
+      <h3 class="text-brand-ink dark:text-brand-smoke font-semibold text-lg">
         {{ include.note.title }}
       </h3>
       {% if include.note.tags and include.note.tags.size > 0 %}
@@ -33,7 +33,7 @@ Parameters:
       <time class="text-xs font-mono text-muted" datetime="{{ include.note.date | date: '%Y-%m-%d' }}">
         {{ include.note.date | date: "%e %B %Y" }}
       </time>
-      <a href="{{ include.note.url | relative_url }}" class="text-xs font-medium link-accent">
+      <a href="{{ include.note.url | relative_url }}" class="text-xs font-semibold link-accent">
         permalink
       </a>
     </div>

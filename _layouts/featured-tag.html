@@ -4,7 +4,7 @@ layout: content-wrapper
 <article class="article-container">
   <!-- Hero Image -->
   {% if page.image %}
-  <figure class="relative" role="doc-illustration">
+  <figure class="relative">
     <img class="w-full h-auto object-cover max-h-96"
          src="{{ page.image | relative_url }}"
          alt="{{ page.image_alt | default: page.title | escape }}"
@@ -64,7 +64,7 @@ layout: content-wrapper
             </div>
             {% endif %}
             <div class="flex-grow">
-              <h3 class="text-brand-ink dark:text-brand-smoke group-hover:text-brand-orange font-bold text-lg transition-colors duration-200">
+              <h3 class="text-brand-ink dark:text-brand-smoke group-hover:text-brand-orange font-semibold text-lg transition-colors duration-200">
                 {{ post.title }}
               </h3>
               <time class="text-sm text-muted block mt-1" datetime="{{ post.date | date: '%Y-%m-%d' }}">

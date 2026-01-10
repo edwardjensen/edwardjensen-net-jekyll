@@ -20,7 +20,7 @@ content_for_head: |
         {% if page.tags and page.tags.size > 0 %}
         <div class="flex flex-wrap gap-2" role="list" aria-label="Note tags">
           {% for tag in page.tags %}
-          <span class="bg-white/20 backdrop-blur-sm text-white px-2 py-1 rounded-md text-xs font-medium border border-white/30" role="listitem">
+          <span class="bg-white/20 backdrop-blur-sm text-white px-2 py-1 rounded-md text-xs font-semibold border border-white/30" role="listitem">
             #{{ tag }}
           </span>
           {% endfor %}

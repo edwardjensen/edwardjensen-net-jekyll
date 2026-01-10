@@ -1,13 +1,18 @@
 ---
 ---
 
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400;1,600&display=swap');
+
 @import "tailwindcss";
 
 @theme {
     /* Brand Colors (2026 Refresh) */
     --color-brand-ink: #001524;
     --color-brand-orange: #F58F29;
+    --color-brand-orange-dark: #a95b00;  /* Accessible orange (4.5:1 on smoke) */
     --color-brand-grey: #767B91;
+    --color-brand-grey-dark: #5A5E6D;  /* High contrast muted text (light mode) - 5.5:1 on smoke */
+    --color-brand-grey-light: #9499AB; /* High contrast muted text (dark mode) - 5.8:1 on ink */
     --color-brand-chestnut: #772E25;
     --color-brand-smoke: #F3F3F3;
     
@@ -155,20 +160,20 @@
         @apply bg-brand-smoke dark:bg-brand-ink text-brand-ink dark:text-brand-smoke transition-colors duration-300;
     }
 
-    /* Links with warm accent color */
+    /* Links: accessible by default (chestnut passes WCAG AA), softer orange for users who prefer less contrast */
     a {
-        @apply text-brand-orange transition-colors duration-200;
+        @apply text-brand-chestnut contrast-less:text-brand-orange transition-colors duration-200;
         
         &:hover {
-            @apply text-brand-chestnut underline;
+            @apply text-brand-ink dark:text-brand-smoke underline;
         }
     }
 
     .hyperlink-container a {
-        @apply text-brand-orange underline;
+        @apply text-brand-chestnut contrast-less:text-brand-orange underline;
         
         &:hover {
-            @apply text-brand-chestnut underline;
+            @apply text-brand-ink dark:text-brand-smoke underline;
         }
     }
 
@@ -177,8 +182,9 @@
         @apply text-brand-ink dark:text-brand-smoke;
     }
     
+    /* Muted text: accessible by default (WCAG AA compliant), softer for users who prefer less contrast */
     .text-muted {
-        @apply text-brand-grey;
+        @apply text-brand-grey-dark dark:text-brand-grey-light contrast-less:text-brand-grey dark:contrast-less:text-brand-grey;
     }
     
     .text-heading {
@@ -187,12 +193,12 @@
     
     /* === REUSABLE LINK STYLES === */
     .link-accent {
-        @apply text-brand-orange hover:text-brand-chestnut transition-colors duration-200;
+        @apply text-brand-orange-dark hover:text-brand-chestnut dark:hover:text-brand-smoke transition-colors duration-200;
     }
     
     /* === REUSABLE BUTTON STYLES === */
     .btn-primary {
-        @apply px-4 py-2 rounded-lg bg-brand-orange text-brand-ink hover:bg-brand-chestnut transition-colors duration-200 font-medium no-underline;
+        @apply px-4 py-2 rounded-lg bg-brand-orange text-brand-ink hover:bg-brand-chestnut transition-colors duration-200 font-semibold no-underline;
 
         &:hover {
             @apply text-brand-ink no-underline;
@@ -200,7 +206,7 @@
     }
 
     .btn-secondary {
-        @apply px-3 py-2 rounded-lg bg-brand-smoke dark:bg-brand-ink text-brand-ink dark:text-brand-smoke border border-brand-grey/30 hover:border-brand-orange transition-colors duration-200 font-medium no-underline;
+        @apply px-3 py-2 rounded-lg bg-brand-smoke dark:bg-brand-ink text-brand-ink dark:text-brand-smoke border border-brand-grey/30 hover:border-brand-orange transition-colors duration-200 font-semibold no-underline;
 
         &:hover {
             @apply text-brand-ink dark:text-brand-smoke no-underline;
@@ -225,11 +231,11 @@
     }
 
     .info-box {
-        @apply bg-brand-orange/10 border border-brand-orange/30 rounded-lg p-4 text-brand-grey;
+        @apply bg-brand-orange/10 border border-brand-orange/30 rounded-lg p-4 text-brand-grey-dark dark:text-brand-grey-light contrast-less:text-brand-grey;
     }
 
     .badge-accent {
-        @apply bg-brand-orange/15 text-brand-chestnut dark:text-brand-orange px-2 py-1 rounded text-xs font-medium border border-brand-orange/30;
+        @apply bg-brand-orange/15 text-brand-chestnut dark:text-brand-orange px-2 py-1 rounded text-xs font-semibold border border-brand-orange/30;
     }
     
     /* === REUSABLE SECTION BACKGROUNDS === */
@@ -243,7 +249,7 @@
     
     /* === REUSABLE ICON STYLES === */
     .icon-interactive {
-        @apply text-brand-grey hover:text-brand-orange transition-colors duration-200;
+        @apply text-brand-grey-dark dark:text-brand-grey-light hover:text-brand-orange transition-colors duration-200;
     }
     
     /* === REUSABLE INPUT STYLES === */
@@ -278,10 +284,6 @@
             @apply leading-relaxed my-4;
         }
 
-        a {
-            @apply text-brand-orange underline hover:text-brand-chestnut hover:no-underline;
-        }
-
         ul, ol {
             @apply my-4 ml-6;
             list-style-position: outside;
@@ -300,8 +302,20 @@
             margin-left: 0;
         }
 
+        a {
+            @apply text-brand-chestnut contrast-less:text-brand-orange underline;
+            
+            &:hover {
+                @apply text-brand-ink dark:text-brand-smoke no-underline;
+            }
+        }
+
         blockquote {
-            @apply border-l-4 border-brand-orange pl-4 italic text-brand-grey;
+            @apply border-l-4 border-brand-orange pl-4 italic text-brand-grey-dark dark:text-brand-grey-light contrast-less:text-brand-grey;
+        }
+
+        strong {
+            font-weight: 600;
         }
 
         code {
@@ -339,7 +353,7 @@
     }
 
     .embedded-working-note__title {
-        @apply font-bold text-base text-brand-ink dark:text-brand-smoke m-0;
+        @apply font-semibold text-base text-brand-ink dark:text-brand-smoke m-0;
     }
 
     .embedded-working-note__content {
@@ -367,7 +381,7 @@
     }
 
     .embedded-working-note__link {
-        @apply text-xs font-medium text-brand-orange no-underline;
+        @apply text-xs font-semibold text-brand-orange no-underline;
 
         &:hover {
             @apply text-brand-chestnut underline;
@@ -386,7 +400,7 @@
 }
 
 .highlight .c, .highlight .cm, .highlight .c1, .highlight .cs {
-    @apply text-brand-grey italic;
+    @apply text-brand-grey-light italic;
 }
 
 .highlight .k, .highlight .kc, .highlight .kd, .highlight .kn, .highlight .kp, .highlight .kr, .highlight .kt {

@@ -3,7 +3,7 @@
   {% for item in sorted_portfolio %}
     <article class="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl bg-gray-900 px-8 pt-80 pb-8 sm:pt-48 lg:pt-80">
       <img src="{{ item.image }}" alt="" class="absolute inset-0 -z-10 size-full object-cover">
-      <div class="absolute inset-0 -z-10 bg-linear-to-t from-gray-900 via-gray-900/40"></div>
+      <div class="absolute inset-0 -z-10 bg-gradient-to-t from-gray-900 via-gray-900/60"></div>
       <div class="absolute inset-0 -z-10 rounded-2xl ring-1 ring-gray-900/10 ring-inset"></div>
       <div class="flex flex-wrap items-center gap-y-1 overflow-hidden text-sm/6 text-gray-300">
         <div class="-ml-4 flex items-center gap-x-4">
@@ -12,9 +12,8 @@
           </svg>
         </div>
       </div>
-      <h3 class="mt-3 text-lg/6 font-semibold text-white">
-        <a href="{{ item.url }}">
-          <span class="absolute inset-0"></span>
+      <h3 class="mt-3 text-lg/6 font-semibold">
+        <a href="{{ item.url }}" class="!text-white !bg-gray-900 hover:!text-white no-underline inline-block -mx-8 px-8 py-2 w-[calc(100%+4rem)]">
           {{ item.title }}
         </a>
       </h3>

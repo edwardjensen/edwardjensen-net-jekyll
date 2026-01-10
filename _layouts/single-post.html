@@ -12,7 +12,7 @@ content_for_head: |
   {% capture post_metadata %}
   <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-3 text-base">
     <div class="flex flex-wrap items-center gap-3 justify-center lg:justify-start">
-      <span class="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full font-bold text-white" role="note" aria-label="Category">
+      <span class="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full font-semibold text-white" role="note" aria-label="Category">
         {{ page.categories }}
       </span>
       <time datetime="{{ page.date | date_to_xmlschema }}" class="text-brand-smoke/80">
@@ -22,7 +22,7 @@ content_for_head: |
     {% if page.tags and page.tags.size > 0 %}
     <div class="flex flex-wrap gap-2 justify-center lg:justify-end" role="list" aria-label="Post tags">
       {% for tag in page.tags %}
-      <span class="bg-brand-orange/20 backdrop-blur-sm text-brand-smoke px-2 py-1 rounded-md text-sm font-medium border border-brand-orange/30" role="listitem">
+      <span class="bg-brand-orange/20 backdrop-blur-sm text-brand-smoke px-2 py-1 rounded-md text-sm font-semibold border border-brand-orange/30" role="listitem">
         #{{ tag }}
       </span>
       {% endfor %}
@@ -47,7 +47,7 @@ content_for_head: |
 
   <!-- Featured Image -->
   {% if page.show_image or page.show_image == nil %}
-  <figure class="relative" role="doc-illustration">
+  <figure class="relative">
     <img class="w-full h-auto object-contain"
          src="{{ page.image | relative_url }}"
          alt="{% if page.image_alt %}{{ page.image_alt }}{% else %}Featured image for {{ page.title }}{% endif %}"

@@ -1,5 +1,25 @@
-<!-- Sticky Header Navigation -->
-<header class="sticky top-0 z-40 bg-brand-smoke/80 dark:bg-brand-ink/80 backdrop-blur-sm border-b border-brand-grey/20 dark:border-brand-grey/30 transition-colors duration-300" role="banner">
+<!-- Header Navigation with scroll behavior -->
+<header 
+  x-data="{ 
+    lastScroll: 0, 
+    hidden: false,
+    init() {
+      this.$nextTick(() => {
+        window.addEventListener('scroll', () => {
+          const currentScroll = window.pageYOffset;
+          if (currentScroll <= 0) {
+            this.hidden = false;
+            return;
+          }
+          this.hidden = currentScroll > this.lastScroll && currentScroll > 100;
+          this.lastScroll = currentScroll;
+        });
+      });
+    }
+  }"
+  :class="{ '-translate-y-full': hidden }"
+  class="sticky top-0 z-40 bg-brand-smoke/80 dark:bg-brand-ink/80 backdrop-blur-sm border-b border-brand-grey/20 dark:border-brand-grey/30 transition-all duration-300" 
+  role="banner">
   <div class="max-w-7xl mx-auto px-4 lg:px-8">
     <div class="flex items-center justify-between h-16 gap-4">
       

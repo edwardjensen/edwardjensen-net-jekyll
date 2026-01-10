@@ -6,6 +6,7 @@
     "a11y:ci": "npm run build && node ./scripts/a11y-check.js ci",
     "a11y:staging": "node ./scripts/a11y-check.js staging",
     "a11y:prod": "node ./scripts/a11y-check.js prod",
+    "a11y:custom": "node ./scripts/a11y-check.js",
     "a11y:report": "node ./scripts/a11y-check.js dev --json --report accessibility-report.json",
     "build": "JEKYLL_ENV=production bundle exec jekyll build && JEKYLL_ENV=production npm run minify",
     "build:serve": "bundle exec jekyll serve --config _config.yml,_config.local.yml --livereload",

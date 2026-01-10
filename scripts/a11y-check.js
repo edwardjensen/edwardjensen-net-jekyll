@@ -8,7 +8,20 @@ const http = require('http');
 
 // Parse command line arguments
 const args = process.argv.slice(2);
-const environment = args[0] || 'dev';
+
+// Look for a URL anywhere in the arguments (starts with http:// or https://)
+let customUrl = null;
+let environment = 'dev';
+
+const urlArg = args.find(arg => arg.startsWith('http://') || arg.startsWith('https://'));
+if (urlArg) {
+  customUrl = urlArg;
+  environment = 'custom';
+} else {
+  // No URL found, use first arg as environment or default to 'dev'
+  environment = args[0] || 'dev';
+}
+
 const outputFormat = args.includes('--json') ? 'json' : 'cli';
 const reportFile = args.includes('--report') ? args[args.indexOf('--report') + 1] : null;
 
@@ -44,11 +57,18 @@ const config = {
     requiresBuild: false,
     requiresServer: false,
   },
+  custom: {
+    name: 'Custom URL',
+    baseUrl: customUrl || 'http://localhost:4000',
+    requiresBuild: false,
+    requiresServer: false,
+  },
 };
 
 if (!config[environment]) {
   console.error(`❌ Unknown environment: ${environment}`);
-  console.error(`   Available: ${Object.keys(config).join(', ')}`);
+  console.error(`   Available: ${Object.keys(config).filter(k => k !== 'custom').join(', ')}`);
+  console.error(`   Or pass a custom URL: npm run a11y http://localhost:4000`);
   process.exit(1);
 }
 
@@ -198,7 +218,10 @@ function waitForServer(baseUrl, maxAttempts = 20) {
 async function runChecks(urls) {
   console.log(`🔍 Running accessibility checks on ${envConfig.name}...\n`);
 
-  const fullUrls = urls.map((url) => `${envConfig.baseUrl}${url}`);
+  // If custom URL is provided, URLs are already complete; otherwise prepend baseUrl
+  const fullUrls = customUrl 
+    ? urls 
+    : urls.map((url) => `${envConfig.baseUrl}${url}`);
   const pa11yArgs = ['pa11y-ci', '--config', '.pa11yci.json'];
 
   if (outputFormat === 'json' || reportFile) {
@@ -275,15 +298,23 @@ async function main() {
     }
 
     // Load URLs
-    const urls = loadUrls();
-    if (urls.length === 0) {
-      console.error('❌ No URLs found in _data/a11y-check-urls.yml');
-      process.exit(1);
+    let urls;
+    if (customUrl) {
+      // If custom URL provided, use it directly (don't load from YAML)
+      urls = [customUrl];
+      console.log(`📍 Checking custom URL:\n   ${customUrl}\n`);
+    } else {
+      // Load paths from YAML and combine with base URL
+      const paths = loadUrls();
+      if (paths.length === 0) {
+        console.error('❌ No URLs found in _data/a11y-check-urls.yml');
+        process.exit(1);
+      }
+      urls = paths;
+      console.log(`📍 Checking ${urls.length} URL(s):\n`);
+      urls.forEach((url) => console.log(`   ${url}`));
+      console.log();
     }
-
-    console.log(`📍 Checking ${urls.length} URL(s):\n`);
-    urls.forEach((url) => console.log(`   ${url}`));
-    console.log();
 
     // Run checks
     try {

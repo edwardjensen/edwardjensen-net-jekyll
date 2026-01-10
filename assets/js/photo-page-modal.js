@@ -42,6 +42,12 @@
       if (currentMain) {
         currentMain.innerHTML = galleryMain.innerHTML;
 
+        // Remove any existing photo-gallery-data script to prevent duplicate IDs
+        const existingScript = document.getElementById('photo-gallery-data');
+        if (existingScript) {
+          existingScript.remove();
+        }
+
         // Add the photo data script to the page
         const newScript = document.createElement('script');
         newScript.id = 'photo-gallery-data';
