@@ -72,6 +72,8 @@ The site uses **custom Tailwind classes** defined in `assets/css/main.css` (@lay
 
 ### Typography
 - Font family: `Fraunces` (headers - optical sizing, 700 for H1/H2, 600 for H3/H4), `Source Sans 3` (body)
+- **Font weights**: Source Sans 3 uses only 400 (regular) and 600 (semibold). **Never use `font-bold` (700) or `font-medium` (500) on body text** — use `font-semibold` for emphasis.
+- **Font import**: Fonts loaded via `@import` at top of `assets/css/main.css` (optimized Google Fonts API call). Only loads Fraunces 600/700 and Source Sans 3 400/600 (regular + italic).
 - Use normal title case (not UPPERCASE) - apply `lowercase` class to header elements only
 - Improved line-heights and spacing defined in tailwind.config.js
 - **Text colors**: Use `.text-body` for main text, `.text-muted` for secondary text, `.text-heading` for headings

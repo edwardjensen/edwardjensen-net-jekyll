@@ -3,6 +3,8 @@
 
 @import "tailwindcss";
 
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400;1,600&display=swap');
+
 @theme {
     /* Brand Colors (2026 Refresh) */
     --color-brand-ink: #001524;
@@ -192,7 +194,7 @@
     
     /* === REUSABLE BUTTON STYLES === */
     .btn-primary {
-        @apply px-4 py-2 rounded-lg bg-brand-orange text-brand-ink hover:bg-brand-chestnut transition-colors duration-200 font-medium no-underline;
+        @apply px-4 py-2 rounded-lg bg-brand-orange text-brand-ink hover:bg-brand-chestnut transition-colors duration-200 font-semibold no-underline;
 
         &:hover {
             @apply text-brand-ink no-underline;
@@ -200,7 +202,7 @@
     }
 
     .btn-secondary {
-        @apply px-3 py-2 rounded-lg bg-brand-smoke dark:bg-brand-ink text-brand-ink dark:text-brand-smoke border border-brand-grey/30 hover:border-brand-orange transition-colors duration-200 font-medium no-underline;
+        @apply px-3 py-2 rounded-lg bg-brand-smoke dark:bg-brand-ink text-brand-ink dark:text-brand-smoke border border-brand-grey/30 hover:border-brand-orange transition-colors duration-200 font-semibold no-underline;
 
         &:hover {
             @apply text-brand-ink dark:text-brand-smoke no-underline;
@@ -229,7 +231,7 @@
     }
 
     .badge-accent {
-        @apply bg-brand-orange/15 text-brand-chestnut dark:text-brand-orange px-2 py-1 rounded text-xs font-medium border border-brand-orange/30;
+        @apply bg-brand-orange/15 text-brand-chestnut dark:text-brand-orange px-2 py-1 rounded text-xs font-semibold border border-brand-orange/30;
     }
     
     /* === REUSABLE SECTION BACKGROUNDS === */
@@ -304,6 +306,10 @@
             @apply border-l-4 border-brand-orange pl-4 italic text-brand-grey;
         }
 
+        strong {
+            font-weight: 600;
+        }
+
         code {
             @apply bg-brand-grey/10 px-2 py-1 rounded text-sm font-mono text-brand-ink dark:text-brand-smoke;
         }
@@ -339,7 +345,7 @@
     }
 
     .embedded-working-note__title {
-        @apply font-bold text-base text-brand-ink dark:text-brand-smoke m-0;
+        @apply font-semibold text-base text-brand-ink dark:text-brand-smoke m-0;
     }
 
     .embedded-working-note__content {
@@ -367,7 +373,7 @@
     }
 
     .embedded-working-note__link {
-        @apply text-xs font-medium text-brand-orange no-underline;
+        @apply text-xs font-semibold text-brand-orange no-underline;
 
         &:hover {
             @apply text-brand-chestnut underline;

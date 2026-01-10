@@ -33,7 +33,7 @@ layout: content-wrapper
           {% if page.tags and page.tags.size > 0 %}
           <div class="flex flex-wrap gap-2" role="list" aria-label="Photo tags">
             {% for tag in page.tags %}
-            <span class="bg-brand-orange/20 text-brand-chestnut dark:text-brand-orange px-2 py-1 rounded-md text-xs font-medium border border-brand-orange/30 transition-colors duration-300" role="listitem">
+            <span class="bg-brand-orange/20 text-brand-chestnut dark:text-brand-orange px-2 py-1 rounded-md text-xs font-semibold border border-brand-orange/30 transition-colors duration-300" role="listitem">
               #{{ tag }}
             </span>
             {% endfor %}

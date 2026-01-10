@@ -16,7 +16,7 @@ icon_bg_color: bg-brand-orange
                 <article>
                     <a href="{{ post.url | relative_url }}" class="block group" aria-describedby="post-{{ forloop.index }}-date">
                       <div class="flex flex-col lg:flex-row lg:justify-between items-start leading-tight md:leading-normal">
-                        <h3 class="uppercase font-bold text-brand-ink dark:text-brand-smoke group-hover:text-brand-orange transition-colors duration-300">{{ post.title }}</h3>
+                        <h3 class="uppercase font-semibold text-brand-ink dark:text-brand-smoke group-hover:text-brand-orange transition-colors duration-300">{{ post.title }}</h3>
                         <time id="post-{{ forloop.index }}-date" datetime="{{ post.date | date_to_xmlschema }}" class="text-muted lg:ml-5 lg:shrink-0 transition-colors duration-300">{{ post.date | date: "%B %Y" }}</time>
                       </div>
                       <p class="text-muted lg:line-clamp-2 transition-colors duration-300">{{ post.excerpt | strip_html }}</p>

@@ -563,7 +563,7 @@ window.photoGallery = function() {
       // Format tags HTML (for details panel)
       const tagsHtml = (photo.tags && photo.tags.length > 0)
         ? photo.tags.map(tag =>
-            `<span class="bg-brand-orange/20 text-brand-orange px-2 py-1 rounded-md text-xs font-medium border border-brand-orange/30">#${tag}</span>`
+            `<span class="bg-brand-orange/20 text-brand-orange px-2 py-1 rounded-md text-xs font-semibold border border-brand-orange/30">#${tag}</span>`
           ).join('')
         : '';
 

@@ -32,7 +32,7 @@
       {% for page_num in paginator.page_numbers %}
         {% if page_num == paginator.page %}
           {%- comment -%} Current page {%- endcomment -%}
-          <span class="px-3 py-2 rounded-lg bg-brand-orange text-brand-smoke font-bold" aria-current="page">
+          <span class="px-3 py-2 rounded-lg bg-brand-orange text-brand-smoke font-semibold" aria-current="page">
             {{ page_num }}
           </span>
         {% else %}
