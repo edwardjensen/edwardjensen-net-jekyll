@@ -231,7 +231,7 @@
     }
 
     .info-box {
-        @apply bg-brand-orange/10 border border-brand-orange/30 rounded-lg p-4 text-muted;
+        @apply bg-brand-orange/10 border border-brand-orange/30 rounded-lg p-4 text-brand-grey-dark dark:text-brand-grey-light contrast-less:text-brand-grey;
     }
 
     .badge-accent {
