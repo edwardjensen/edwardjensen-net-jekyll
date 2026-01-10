@@ -5,7 +5,7 @@
       
       <!-- Site Title/Logo -->
       <div class="flex items-center flex-shrink-0 h-full">
-        <a href="/" class="font-header font-bold text-2xl text-brand-ink dark:text-brand-smoke hover:text-brand-chestnut transition-colors duration-200 flex items-center h-full lowercase" aria-label="Home">
+        <a href="/" class="font-header font-bold text-2xl text-brand-ink dark:text-brand-smoke hover:text-brand-chestnut transition-colors duration-200 flex items-center h-full lowercase no-underline" aria-label="Home">
           {{ site.title }}
         </a>
       </div>
@@ -18,9 +18,10 @@
             {% if item.items %}
             <!-- Parent item with dropdown -->
             <a href="{{ item.url }}"
-               class="font-header text-lg text-body hover:text-brand-chestnut transition-colors duration-200 flex items-center h-full lowercase relative"
+               class="font-header text-lg text-body hover:text-brand-chestnut transition-colors duration-200 flex items-center h-full lowercase relative no-underline"
                aria-haspopup="true" aria-expanded="false">
-              <span class="group-hover:text-brand-chestnut transition-colors duration-200 relative">
+              <span class="group-hover:text-brand-chestnut transition-colors duration-200 relative inline-flex items-center">
+                {% if item.icon %}<i class="ph ph-{{ item.icon }} absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-10 transition-opacity duration-200 text-4xl text-body pointer-events-none -z-10" aria-hidden="true"></i>{% endif %}
                 {{ item.title }}
               </span>
               <i class="ph ph-caret-down text-sm text-muted group-hover:text-body transition-transform duration-200 group-hover:rotate-180 ml-0.5" aria-hidden="true"></i>
@@ -32,8 +33,9 @@
                 {% for subitem in item.items %}
                 <li>
                   <a href="{{ subitem.url }}" 
-                     class="block px-4 py-2 text-body hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 hover:text-brand-chestnut transition-colors duration-200 lowercase text-base">
-                     {{ subitem.title }}
+                     class="flex items-center justify-between px-4 py-2 text-body hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 hover:text-brand-chestnut transition-colors duration-200 lowercase text-base no-underline">
+                     <span>{{ subitem.title }}</span>
+                     {% if subitem.icon %}<i class="ph ph-{{ subitem.icon }} text-lg text-muted ml-2" aria-hidden="true"></i>{% endif %}
                   </a>
                 </li>
                 {% endfor %}
@@ -42,10 +44,10 @@
             {% else %}
             <!-- Regular link without dropdown -->
             <a href="{{ item.url }}" 
-               class="font-header text-lg text-body hover:text-brand-chestnut transition-colors duration-200 flex items-center h-full lowercase relative group"
+               class="font-header text-lg text-body hover:text-brand-chestnut transition-colors duration-200 flex items-center h-full lowercase relative group no-underline"
                {% if item.newTab %}target="_blank" rel="noopener noreferrer" aria-label="{{ item.title }} (opens in new tab)"{% endif %}>
                <span class="relative inline-flex items-center">
-                 {% if item.icon %}<i class="bi {{ item.icon }} absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-10 transition-opacity duration-200 text-4xl text-body pointer-events-none -z-10" aria-hidden="true"></i>{% endif %}
+                 {% if item.icon %}<i class="ph ph-{{ item.icon }} absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-10 transition-opacity duration-200 text-4xl text-body pointer-events-none -z-10" aria-hidden="true"></i>{% endif %}
                  {{ item.title }}
                </span>
             </a>
@@ -59,7 +61,7 @@
       <div class="hidden lg:flex items-center gap-4 h-full" role="navigation" aria-label="Search and social media links">
         <!-- Search Link -->
         <a href="/search" 
-           class="icon-interactive flex items-center h-full p-1" 
+           class="icon-interactive flex items-center h-full p-1 no-underline" 
            aria-label="Search site content">
             <i class="ph ph-magnifying-glass text-xl" aria-hidden="true"></i>
         </a>
@@ -68,7 +70,7 @@
         <div class="flex items-center gap-2 h-full">
           {% for item in site.data.social %}
           <a href="{{ item.url | relative_url }}" 
-             class="icon-interactive flex items-center h-full p-1" 
+             class="icon-interactive flex items-center h-full p-1 no-underline" 
              target="_blank" 
              rel="noopener noreferrer"
              aria-label="{{ item.title }} (opens in new tab)">
@@ -106,7 +108,7 @@
               <!-- Search Link for Mobile -->
               <li>
                 <a href="/search" 
-                   class="block px-4 py-2 text-body hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 hover:text-brand-chestnut transition-colors duration-200 lowercase flex items-center gap-2"
+                   class="block px-4 py-2 text-body hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 hover:text-brand-chestnut transition-colors duration-200 lowercase flex items-center gap-2 no-underline"
                    @click="open = false">
                    <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
                    search
@@ -119,7 +121,7 @@
                 <div x-data="{ expanded: false }">
                   <div class="flex items-center">
                     <a href="{{ item.url }}"
-                       class="flex-1 px-4 py-2 text-body hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 hover:text-brand-chestnut transition-colors duration-200 lowercase"
+                       class="flex-1 px-4 py-2 text-body hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 hover:text-brand-chestnut transition-colors duration-200 lowercase no-underline"
                        @click="open = false">
                       {{ item.title }}
                     </a>
@@ -143,9 +145,10 @@
                     {% for subitem in item.items %}
                     <li>
                       <a href="{{ subitem.url }}"
-                         class="block px-8 py-2 text-sm text-muted hover:bg-brand-grey/15 dark:hover:bg-brand-grey/30 hover:text-brand-chestnut transition-colors duration-200 lowercase"
+                         class="flex items-center justify-between px-8 py-2 text-sm text-muted hover:bg-brand-grey/15 dark:hover:bg-brand-grey/30 hover:text-brand-chestnut transition-colors duration-200 lowercase no-underline"
                          @click="open = false">
-                         {{ subitem.title }}
+                         <span>{{ subitem.title }}</span>
+                         {% if subitem.icon %}<i class="ph ph-{{ subitem.icon }} text-base text-muted ml-2" aria-hidden="true"></i>{% endif %}
                       </a>
                     </li>
                     {% endfor %}
@@ -154,7 +157,7 @@
                 {% else %}
                 <!-- Regular link without accordion -->
                 <a href="{{ item.url }}" 
-                   class="block px-4 py-2 text-body hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 hover:text-brand-chestnut transition-colors duration-200 lowercase"
+                   class="block px-4 py-2 text-body hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 hover:text-brand-chestnut transition-colors duration-200 lowercase no-underline"
                    {% if item.newTab %}target="_blank" rel="noopener noreferrer"{% endif %}
                    @click="open = false">
                    {{ item.title }}
@@ -168,11 +171,11 @@
               <div class="grid grid-cols-3 gap-2">
                 {% for item in site.data.social %}
                 <a href="{{ item.url | relative_url }}" 
-                   class="icon-interactive flex items-center justify-center p-2" 
+                   class="icon-interactive flex items-center justify-center p-2 no-underline" 
                    target="_blank" 
                    rel="noopener noreferrer"
                    aria-label="{{ item.site }} (opens in new tab)">
-                    <i class="bi {{ item.bootstrap-icon }} text-xl" aria-hidden="true"></i>
+                    <i class="ph ph-{{ item.icon }} text-xl" aria-hidden="true"></i>
                 </a>
                 {% endfor %}
               </div>

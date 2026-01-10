@@ -1,42 +1,42 @@
 - title: Writings
   url: /writing
-  icon: bi-pen
+  icon: pen
   items:
     - title: Current Archives
       url: /writing
-      icon: bi-pen
+      icon: pen
     - title: Retired Posts
       url: /archive
-      icon: bi-archive-fill
+      icon: archive
 - title: Collections
   url: /tags
-  icon: bi-card-list
+  icon: cards
   items:
     - title: AI
       url: /tags/ai
-      icon: bi-robot
+      icon: robot
     - title: Friday Five
       url: /tags/friday-five
-      icon: bi-5-square-fill
+      icon: number-five
     - title: ...on Saint Paul
       url: /tags/on-saint-paul
-      icon: bi-building
+      icon: buildings
 - title: Working Notes
   url: /notes
-  icon: bi-journal-text
+  icon: notebook
 - title: Photos
   url: /photos
-  icon: bi-camera
+  icon: camera
 - title: About
-  icon: bi-emoji-smile
+  icon: smiley
   url: /about
   items:
     - title: About Me
       url: /about
-      icon: bi-emoji-smile
+      icon: hand-waving
     - title: Portfolio
       url: /portfolio
-      icon: bi-briefcase
+      icon: briefcase
     - title: Uses
       url: /about/uses
-      icon: bi-backpack2-fill
+      icon: backpack
