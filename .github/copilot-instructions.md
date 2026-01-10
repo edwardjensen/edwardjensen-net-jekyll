@@ -19,12 +19,12 @@ The site uses **custom Tailwind classes** defined in `assets/css/main.css` (@lay
 
 **Text & Typography**:
 - `.text-body` - Standard body text (`text-brand-ink dark:text-brand-smoke`)
-- `.text-muted` - Secondary/muted text (`text-brand-grey`)
+- `.text-muted` - Secondary/muted text (accessible: `text-brand-grey-dark dark:text-brand-grey-light`)
 - `.text-heading` - Heading text with dark mode opacity
 
 **Links & Interactions**:
-- `.link-accent` - Orange links with chestnut hover (use for all standard links)
-- `.icon-interactive` - Interactive icons (social icons, nav icons)
+- `.link-accent` - Accessible orange links (`text-brand-orange-dark`) with chestnut hover
+- `.icon-interactive` - Interactive icons (`text-brand-grey-dark dark:text-brand-grey-light`)
 
 **Buttons**:
 - `.btn-primary` - Primary CTA (filled orange)
@@ -63,12 +63,22 @@ The site uses **custom Tailwind classes** defined in `assets/css/main.css` (@lay
 - All text in header is lowercase (use `lowercase` class)
 
 ### Color Palette (2026 Brand Colors)
+
+**Core Colors:**
 - **brand-ink** (#001524): Dark navy - dark mode backgrounds, light mode text
-- **brand-orange** (#F58F29): Primary accent - links, buttons, highlights
-- **brand-grey** (#767B91): Secondary text, muted elements, borders
-- **brand-chestnut** (#772E25): Hover states, focus outlines
 - **brand-smoke** (#F3F3F3): Light mode backgrounds, dark mode text
-- **Important**: Use reusable classes (`.text-body`, `.text-muted`, `.link-accent`) instead of inline color utilities
+- **brand-chestnut** (#772E25): Links on light bg, hover states, focus outlines (7.5:1 contrast ✅)
+
+**Accent Colors:**
+- **brand-orange** (#F58F29): Decorative accent only (fails contrast for text)
+- **brand-orange-dark** (#a95b00): Accessible orange text (4.5:1 contrast ✅)
+
+**Grey Variants:**
+- **brand-grey** (#767B91): Borders, decorative only (fails contrast for text)
+- **brand-grey-dark** (#5A5E6D): Muted text on light backgrounds (5.5:1 ✅)
+- **brand-grey-light** (#9499AB): Muted text on dark backgrounds (5.8:1 ✅)
+
+**Important**: Use reusable classes (`.text-body`, `.text-muted`, `.link-accent`) instead of inline color utilities. The default link color is now `brand-chestnut` (accessible), with `contrast-less:brand-orange` for users who prefer less contrast.
 
 ### Typography
 - Font family: `Fraunces` (headers - optical sizing, 700 for H1/H2, 600 for H3/H4), `Source Sans 3` (body)

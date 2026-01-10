@@ -670,8 +670,8 @@ From [.github/copilot-instructions.md](.github/copilot-instructions.md):
 
 The site uses custom Tailwind classes defined in `assets/css/main.css` (@layer components). Always use these for consistency:
 
-- **Text**: `.text-body`, `.text-muted`, `.text-heading`
-- **Links**: `.link-accent` (amber links with hover)
+- **Text**: `.text-body`, `.text-muted` (accessible grey variants), `.text-heading`
+- **Links**: `.link-accent` (accessible orange-dark with chestnut hover)
 - **Buttons**: `.btn-primary`, `.btn-secondary`, `.btn-ghost`
 - **Icons**: `.icon-interactive`
 - **Components**: `.dropdown-menu`, `.info-box`, `.badge-accent`, `.input-default`, `.section-bg`
@@ -680,7 +680,14 @@ The site uses custom Tailwind classes defined in `assets/css/main.css` (@layer c
 
 - **Layout**: Full-width stacked with sticky header (refactored Oct 2025, no sidebar)
 - **Header**: Sticky top navigation with backdrop blur, horizontal on desktop, hamburger on mobile
-- **Colors**: Brand palette (2026) - brand-orange for accents, brand-chestnut for hovers, brand-grey for muted, brand-ink/smoke for text/backgrounds
+- **Colors**: Brand palette (2026) with accessible variants:
+  - `brand-ink` (#001524) / `brand-smoke` (#F3F3F3) - backgrounds and text
+  - `brand-chestnut` (#772E25) - default link color (7.5:1 contrast ✅)
+  - `brand-orange` (#F58F29) - decorative accents only (fails contrast for text)
+  - `brand-orange-dark` (#a95b00) - accessible orange text (4.5:1 ✅)
+  - `brand-grey-dark` (#5A5E6D) - muted text on light backgrounds (5.5:1 ✅)
+  - `brand-grey-light` (#9499AB) - muted text on dark backgrounds (5.8:1 ✅)
+  - `brand-grey` (#767B91) - borders/decorative only (fails contrast for text)
 - **Typography**: `Source Sans 3` for body (400/600 weights only), `Fraunces` for headers (600/700), lowercase class for header text. **Always use `font-semibold` for bold text, never `font-bold` or `font-medium`.**
 - **Font Loading**: Fonts loaded via `@import` at top of `assets/css/main.css` with optimized Google Fonts API call
 - **Content Container**: max-w-7xl, centered with proper spacing
