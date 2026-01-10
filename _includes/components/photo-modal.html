@@ -57,7 +57,7 @@
         <!-- Info overlay on image (auto-hides after 5 seconds, hidden when panel is open) -->
         <!-- Background gradient that appears with the overlay text -->
         <div id="modal-photo-overlay-bg"
-             class="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none transition-opacity duration-300"
+             class="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black via-black/70 to-transparent pointer-events-none transition-opacity duration-300"
              style="opacity: 1;"></div>
         <div id="modal-photo-overlay-info"
              class="absolute bottom-4 left-4 right-4 pointer-events-none transition-opacity duration-300"
@@ -69,28 +69,28 @@
             <!-- Tags and date (bottom right) -->
             <div class="flex flex-col items-start sm:items-end gap-2 flex-shrink-0">
               <div id="modal-overlay-tags" class="flex flex-wrap gap-1.5 justify-start sm:justify-end"></div>
-              <time id="modal-overlay-date" class="text-white/80 text-sm drop-shadow-lg"></time>
+              <time id="modal-overlay-date" class="text-white text-sm bg-black px-2 py-0.5 rounded"></time>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Navigation bar (at bottom) -->
-      <nav class="flex-shrink-0 bg-gradient-to-t from-black via-black/80 to-transparent py-4 px-4">
+      <nav class="flex-shrink-0 bg-black py-4 px-4">
         <div class="max-w-lg mx-auto flex justify-between items-center">
           <button id="modal-prev-btn"
                   onclick="window.photoGalleryInstance?.previous()"
-                  class="flex items-center gap-2 text-white/70 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed px-4 py-2"
+                  class="flex items-center gap-2 text-white hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed px-4 py-2"
                   aria-label="Previous photo">
             <i class="ph ph-caret-left text-lg"></i>
             <span>Previous</span>
           </button>
 
-          <span id="modal-photo-counter" class="text-white/50 text-sm"></span>
+          <span id="modal-photo-counter" class="text-white text-sm"></span>
 
           <button id="modal-next-btn"
                   onclick="window.photoGalleryInstance?.next()"
-                  class="flex items-center gap-2 text-white/70 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed px-4 py-2"
+                  class="flex items-center gap-2 text-white hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed px-4 py-2"
                   aria-label="Next photo">
             <span>Next</span>
             <i class="ph ph-caret-right text-lg"></i>
@@ -120,7 +120,7 @@
         <!-- Title and date -->
         <header>
           <div id="modal-photo-title-container"></div>
-          <time id="modal-photo-date" class="text-brand-grey text-base block mb-3"></time>
+          <time id="modal-photo-date" class="text-brand-grey-light text-base block mb-3"></time>
           <div id="modal-photo-tags" class="flex flex-wrap gap-2"></div>
         </header>
 

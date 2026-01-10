@@ -10,7 +10,7 @@ layout: content-wrapper
 <div id="single-photo-container" data-photo-url="{{ page.url }}" data-gallery-url="/photos/">
   <article class="article-container">
     <!-- Featured Photo (the star of the page) -->
-    <figure class="relative" role="doc-illustration">
+    <figure class="relative">
       <img class="w-full h-auto object-contain"
            src="{{ page.image | relative_url }}"
            alt="{{ page.image_alt | default: page.title }}"

@@ -47,7 +47,7 @@ content_for_head: |
 
   <!-- Featured Image -->
   {% if page.show_image or page.show_image == nil %}
-  <figure class="relative" role="doc-illustration">
+  <figure class="relative">
     <img class="w-full h-auto object-contain"
          src="{{ page.image | relative_url }}"
          alt="{% if page.image_alt %}{{ page.image_alt }}{% else %}Featured image for {{ page.title }}{% endif %}"

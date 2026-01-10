@@ -14,14 +14,14 @@
             class="inline-block text-xs font-semibold uppercase tracking-wide px-2 py-1 rounded"
             :class="{
               'bg-brand-orange/20 text-brand-orange dark:text-brand-orange': data[result.ref].type === 'post',
-              'bg-brand-grey/20 text-brand-grey': data[result.ref].type === 'page',
+              'bg-brand-grey/20 text-brand-grey-dark dark:text-brand-grey-light': data[result.ref].type === 'page',
               'bg-brand-chestnut/20 text-brand-chestnut': data[result.ref].type === 'photography'
             }"
             x-text="data[result.ref].type"
           ></span>
           <time 
             v-if="data[result.ref].date"
-            class="text-xs text-brand-grey"
+            class="text-xs text-muted"
             x-show="data[result.ref].date"
             x-text="new Date(data[result.ref].date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })"
           ></time>

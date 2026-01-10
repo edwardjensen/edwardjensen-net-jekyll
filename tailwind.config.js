@@ -19,7 +19,10 @@ module.exports = {
           brand: {
             ink: '#001524',       // Dark mode background, light mode text
             orange: '#F58F29',    // Primary accent
+            'orange-dark': '#a95b00', // Accessible orange (4.5:1 on smoke)
             grey: '#767B91',      // Secondary text, muted elements
+            'grey-dark': '#5A5E6D', // High contrast muted text (light mode)
+            'grey-light': '#9499AB', // High contrast muted text (dark mode)
             chestnut: '#772E25',  // Hover states, focus outlines
             smoke: '#F3F3F3',     // Light mode background, dark mode text
           },

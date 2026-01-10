@@ -553,10 +553,10 @@ window.photoGallery = function() {
       const hasLocation = this.hasLocationData(photo);
       const hasDetails = hasContent || hasExif || hasLocation;
 
-      // Format tags HTML (smaller badges for overlay)
+      // Format tags HTML (smaller badges for overlay - use opaque bg for a11y)
       const overlayTagsHtml = (photo.tags && photo.tags.length > 0)
         ? photo.tags.map(tag =>
-            `<span class="bg-black/40 backdrop-blur-sm text-white/90 px-2 py-0.5 rounded text-xs">#${tag}</span>`
+            `<span class="bg-black backdrop-blur-sm text-white px-2 py-0.5 rounded text-xs">#${this.escapeHtml(tag)}</span>`
           ).join('')
         : '';
 
@@ -573,7 +573,7 @@ window.photoGallery = function() {
       const overlayTitleContainer = document.getElementById('modal-overlay-title-container');
       if (overlayTitleContainer) {
         if (photo.title) {
-          overlayTitleContainer.innerHTML = `<h1 class="font-header font-bold text-2xl lg:text-3xl text-white drop-shadow-lg truncate">${this.escapeHtml(this.decodeHtml(photo.title))}</h1>`;
+          overlayTitleContainer.innerHTML = `<h1 class="font-header font-bold text-2xl lg:text-3xl text-white bg-black px-3 py-1 rounded-lg inline-block truncate max-w-full">${this.escapeHtml(this.decodeHtml(photo.title))}</h1>`;
         } else {
           overlayTitleContainer.innerHTML = '';
         }
@@ -620,12 +620,12 @@ window.photoGallery = function() {
           const e = photo.exif;
           let exifHtml = '';
 
-          if (e.camera) exifHtml += `<div><dt class="text-brand-grey">Camera</dt><dd class="text-brand-smoke">` + e.camera + `</dd></div>`;
-          if (e.lens) exifHtml += `<div><dt class="text-brand-grey">Lens</dt><dd class="text-brand-smoke">` + e.lens + `</dd></div>`;
-          if (e.focalLength) exifHtml += `<div><dt class="text-brand-grey">Focal Length</dt><dd class="text-brand-smoke">` + e.focalLength + `</dd></div>`;
-          if (e.aperture) exifHtml += `<div><dt class="text-brand-grey">Aperture</dt><dd class="text-brand-smoke">` + e.aperture + `</dd></div>`;
-          if (e.shutterSpeed) exifHtml += `<div><dt class="text-brand-grey">Shutter Speed</dt><dd class="text-brand-smoke">` + e.shutterSpeed + `</dd></div>`;
-          if (e.iso) exifHtml += `<div><dt class="text-brand-grey">ISO</dt><dd class="text-brand-smoke">` + e.iso + `</dd></div>`;
+          if (e.camera) exifHtml += `<div><dt class="text-brand-grey-light">Camera</dt><dd class="text-brand-smoke">` + e.camera + `</dd></div>`;
+          if (e.lens) exifHtml += `<div><dt class="text-brand-grey-light">Lens</dt><dd class="text-brand-smoke">` + e.lens + `</dd></div>`;
+          if (e.focalLength) exifHtml += `<div><dt class="text-brand-grey-light">Focal Length</dt><dd class="text-brand-smoke">` + e.focalLength + `</dd></div>`;
+          if (e.aperture) exifHtml += `<div><dt class="text-brand-grey-light">Aperture</dt><dd class="text-brand-smoke">` + e.aperture + `</dd></div>`;
+          if (e.shutterSpeed) exifHtml += `<div><dt class="text-brand-grey-light">Shutter Speed</dt><dd class="text-brand-smoke">` + e.shutterSpeed + `</dd></div>`;
+          if (e.iso) exifHtml += `<div><dt class="text-brand-grey-light">ISO</dt><dd class="text-brand-smoke">` + e.iso + `</dd></div>`;
 
           exifGrid.innerHTML = exifHtml;
           exifSection.style.display = '';
