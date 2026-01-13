@@ -1,0 +1,60 @@
+{% comment %}
+  Reusable recent posts list component
+  
+  Parameters:
+  - filter: "all" (recent posts) or "featured" (landing_featured posts)
+  - limit: Number of posts to show (default: 10)
+  - spacing: "compact" (mb-6 lg:mb-4) or "relaxed" (mb-8 lg:mb-8)
+  - date_format: "full" (e.g., "13 January 2026") or "month-year" (e.g., "January 2026")
+  - button_text: Text for the view all button (default: "View all posts")
+{% endcomment %}
+
+{% assign filter = include.filter | default: "all" %}
+{% assign limit = include.limit | default: 10 %}
+{% assign spacing = include.spacing | default: "compact" %}
+{% assign date_format = include.date_format | default: "full" %}
+{% assign button_text = include.button_text | default: "View all posts" %}
+
+{% if filter == "featured" %}
+  {% assign recent_posts = site.posts | where: 'landing_featured', true | sort: 'date' | reverse | slice: 0, limit %}
+{% else %}
+  {% assign recent_posts = site.posts | sort: 'date' | reverse | slice: 0, limit %}
+{% endif %}
+
+{% if spacing == "relaxed" %}
+  {% assign item_spacing = "mb-8 lg:mb-8" %}
+{% else %}
+  {% assign item_spacing = "mb-6 lg:mb-4" %}
+{% endif %}
+
+{% if date_format == "month-year" %}
+  {% assign date_display_format = "%B %Y" %}
+{% else %}
+  {% assign date_display_format = "%e %B %Y" %}
+{% endif %}
+
+<div class="text-xl">
+    <nav aria-label="Recent blog posts">
+        <ul role="list">
+            {% for post in recent_posts %}
+            <li class="{{ item_spacing }}">
+                <article>
+                    <a href="{{ post.url | relative_url }}" class="block group" aria-describedby="post-{{ forloop.index }}-date">
+                      <div class="flex flex-col lg:flex-row lg:justify-between items-start leading-tight md:leading-normal">
+                        <h3 class="uppercase font-semibold text-brand-ink dark:text-brand-smoke group-hover:text-brand-orange transition-colors duration-300">{{ post.title }}</h3>
+                        <time id="post-{{ forloop.index }}-date" datetime="{{ post.date | date_to_xmlschema }}" class="text-muted lg:ml-5 lg:shrink-0 transition-colors duration-300">{{ post.date | date: date_display_format }}</time>
+                      </div>
+                      <p class="text-muted lg:line-clamp-2 transition-colors duration-300">{{ post.excerpt | strip_html }}</p>
+                    </a>
+                </article>
+              </li>
+            {% endfor %}
+        </ul>
+    </nav>
+    <div class="mt-5 {% if filter == 'featured' %}flex justify-center{% else %}text-center{% endif %}">
+        <a href="/writing" class="btn-primary inline-flex items-center gap-2 {% if filter == 'featured' %}px-6 py-2 font-semibold{% endif %}" aria-label="View all blog posts">
+            <i class="ph ph-pen" aria-hidden="true"></i>
+            {{ button_text }}
+        </a>
+    </div>
+</div>

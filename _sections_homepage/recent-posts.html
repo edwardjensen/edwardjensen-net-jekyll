@@ -6,30 +6,9 @@ order: 20
 icon_bg_color: from-blue-500 to-purple-600
 ---
 
-<!-- Recent Posts List -->
-<div class="text-xl">
-    {% assign recent_posts = site.posts  | sort: 'date' | reverse | slice: 0, 10 %}
-    <nav aria-label="Recent blog posts">
-        <ul role="list">
-            {% for post in recent_posts %}
-            <li class="mb-6 lg:mb-4">
-                <article>
-                    <a href="{{ post.url | relative_url }}" class="block group" aria-describedby="post-{{ forloop.index }}-date">
-                      <div class="flex flex-col lg:flex-row lg:justify-between items-start leading-tight md:leading-normal">
-                        <h3 class="uppercase font-semibold text-brand-ink dark:text-brand-smoke group-hover:text-brand-orange transition-colors duration-300">{{ post.title }}</h3>
-                        <time id="post-{{ forloop.index }}-date" datetime="{{ post.date | date_to_xmlschema }}" class="text-muted lg:ml-5 lg:shrink-0 transition-colors duration-300">{{ post.date | date: "%e %B %Y" }}</time>
-                      </div>
-                      <p class="text-muted lg:line-clamp-2 transition-colors duration-300">{{ post.excerpt | strip_html }}</p>
-                    </a>
-                </article>
-              </li>
-            {% endfor %}
-        </ul>
-    </nav>
-    <div class="mt-5 text-center">
-        <a href="/writing" class="btn-primary inline-flex items-center gap-2" aria-label="View all blog posts">
-            <i class="ph ph-pen" aria-hidden="true"></i>
-            View all posts
-        </a>
-    </div>
-</div>
+{% include sections/recent-posts-list.html
+   filter="all"
+   limit=10
+   spacing="compact"
+   date_format="full"
+   button_text="View all posts" %}
