@@ -169,13 +169,21 @@
         }
     }
 
-    .hyperlink-container a {
-        @apply text-brand-chestnut contrast-less:text-brand-orange underline;
-        
-        &:hover {
-            @apply text-brand-ink dark:text-brand-smoke underline;
-        }
-    }
+    /* === LINK STYLING PATTERNS ===
+       The site uses a consistent approach to link styling:
+       
+       1. Default links: Global <a> styles apply (chestnut with underline on hover)
+          - Used in most content areas automatically
+          - Accessible by default (7.5:1 contrast on smoke background)
+       
+       2. .link-accent: For special emphasis links (navigation, CTAs)
+          - Orange-dark base color, chestnut on hover
+          - Used for: header links, footer links, call-to-action buttons
+       
+       3. Prose content: Links inherit global styles automatically
+          - No need for special classes or containers
+          - Consistent across all prose blocks
+    */
 
     /* === REUSABLE TEXT COLOR UTILITIES === */
     .text-body {

@@ -3,7 +3,7 @@ layout: content-wrapper
 ---
 <div class="article-container">
   <!-- Page Header -->
-  {% capture icon %}{{ page.header_icon | default: 'bi-pencil-square' }}{% endcapture %}
+  {% capture icon %}{{ page.header_icon | default: 'notebook' }}{% endcapture %}
   {% capture gradient %}{{ page.header_gradient | default: 'bg-brand-orange' }}{% endcapture %}
 
   {% include components/page-header.html
@@ -14,7 +14,7 @@ layout: content-wrapper
   %}
 
   <!-- Content -->
-  <div class="p-8 lg:p-12 [&_a]:hyperlinks">
+  <div class="p-8 lg:p-12">
     <!-- Working Notes List -->
     <div class="space-y-4">
       {% if page.paginator.items.size > 0 %}

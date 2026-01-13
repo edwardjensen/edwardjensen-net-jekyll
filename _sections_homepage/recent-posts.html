@@ -7,7 +7,7 @@ icon_bg_color: from-blue-500 to-purple-600
 ---
 
 <!-- Recent Posts List -->
-<div class="text-xl [&_a]:hyperlinks">
+<div class="text-xl">
     {% assign recent_posts = site.posts  | sort: 'date' | reverse | slice: 0, 10 %}
     <nav aria-label="Recent blog posts">
         <ul role="list">
