@@ -5,11 +5,11 @@ Parameters:
 - include.index: The index number (1-20) for the anchor
 {% endcomment %}
 
-<article id="note-{{ include.index }}" class="group hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 rounded-lg p-4 transition-colors duration-200 border-l-4 border-brand-orange bg-brand-smoke dark:bg-brand-ink scroll-mt-24">
+<article id="note-{{ include.index }}" class="group list-item-hover p-4 border-l-4 border-brand-orange section-bg-white scroll-mt-24">
   <div class="space-y-3">
     <!-- Note Title + Tags Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-      <h3 class="text-brand-ink dark:text-brand-smoke font-semibold text-lg">
+      <h3 class="text-heading font-semibold text-lg">
         {{ include.note.title }}
       </h3>
       {% if include.note.tags and include.note.tags.size > 0 %}

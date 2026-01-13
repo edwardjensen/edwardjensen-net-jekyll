@@ -20,7 +20,7 @@ content_for_head: |
         {% if page.tags and page.tags.size > 0 %}
         <div class="flex flex-wrap gap-2" role="list" aria-label="Note tags">
           {% for tag in page.tags %}
-          <span class="bg-white/20 backdrop-blur-sm text-white px-2 py-1 rounded-md text-xs font-semibold border border-white/30" role="listitem">
+          <span class="badge-accent-dark" role="listitem">
             #{{ tag }}
           </span>
           {% endfor %}
@@ -36,7 +36,7 @@ content_for_head: |
   </div>
 
   <!-- Footer Navigation -->
-  <footer class="bg-brand-grey/10 border-t border-brand-grey/20 px-8 lg:px-12 py-6 flex justify-between items-center transition-colors duration-300">
+  <footer class="section-bg border-t border-brand-grey/20 dark:border-brand-grey/30 px-8 lg:px-12 py-6 flex justify-between items-center transition-colors duration-300">
     <a href="{{ '/notes/' | relative_url }}" class="link-accent font-semibold">
       ← Back to Working Notes
     </a>

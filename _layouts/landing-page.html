@@ -35,13 +35,13 @@ content_for_head: |
     {{ section.content }}
   </section>
 {% else %}
-  <section class="bg-brand-smoke/70 dark:bg-brand-ink/70 backdrop-blur-sm rounded-2xl shadow-lg border border-brand-grey/20 overflow-hidden transition-colors duration-300 p-8 mb-8" aria-labelledby="{{ section_id }}-heading">
+  <section class="article-container p-8 mb-8" aria-labelledby="{{ section_id }}-heading">
     <header class="flex flex-col md:flex-row items-center md:items-center gap-4 mb-8 text-center md:text-left">
       <div class="hidden md:flex w-12 h-12 bg-brand-orange rounded-xl items-center justify-center" aria-hidden="true">
         <i class="ph ph-{{ section.icon }} text-white text-xl" aria-hidden="true"></i>
       </div>
       <div>
-        <h2 id="{{ section_id }}-heading" class="font-header font-bold text-3xl text-brand-ink dark:text-brand-smoke tracking-wide lowercase transition-colors duration-300">{{ section.section | smartify }}</h2>
+        <h2 id="{{ section_id }}-heading" class="font-header font-bold text-3xl text-heading tracking-wide lowercase transition-colors duration-300">{{ section.section | smartify }}</h2>
         <p class="text-muted mt-1 lowercase transition-colors duration-300">{{ section.subheader }}</p>
       </div>
     </header>

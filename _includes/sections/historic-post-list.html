@@ -8,9 +8,9 @@ Displays posts from the _historic_posts collection only
 <div class="space-y-3">
   {% for post in historic_posts %}
     <article class="group">
-      <a href="{{ post.url | relative_url }}" class="block hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 rounded-lg p-3 -m-3 transition-colors duration-200">
+      <a href="{{ post.url | relative_url }}" class="block list-item-hover p-3 -m-3">
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-2">
-          <h3 class="text-brand-ink dark:text-brand-smoke group-hover:text-brand-chestnut font-bold transition-colors duration-200">
+          <h3 class="text-heading group-hover:text-brand-chestnut font-bold transition-colors duration-200">
             {{ post.title }}
           </h3>
           <time class="text-sm text-muted lg:ml-4 flex-shrink-0" datetime="{{ post.date | date: '%Y-%m-%d' }}">

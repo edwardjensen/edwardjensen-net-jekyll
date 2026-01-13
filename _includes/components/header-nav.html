@@ -25,7 +25,7 @@
       
       <!-- Site Title/Logo -->
       <div class="flex items-center flex-shrink-0 h-full">
-        <a href="/" class="font-header font-bold text-2xl text-brand-ink dark:text-brand-smoke hover:text-brand-chestnut transition-colors duration-200 flex items-center h-full lowercase no-underline" aria-label="Home">
+        <a href="/" class="font-header font-bold text-2xl text-heading hover:text-brand-chestnut transition-colors duration-200 flex items-center h-full lowercase no-underline" aria-label="Home">
           {{ site.title }}
         </a>
       </div>
@@ -53,7 +53,7 @@
                 {% for subitem in item.items %}
                 <li>
                   <a href="{{ subitem.url }}" 
-                     class="flex items-center justify-between px-4 py-2 text-body hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 hover:text-brand-chestnut transition-colors duration-200 lowercase text-base no-underline">
+                     class="flex items-center justify-between px-4 py-2 nav-link-dropdown lowercase text-base">
                      <span>{{ subitem.title }}</span>
                      {% if subitem.icon %}<i class="ph ph-{{ subitem.icon }} text-lg text-muted ml-2" aria-hidden="true"></i>{% endif %}
                   </a>
@@ -105,7 +105,7 @@
         <!-- Hamburger Button -->
         <button @click="open = !open" 
                 @click.away="open = false"
-                class="p-2 rounded-md text-body hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 transition-colors duration-200 flex items-center h-full"
+                class="p-2 rounded-md nav-link-dropdown flex items-center h-full"
                 aria-label="Toggle navigation menu"
                 :aria-expanded="open">
           <i class="ph ph-list text-2xl" aria-hidden="true"></i>
@@ -128,7 +128,7 @@
               <!-- Search Link for Mobile -->
               <li>
                 <a href="/search" 
-                   class="block px-4 py-2 text-body hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 hover:text-brand-chestnut transition-colors duration-200 lowercase flex items-center gap-2 no-underline"
+                   class="block px-4 py-2 nav-link-dropdown lowercase flex items-center gap-2"
                    @click="open = false">
                    <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
                    search
@@ -141,12 +141,12 @@
                 <div x-data="{ expanded: false }">
                   <div class="flex items-center">
                     <a href="{{ item.url }}"
-                       class="flex-1 px-4 py-2 text-body hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 hover:text-brand-chestnut transition-colors duration-200 lowercase no-underline"
+                       class="flex-1 px-4 py-2 nav-link-dropdown lowercase"
                        @click="open = false">
                       {{ item.title }}
                     </a>
                     <button @click.stop="expanded = !expanded"
-                            class="px-4 py-2 text-body hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 transition-colors duration-200"
+                            class="px-4 py-2 nav-link-dropdown"
                             :aria-expanded="expanded"
                             aria-label="Toggle {{ item.title }} submenu">
                       <i class="ph ph-caret-down transition-transform duration-200" :class="{ 'rotate-180': expanded }" aria-hidden="true"></i>
@@ -177,7 +177,7 @@
                 {% else %}
                 <!-- Regular link without accordion -->
                 <a href="{{ item.url }}" 
-                   class="block px-4 py-2 text-body hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 hover:text-brand-chestnut transition-colors duration-200 lowercase no-underline"
+                   class="block px-4 py-2 nav-link-dropdown lowercase"
                    {% if item.newTab %}target="_blank" rel="noopener noreferrer"{% endif %}
                    @click="open = false">
                    {{ item.title }}
