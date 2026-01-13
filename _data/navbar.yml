@@ -37,6 +37,7 @@
     - title: Portfolio
       url: /portfolio
       icon: briefcase
+      requires: show_portfolio
     - title: Uses
       url: /about/uses
       icon: backpack
