@@ -1,0 +1,177 @@
+{% comment %}
+  Reusable photo gallery component with horizontal scrolling strip
+  
+  Parameters:
+  - data_id: ID for the JSON data element (default: "photo-gallery-data")
+  - scroll_id: ID for the scroll container (default: "photo-strip-scroll")
+  - center_id: ID for center photo (default: "photo-strip-center")
+  - link_style: "default" (homepage style) or "landing" (landing page style)
+{% endcomment %}
+
+{% assign data_id = include.data_id | default: "photo-gallery-data" %}
+{% assign scroll_id = include.scroll_id | default: "photo-strip-scroll" %}
+{% assign center_id = include.center_id | default: "photo-strip-center" %}
+{% assign link_style = include.link_style | default: "default" %}
+
+<!-- Photo Gallery Data Store (all photos with complete metadata for modal) -->
+<script id="{{ data_id }}" type="application/json">
+{
+  "galleryUrl": "/photos/",
+  "galleryTitle": "Photography",
+  "googleMapsApiKey": {{ site.data.google-maps.api_key | default: nil | jsonify }},
+  "googleMapsProxyUrl": {{ site.data.google-maps.proxy_url | default: nil | jsonify }},
+  "photos": [
+    {% assign all_photos = site.photography | where_exp:"item", "item.date <= site.time" | sort:"date" | reverse %}
+    {% for photo in all_photos %}
+    {
+      "url": {{ photo.url | jsonify }},
+      "title": {{ photo.title | jsonify }},
+      "date": {{ photo.date | date_to_xmlschema | jsonify }},
+      "dateFormatted": {{ photo.date | date: "%-d %B %Y" | jsonify }},
+      "image": {{ photo.image | jsonify }},
+      "imageAlt": {{ photo.image_alt | default: photo.title | jsonify }},
+      "content": {{ photo.content | strip_html | strip | jsonify }},
+      "tags": {{ photo.tags | default: empty | jsonify }},
+      "exif": {
+        "camera": {{ photo.exif_camera | default: nil | jsonify }},
+        "lens": {{ photo.exif_lens | default: nil | jsonify }},
+        "focalLength": {{ photo.exif_focal_length | default: nil | jsonify }},
+        "aperture": {{ photo.exif_aperture | default: nil | jsonify }},
+        "shutterSpeed": {{ photo.exif_shutter_speed | default: nil | jsonify }},
+        "iso": {{ photo.exif_iso | default: nil | jsonify }}
+      },
+      "location": {
+        "lat": {{ photo.location_lat | default: nil | jsonify }},
+        "lng": {{ photo.location_lng | default: nil | jsonify }},
+        "name": {{ photo.location_name | default: nil | jsonify }}
+      }
+    }{% unless forloop.last %},{% endunless %}
+    {% endfor %}
+  ]
+}
+</script>
+
+<!-- Horizontal Scrolling Photo Strip -->
+<div x-data="photoGallery()" x-init="init('{{ data_id }}')" class="relative w-full {% if link_style == 'landing' %}overflow-hidden{% endif %}">
+  <!-- Edge fade gradients (desktop only) -->
+  <div class="hidden lg:block absolute left-0 top-4 bottom-4 w-16 bg-gradient-to-r from-brand-smoke dark:from-brand-ink to-transparent z-10 pointer-events-none" aria-hidden="true"></div>
+  <div class="hidden lg:block absolute right-0 top-4 bottom-4 w-16 bg-gradient-to-l from-brand-smoke dark:from-brand-ink to-transparent z-10 pointer-events-none" aria-hidden="true"></div>
+
+  {% assign recent_photos = site.photography | sort: 'date' | reverse | slice: 0, 15 %}
+  {% assign photo_count = recent_photos.size %}
+  {% comment %}
+    Reorder photos: newest in center, older alternating left/right
+    Build two arrays: left_photos (reversed) and right_photos, then output left + center + right
+  {% endcomment %}
+  {% assign left_photos = "" | split: "" %}
+  {% assign right_photos = "" | split: "" %}
+  {% assign center_photo = recent_photos[0] %}
+  {% for i in (1..photo_count) %}
+    {% if i >= photo_count %}{% break %}{% endif %}
+    {% assign photo = recent_photos[i] %}
+    {% assign mod = i | modulo: 2 %}
+    {% if mod == 1 %}
+      {% assign right_photos = right_photos | push: photo %}
+    {% else %}
+      {% assign left_photos = left_photos | push: photo %}
+    {% endif %}
+  {% endfor %}
+
+  <div id="{{ scroll_id }}"
+       class="flex flex-nowrap overflow-x-scroll gap-2 lg:gap-4 py-4 scrollbar-hide items-center cursor-grab active:cursor-grabbing"
+       role="region"
+       aria-label="Recent photography gallery">
+
+    <!-- "See more" link (left side) -->
+    {% if link_style == "landing" %}
+    <a href="/photos/"
+       class="flex-shrink-0 w-48 lg:w-56 aspect-square rounded-lg bg-brand-grey/10 flex items-center justify-center hover:bg-brand-grey/20 transition-colors duration-300 no-underline"
+       aria-label="View all photos">
+      <span class="text-brand-orange font-semibold text-center px-4">← More photos</span>
+    </a>
+    {% else %}
+    <a href="/photos/"
+       class="flex-shrink-0 w-48 lg:w-56 aspect-square rounded-lg bg-brand-smoke dark:bg-brand-ink flex items-center justify-center hover:bg-brand-grey/20 transition-colors duration-300 no-underline !text-brand-ink dark:!text-brand-smoke"
+       aria-label="View all photos">
+      <span class="font-semibold text-center px-4">← More photos</span>
+    </a>
+    {% endif %}
+
+    <!-- Left side photos (oldest to newer, reversed so older are at edges) -->
+    {% assign left_reversed = left_photos | reverse %}
+    {% for photo in left_reversed %}
+    {% assign rotate_dir = forloop.index | modulo: 2 %}
+    <figure class="flex-shrink-0 w-48 lg:w-56 aspect-square overflow-visible rounded-lg cursor-pointer transition-transform duration-300 ease-out hover:scale-105 {% if rotate_dir == 0 %}hover:rotate-2{% else %}hover:-rotate-2{% endif %} hover:z-20">
+      <button @click.prevent="openPhotoByUrl('{{ photo.url }}')"
+              class="w-full h-full text-left focus:outline-none focus:ring-2 focus:ring-brand-chestnut focus:ring-offset-2 block border-0 bg-transparent p-0 appearance-none rounded-lg overflow-hidden"
+              aria-label="View full size: {{ photo.image_alt }}">
+        {% include components/cf-image.html src=photo.image alt=photo.image_alt title=photo.title layout="photo_strip" class="w-full h-full" loading="lazy" %}
+      </button>
+    </figure>
+    {% endfor %}
+
+    <!-- Center photo (newest, slightly larger) -->
+    {% if center_photo %}
+    <figure id="{{ center_id }}" class="flex-shrink-0 w-52 lg:w-64 aspect-square overflow-visible rounded-xl cursor-pointer transition-transform duration-300 ease-out hover:scale-105 hover:z-20">
+      <button @click.prevent="openPhotoByUrl('{{ center_photo.url }}')"
+              class="w-full h-full text-left focus:outline-none focus:ring-2 focus:ring-brand-chestnut focus:ring-offset-2 block border-0 bg-transparent p-0 appearance-none rounded-xl overflow-hidden"
+              aria-label="View full size: {{ center_photo.image_alt }} (Latest photo)">
+        {% include components/cf-image.html src=center_photo.image alt=center_photo.image_alt title=center_photo.title layout="photo_strip_center" class="w-full h-full" loading="eager" %}
+      </button>
+    </figure>
+    {% endif %}
+
+    <!-- Right side photos (newer to oldest) -->
+    {% for photo in right_photos %}
+    {% assign rotate_dir = forloop.index | modulo: 2 %}
+    <figure class="flex-shrink-0 w-48 lg:w-56 aspect-square overflow-visible rounded-lg cursor-pointer transition-transform duration-300 ease-out hover:scale-105 {% if rotate_dir == 0 %}hover:-rotate-2{% else %}hover:rotate-2{% endif %} hover:z-20">
+      <button @click.prevent="openPhotoByUrl('{{ photo.url }}')"
+              class="w-full h-full text-left focus:outline-none focus:ring-2 focus:ring-brand-chestnut focus:ring-offset-2 block border-0 bg-transparent p-0 appearance-none rounded-lg overflow-hidden"
+              aria-label="View full size: {{ photo.image_alt }}">
+        {% include components/cf-image.html src=photo.image alt=photo.image_alt title=photo.title layout="photo_strip" class="w-full h-full" loading="lazy" %}
+      </button>
+    </figure>
+    {% endfor %}
+
+    <!-- "See more" link (right side) -->
+    {% if link_style == "landing" %}
+    <a href="/photos/"
+       class="flex-shrink-0 w-48 lg:w-56 aspect-square rounded-lg bg-brand-grey/10 flex items-center justify-center hover:bg-brand-grey/20 transition-colors duration-300 no-underline"
+       aria-label="View all photos">
+      <span class="text-brand-orange font-semibold text-center px-4">More photos →</span>
+    </a>
+    {% else %}
+    <a href="/photos/"
+       class="flex-shrink-0 w-48 lg:w-56 aspect-square rounded-lg bg-brand-smoke dark:bg-brand-ink flex items-center justify-center hover:bg-brand-grey/20 transition-colors duration-300 no-underline !text-brand-ink dark:!text-brand-smoke"
+       aria-label="View all photos">
+      <span class="font-semibold text-center px-4">More photos →</span>
+    </a>
+    {% endif %}
+
+  </div>
+
+  <!-- Auto-scroll to center + drag-to-scroll functionality -->
+  <script>
+    (function() {
+      const scrollContainer = document.getElementById('{{ scroll_id }}');
+      const centerPhoto = document.getElementById('{{ center_id }}');
+
+      // Auto-scroll to center the newest photo on load
+      if (scrollContainer && centerPhoto) {
+        const scrollLeft = centerPhoto.offsetLeft - (scrollContainer.offsetWidth / 2) + (centerPhoto.offsetWidth / 2);
+        scrollContainer.scrollLeft = scrollLeft;
+      }
+
+      // Convert vertical scroll to horizontal scroll
+      if (scrollContainer) {
+        scrollContainer.addEventListener('wheel', (e) => {
+          // Only intercept vertical scroll (deltaY)
+          if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+            e.preventDefault();
+            scrollContainer.scrollLeft += e.deltaY;
+          }
+        }, { passive: false });
+      }
+    })();
+  </script>
+</div>
