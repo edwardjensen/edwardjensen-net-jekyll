@@ -1,0 +1,86 @@
+{% comment %}
+  Item List Component
+  Unified listing component for posts and historic posts.
+  
+  Parameters:
+  - include.items: Array of items to display (required)
+  - include.group_by_year: Boolean to group items by year (default: false)
+  - include.show_excerpt: Boolean to show excerpts (default: true)
+  - include.show_archive_link: Boolean to show "Historical and Retired Posts" link (default: false)
+  - include.italic_ejnet: Boolean to italicize items with ejnet flag (default: false)
+{% endcomment %}
+
+{% assign items = include.items %}
+{% assign group_by_year = include.group_by_year | default: false %}
+{% assign show_excerpt = include.show_excerpt | default: true %}
+{% assign show_archive_link = include.show_archive_link | default: false %}
+{% assign italic_ejnet = include.italic_ejnet | default: false %}
+
+{% if group_by_year %}
+{%- comment -%} Group items by year {%- endcomment -%}
+{% assign items_by_year = items | group_by_exp: "item", "item.date | date: '%Y'" %}
+
+<div class="space-y-8">
+  {% for year in items_by_year %}
+    <div>
+      <h2 class="text-2xl font-bold text-heading mb-4 border-b border-brand-grey/20 dark:border-brand-grey/30 pb-2">
+        {{ year.name }}
+      </h2>
+      <div class="space-y-3">
+        {% for item in year.items %}
+          <article class="group">
+            <a href="{{ item.url | relative_url }}" class="block list-item-hover p-3 -m-3">
+              <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-2">
+                <h3 class="{% if italic_ejnet and item.ejnet %}italic{% endif %} text-heading group-hover:text-brand-chestnut font-bold transition-colors duration-200">
+                  {{ item.title }}
+                </h3>
+                <time class="text-sm text-muted lg:ml-4 flex-shrink-0" datetime="{{ item.date | date: '%Y-%m-%d' }}">
+                  {{ item.date | date: "%e %B %Y" }}
+                </time>
+              </div>
+              {% if show_excerpt and item.excerpt %}
+                <p class="text-sm text-muted mt-1 line-clamp-2">
+                  {{ item.excerpt | strip_html }}
+                </p>
+              {% endif %}
+            </a>
+          </article>
+        {% endfor %}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+{% else %}
+{%- comment -%} Flat list without year grouping {%- endcomment -%}
+<div class="space-y-3">
+  {% for item in items %}
+    <article class="group">
+      <a href="{{ item.url | relative_url }}" class="block list-item-hover p-3 -m-3">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-2">
+          <h3 class="{% if italic_ejnet and item.ejnet %}italic{% endif %} text-heading group-hover:text-brand-chestnut font-bold transition-colors duration-200">
+            {{ item.title }}
+          </h3>
+          <time class="text-sm text-muted lg:ml-4 flex-shrink-0" datetime="{{ item.date | date: '%Y-%m-%d' }}">
+            {{ item.date | date: "%e %B %Y" }}
+          </time>
+        </div>
+        {% if show_excerpt and item.excerpt %}
+          <p class="text-sm text-muted mt-1 line-clamp-2">
+            {{ item.excerpt | strip_html }}
+          </p>
+        {% endif %}
+      </a>
+    </article>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if show_archive_link %}
+<div class="mt-12 pt-8 border-t border-brand-grey/20 dark:border-brand-grey/30">
+  <a href="/archive" class="inline-flex items-center gap-2 text-lg font-semibold text-heading hover:text-brand-chestnut transition-colors duration-200">
+    <i class="ph ph-archive" aria-hidden="true"></i>
+    Historical and Retired Posts
+  </a>
+</div>
+{% endif %}

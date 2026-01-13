@@ -9,4 +9,5 @@ searchable: false
 prose: false
 ---
 
-{% include sections/post-list.html year_filter="recent" %}
+{% assign unique_posts = site.posts | uniq: 'title' | sort: 'date' | reverse %}
+{% include sections/item-list.html items=unique_posts group_by_year=true show_archive_link=true italic_ejnet=true %}

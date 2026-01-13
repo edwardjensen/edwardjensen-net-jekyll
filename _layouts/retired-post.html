@@ -16,4 +16,5 @@ layout: content-wrapper
   <h2 class="text-2xl font-bold text-heading mb-6">Selected Historical Posts</h2>
 </div>
 
-{% include sections/historic-post-list.html %}
+{% assign historic_posts = site.historic_posts | sort: 'date' | reverse %}
+{% include sections/item-list.html items=historic_posts %}

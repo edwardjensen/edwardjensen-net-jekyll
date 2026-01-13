@@ -1,0 +1,59 @@
+{% comment %}
+  Content Navigation Component
+  Unified previous/next navigation for posts and photos.
+  
+  Parameters:
+  - include.variant: 'post' (default) or 'photo'
+    - 'post': Shows "Previously..." / "More recently..." with titles and accent links
+    - 'photo': Shows simple Previous/Next arrows with muted style
+  - include.previous: Previous item object (uses page.previous if not provided)
+  - include.next: Next item object (uses page.next if not provided)
+{% endcomment %}
+
+{% assign prev_item = include.previous | default: page.previous %}
+{% assign next_item = include.next | default: page.next %}
+{% assign variant = include.variant | default: 'post' %}
+
+{% if variant == 'photo' %}
+{%- comment -%} Photo navigation: minimal arrows with border-top {%- endcomment -%}
+<nav class="flex flex-row justify-between items-center mt-8 pt-6 border-t border-brand-grey/20 dark:border-brand-grey/30 transition-colors duration-300" role="navigation" aria-label="Photo navigation">
+  {% if prev_item.url %}
+  <a href="{{ prev_item.url }}" class="group flex items-center gap-2 text-muted hover:text-body transition-colors duration-200" aria-label="Previous photo: {{ prev_item.title }}">
+    <i class="ph ph-arrow-left text-lg group-hover:-translate-x-1 transition-transform duration-200" aria-hidden="true"></i>
+    <span class="text-sm hidden sm:inline">Previous</span>
+  </a>
+  {% else %}
+  <span></span>
+  {% endif %}
+
+  {% if next_item.url %}
+  <a href="{{ next_item.url }}" class="group flex items-center gap-2 text-muted hover:text-body transition-colors duration-200" aria-label="Next photo: {{ next_item.title }}">
+    <span class="text-sm hidden sm:inline">Next</span>
+    <i class="ph ph-arrow-right text-lg group-hover:translate-x-1 transition-transform duration-200" aria-hidden="true"></i>
+  </a>
+  {% else %}
+  <span></span>
+  {% endif %}
+</nav>
+
+{% else %}
+{%- comment -%} Post navigation: "Previously..." / "More recently..." with titles {%- endcomment -%}
+<div class="flex flex-row justify-between mt-5">
+  {% if prev_item.url %}
+  <div class="flex flex-col leading-none">
+    <div class="italic">Previously...</div>
+    <a href="{{ prev_item.url }}" class="font-semibold link-accent underline">
+      <i class="ph ph-arrow-left" aria-hidden="true"></i> {{ prev_item.title }}
+    </a>
+  </div>
+  {% endif %}
+  {% if next_item.url %}
+  <div class="flex flex-col leading-none {% unless prev_item.url %}ml-auto{% endunless %}">
+    <div class="italic">More recently...</div>
+    <a href="{{ next_item.url }}" class="font-semibold link-accent underline">
+      {{ next_item.title }} <i class="ph ph-arrow-right" aria-hidden="true"></i>
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
