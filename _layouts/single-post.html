@@ -12,7 +12,7 @@ content_for_head: |
   {% capture post_metadata %}
   <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-3 text-base">
     <div class="flex flex-wrap items-center gap-3 justify-center lg:justify-start">
-      <span class="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full font-semibold text-white" role="note" aria-label="Category">
+      <span class="badge-accent-dark px-3 py-1 rounded-full" role="note" aria-label="Category">
         {{ page.categories }}
       </span>
       <time datetime="{{ page.date | date_to_xmlschema }}" class="text-brand-smoke/80">
@@ -22,7 +22,7 @@ content_for_head: |
     {% if page.tags and page.tags.size > 0 %}
     <div class="flex flex-wrap gap-2 justify-center lg:justify-end" role="list" aria-label="Post tags">
       {% for tag in page.tags %}
-      <span class="bg-brand-orange/20 backdrop-blur-sm text-brand-smoke px-2 py-1 rounded-md text-sm font-semibold border border-brand-orange/30" role="listitem">
+      <span class="badge-accent-dark" role="listitem">
         #{{ tag }}
       </span>
       {% endfor %}
@@ -66,7 +66,7 @@ content_for_head: |
 
     <!-- Navigation Footer -->
     <nav role="navigation" aria-label="Post navigation">
-      {% include components/post-navigation.html %}
+      {% include components/content-navigation.html variant='post' %}
     </nav>
   </div>
 </article>

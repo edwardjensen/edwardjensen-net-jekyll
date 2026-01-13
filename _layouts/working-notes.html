@@ -3,7 +3,7 @@ layout: content-wrapper
 ---
 <div class="article-container">
   <!-- Page Header -->
-  {% capture icon %}{{ page.header_icon | default: 'bi-pencil-square' }}{% endcapture %}
+  {% capture icon %}{{ page.header_icon | default: 'notebook' }}{% endcapture %}
   {% capture gradient %}{{ page.header_gradient | default: 'bg-brand-orange' }}{% endcapture %}
 
   {% include components/page-header.html
@@ -14,7 +14,7 @@ layout: content-wrapper
   %}
 
   <!-- Content -->
-  <div class="p-8 lg:p-12 [&_a]:hyperlinks">
+  <div class="p-8 lg:p-12">
     <!-- Working Notes List -->
     <div class="space-y-4">
       {% if page.paginator.items.size > 0 %}
@@ -33,7 +33,7 @@ layout: content-wrapper
     {% include components/pagination.html %}
 
     <!-- Feed Links Footer -->
-    <div class="mt-12 pt-8 border-t border-brand-grey/20 flex flex-wrap gap-6 justify-center items-center">
+    <div class="mt-12 pt-8 border-t border-brand-grey/20 dark:border-brand-grey/30 flex flex-wrap gap-6 justify-center items-center">
       <a href="{{ '/feeds/notes.xml' | relative_url }}" class="inline-flex items-center gap-2 link-accent font-semibold" title="Subscribe to Working Notes RSS feed">
         <i class="ph ph-rss text-lg" aria-hidden="true"></i>
         <span>RSS Feed</span>

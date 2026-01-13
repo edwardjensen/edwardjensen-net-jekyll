@@ -169,13 +169,21 @@
         }
     }
 
-    .hyperlink-container a {
-        @apply text-brand-chestnut contrast-less:text-brand-orange underline;
-        
-        &:hover {
-            @apply text-brand-ink dark:text-brand-smoke underline;
-        }
-    }
+    /* === LINK STYLING PATTERNS ===
+       The site uses a consistent approach to link styling:
+       
+       1. Default links: Global <a> styles apply (chestnut with underline on hover)
+          - Used in most content areas automatically
+          - Accessible by default (7.5:1 contrast on smoke background)
+       
+       2. .link-accent: For special emphasis links (navigation, CTAs)
+          - Orange-dark base color, chestnut on hover
+          - Used for: header links, footer links, call-to-action buttons
+       
+       3. Prose content: Links inherit global styles automatically
+          - No need for special classes or containers
+          - Consistent across all prose blocks
+    */
 
     /* === REUSABLE TEXT COLOR UTILITIES === */
     .text-body {
@@ -234,8 +242,18 @@
         @apply bg-brand-orange/10 border border-brand-orange/30 rounded-lg p-4 text-brand-grey-dark dark:text-brand-grey-light contrast-less:text-brand-grey;
     }
 
+    /* === BADGE VARIANTS ===
+       Current implementations before streamlining (Jan 2026):
+       - single-post.html L25: bg-brand-orange/20 backdrop-blur-sm text-brand-smoke px-2 py-1 rounded-md text-sm font-semibold border border-brand-orange/30 (tag on dark header)
+       - single-working-note.html L25: bg-white/20 backdrop-blur-sm text-white px-2 py-1 rounded-md text-xs font-semibold border border-white/30 (tag on orange header)
+       - featured-tag.html: uses no inline badge styling currently
+       Consolidated into .badge-accent (light bg) and .badge-accent-dark (dark bg) */
     .badge-accent {
         @apply bg-brand-orange/15 text-brand-chestnut dark:text-brand-orange px-2 py-1 rounded text-xs font-semibold border border-brand-orange/30;
+    }
+    
+    .badge-accent-dark {
+        @apply bg-white/20 backdrop-blur-sm text-white px-2 py-1 rounded text-xs font-semibold border border-white/30;
     }
     
     /* === REUSABLE SECTION BACKGROUNDS === */
@@ -245,6 +263,24 @@
     
     .section-bg-white {
         @apply bg-brand-smoke dark:bg-brand-ink;
+    }
+    
+    .page-section-header {
+        @apply bg-brand-grey/10 dark:bg-brand-grey/20 border-b border-brand-grey/20 dark:border-brand-grey/30 text-brand-ink dark:text-brand-smoke px-6 lg:px-12 py-10 lg:py-14 transition-colors duration-300;
+    }
+    
+    /* === REUSABLE NAVIGATION LINK STYLES === */
+    .nav-link {
+        @apply text-brand-ink dark:text-brand-smoke hover:text-brand-chestnut transition-colors duration-200 no-underline;
+    }
+    
+    .nav-link-dropdown {
+        @apply text-brand-ink dark:text-brand-smoke hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 hover:text-brand-chestnut transition-colors duration-200 no-underline;
+    }
+    
+    /* === REUSABLE LIST ITEM STYLES === */
+    .list-item-hover {
+        @apply hover:bg-brand-grey/10 dark:hover:bg-brand-grey/20 rounded-lg transition-colors duration-200;
     }
     
     /* === REUSABLE ICON STYLES === */

@@ -9,7 +9,7 @@
   - center_text: Boolean to center text (default: false)
   - metadata: Optional metadata section content to display
 -->
-<header class="bg-brand-grey/10 dark:bg-brand-grey/20 border-b border-brand-grey/20 dark:border-brand-grey/30 text-brand-ink dark:text-brand-smoke px-6 lg:px-12 py-10 lg:py-14 transition-colors duration-300">
+<header class="page-section-header">
   <div class="{% if include.center_text %}text-center{% else %}lg:text-left{% endif %}">
     {% if include.show_icon_badge != false %}
     <div class="flex items-center {% if include.center_text %}justify-center{% endif %} gap-4 mb-4">

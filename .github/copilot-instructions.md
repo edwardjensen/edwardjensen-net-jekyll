@@ -13,7 +13,9 @@
 
 The site uses **custom Tailwind classes** defined in `assets/css/main.css` (@layer components). Always use these instead of inline utilities for consistency.
 
-**Full documentation**: See `site-docs/LAYOUTS_AND_STYLES.md`
+## Reusable CSS Classes (2026 Refresh)
+
+The site uses **custom Tailwind classes** defined in `assets/css/main.css` (@layer components). Always use these instead of inline utilities for consistency.
 
 ### Quick Reference
 
@@ -25,6 +27,9 @@ The site uses **custom Tailwind classes** defined in `assets/css/main.css` (@lay
 **Links & Interactions**:
 - `.link-accent` - Accessible orange links (`text-brand-orange-dark`) with chestnut hover
 - `.icon-interactive` - Interactive icons (`text-brand-grey-dark dark:text-brand-grey-light`)
+- `.nav-link` - Navigation links (`text-body hover:text-brand-chestnut`)
+- `.nav-link-dropdown` - Dropdown menu links with hover background
+- `.list-item-hover` - List item hover effect (`hover:bg-brand-grey/10 rounded-lg`)
 
 **Buttons**:
 - `.btn-primary` - Primary CTA (filled orange)
@@ -34,21 +39,26 @@ The site uses **custom Tailwind classes** defined in `assets/css/main.css` (@lay
 **UI Components**:
 - `.dropdown-menu` - Dropdown menus with glass-morphism
 - `.info-box` - Info messages
-- `.badge-accent` - Tags/categories
+- `.badge-accent` - Tags/categories on light backgrounds
+- `.badge-accent-dark` - Tags/categories on dark backgrounds (white text)
 - `.input-default` - Form inputs
-- `.section-bg` - Section backgrounds
+- `.section-bg` - Section backgrounds (grey/10)
+- `.section-bg-white` - Section backgrounds (smoke/ink)
+- `.page-section-header` - Page header sections with grey background
+- `.article-container` - Main article card container
 
 **When to use**:
 - ✅ Use reusable classes for: buttons, links, text colors, UI components
 - ❌ Use inline utilities for: layout spacing, grid/flex, one-off adjustments
 
+**Tailwind v4 Note**: Custom component classes cannot be used with `@apply` inside other component classes. Use raw Tailwind utilities when composing classes in CSS.
+
 **To change site-wide styles**: Edit `assets/css/main.css` in `@layer components` section
 
-## Architecture Overview (Oct 2025 Redesign)
+## Architecture Overview (Jan 2026 Streamlining)
 
-### Layout Structure (REFACTORED)
-**Old pattern**: Sidebar layout (3-col grid with left sidebar nav)  
-**New pattern**: Full-width stacked layout with sticky top header
+### Layout Structure
+**Current pattern**: Full-width stacked layout with sticky top header (12 layouts total)
 
 **Key files**:
 - `_layouts/base.html` - Root layout with HTML boilerplate, sticky header nav, footer

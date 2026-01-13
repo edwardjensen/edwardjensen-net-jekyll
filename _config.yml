@@ -3,6 +3,9 @@ baseurl: ""
 lang: "en-US"
 title: "Edward Jensen"
 tagline: "Exploring the Nonprofit IT Landscape: Insights and Reflections"
+
+# Feature flags
+show_portfolio: false  # Set to true in _config.local.yml to show portfolio
 description: "Edward Jensen is a nonprofit technology professional who writes about the intersection of technology and mission-driven impact work."
 logo: "/assets/images/bluebackground.png"
 timezone: "America/Chicago"
@@ -77,7 +80,7 @@ collections:
         locationCity: location_city
         locationCountry: location_country
   portfolio:
-    output: true
+    output: false  # Set to true in _config.local.yml to build portfolio pages
     permalink: /portfolio/:title
   feeds:
     output: true

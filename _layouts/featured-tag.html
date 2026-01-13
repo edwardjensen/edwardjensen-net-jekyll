@@ -13,7 +13,7 @@ layout: content-wrapper
   {% endif %}
 
   <!-- Header -->
-  <header class="bg-brand-grey/10 border-b border-brand-grey/20 text-brand-ink dark:text-brand-smoke px-6 lg:px-12 py-10 lg:py-14 transition-colors duration-300">
+  <header class="page-section-header">
     <div class="flex items-center gap-4">
       <div class="text-brand-orange flex-shrink-0" aria-hidden="true">
         <i class="ph ph-tag text-4xl"></i>
@@ -28,7 +28,7 @@ layout: content-wrapper
   <div class="p-8 lg:p-12">
     <!-- Summary (markdown body as bold text) -->
     {% if content != "" %}
-    <div class="prose dark:prose-invert !max-w-none text-lg font-semibold text-body mb-12 border-b border-brand-grey/20 pb-8">
+    <div class="prose dark:prose-invert !max-w-none text-lg font-semibold text-body mb-12 border-b border-brand-grey/20 dark:border-brand-grey/30 pb-8">
       {{ content }}
     </div>
     {% endif %}
@@ -53,8 +53,8 @@ layout: content-wrapper
       {% if display_posts.size > 0 %}
       <div class="space-y-6">
         {% for post in display_posts %}
-        <article class="group border-b border-brand-grey/20 pb-6 last:border-b-0 last:pb-0">
-          <a href="{{ post.url | relative_url }}" class="flex flex-col md:flex-row md:items-center gap-4 hover:bg-brand-grey/10 rounded-lg p-4 -m-4 transition-colors duration-200">
+        <article class="group border-b border-brand-grey/20 dark:border-brand-grey/30 pb-6 last:border-b-0 last:pb-0">
+          <a href="{{ post.url | relative_url }}" class="flex flex-col md:flex-row md:items-center gap-4 list-item-hover p-4 -m-4">
             {% if post.image %}
             <div class="flex-shrink-0 w-full md:w-48 h-32 overflow-hidden rounded-lg">
               <img src="{{ post.image | relative_url }}"
@@ -64,7 +64,7 @@ layout: content-wrapper
             </div>
             {% endif %}
             <div class="flex-grow">
-              <h3 class="text-brand-ink dark:text-brand-smoke group-hover:text-brand-orange font-semibold text-lg transition-colors duration-200">
+              <h3 class="text-heading group-hover:text-brand-chestnut font-semibold text-lg transition-colors duration-200">
                 {{ post.title }}
               </h3>
               <time class="text-sm text-muted block mt-1" datetime="{{ post.date | date: '%Y-%m-%d' }}">
@@ -92,7 +92,7 @@ layout: content-wrapper
     {% include components/pagination.html %}
 
     <!-- RSS Feed Link -->
-    <div class="mt-12 pt-8 border-t border-brand-grey/20 flex justify-center">
+    <div class="mt-12 pt-8 border-t border-brand-grey/20 dark:border-brand-grey/30 flex justify-center">
       <a href="{{ '/feeds/' | append: page.tag | append: '.xml' | relative_url }}"
          class="btn-primary inline-flex items-center gap-2"
          title="Subscribe to {{ page.title }} RSS feed">
