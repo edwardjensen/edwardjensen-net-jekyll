@@ -162,7 +162,7 @@
 
     /* Links: accessible by default (chestnut passes WCAG AA), softer orange for users who prefer less contrast */
     a {
-        @apply text-brand-chestnut contrast-less:text-brand-orange transition-colors duration-200;
+        @apply text-brand-chestnut dark:text-brand-orange contrast-less:text-brand-orange transition-colors duration-200;
         
         &:hover {
             @apply text-brand-ink dark:text-brand-smoke underline;
@@ -201,7 +201,7 @@
     
     /* === REUSABLE LINK STYLES === */
     .link-accent {
-        @apply text-brand-orange-dark hover:text-brand-chestnut dark:hover:text-brand-smoke transition-colors duration-200;
+        @apply text-brand-orange-dark dark:text-brand-orange hover:text-brand-chestnut dark:hover:text-brand-smoke transition-colors duration-200;
     }
     
     /* === REUSABLE BUTTON STYLES === */
@@ -339,7 +339,7 @@
         }
 
         a {
-            @apply text-brand-chestnut contrast-less:text-brand-orange underline;
+            @apply text-brand-chestnut dark:text-brand-orange contrast-less:text-brand-orange underline;
             
             &:hover {
                 @apply text-brand-ink dark:text-brand-smoke no-underline;
@@ -408,7 +408,7 @@
         }
 
         a {
-            @apply text-brand-orange underline hover:text-brand-chestnut;
+            @apply text-brand-orange underline hover:text-brand-chestnut dark:hover:text-brand-smoke;
         }
     }
 
