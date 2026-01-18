@@ -1,15 +1,19 @@
-# Refresh GraphQL Cache
+# Refresh GraphQL and REST API Cache
 #
 # Updates the Cloudflare KV cache with fresh data from the CMS.
+# Supports both v1 GraphQL API and v2 REST API caching (parallel operation during migration).
 # Requires Tailscale VPN connection for CMS access.
 #
 # Usage:
-#   ./scripts/refresh-graphql-cache.ps1                           # Refresh all collections
-#   ./scripts/refresh-graphql-cache.ps1 -Collection posts         # Refresh only posts
-#   ./scripts/refresh-graphql-cache.ps1 -Collection photography   # Refresh only photography
+#   ./scripts/refresh-graphql-cache.ps1                           # Refresh all collections (v1 + v2)
+#   ./scripts/refresh-graphql-cache.ps1 -Collection posts         # Refresh only posts (v1 + v2)
+#   ./scripts/refresh-graphql-cache.ps1 -Collection photography   # Refresh only photography (v1 + v2)
+#   ./scripts/refresh-graphql-cache.ps1 -V1Only                   # Refresh v1 GraphQL only
+#   ./scripts/refresh-graphql-cache.ps1 -V2Only                   # Refresh v2 REST only
 #
 # Environment variables (for CI):
 #   CMS_GRAPHQL_URL  - CMS GraphQL endpoint (default: Tailscale URL)
+#   CMS_REST_URL     - CMS REST API base URL (default: derived from CMS_GRAPHQL_URL)
 #   CACHE_API_URL    - Cache worker base URL
 #   CACHE_API_KEY    - Cache worker API key
 #
@@ -23,10 +27,19 @@ param(
     [string]$CmsGraphqlUrl = $env:CMS_GRAPHQL_URL,
 
     [Parameter(Mandatory = $false)]
+    [string]$CmsRestUrl = $env:CMS_REST_URL,
+
+    [Parameter(Mandatory = $false)]
     [string]$CacheApiUrl = $env:CACHE_API_URL,
 
     [Parameter(Mandatory = $false)]
-    [string]$CacheApiKey = $env:CACHE_API_KEY
+    [string]$CacheApiKey = $env:CACHE_API_KEY,
+
+    [Parameter(Mandatory = $false)]
+    [switch]$V1Only,
+
+    [Parameter(Mandatory = $false)]
+    [switch]$V2Only
 )
 
 $ErrorActionPreference = "Stop"
@@ -56,6 +69,10 @@ if (Test-Path $envFile) {
 
 # Apply defaults
 if (-not $CmsGraphqlUrl) { $CmsGraphqlUrl = "https://www-ts.edwardjensencms.com/api/graphql" }
+if (-not $CmsRestUrl) { 
+    # Derive REST URL from GraphQL URL by replacing /api/graphql with /api/v2
+    $CmsRestUrl = $CmsGraphqlUrl -replace '/api/graphql$', '/api/v2'
+}
 if (-not $CacheApiUrl) { $CacheApiUrl = "https://graphql.edwardjensen.net" }
 if (-not $CacheApiKey) {
     # Try from .env loaded variable
@@ -87,10 +104,19 @@ Get-ChildItem -Path $configDir -Filter "*.yml" | ForEach-Object {
     }
 }
 
-Write-Host "GraphQL Cache Refresh"
-Write-Host "CMS URL: $CmsGraphqlUrl"
+Write-Host "GraphQL + REST API Cache Refresh"
+Write-Host "CMS GraphQL URL: $CmsGraphqlUrl"
+Write-Host "CMS REST URL: $CmsRestUrl"
 Write-Host "Cache URL: $CacheApiUrl"
 Write-Host "Discovered collections: $($collections.Keys -join ', ')"
+
+if ($V1Only) {
+    Write-Host "Mode: v1 GraphQL only"
+} elseif ($V2Only) {
+    Write-Host "Mode: v2 REST only"
+} else {
+    Write-Host "Mode: Both v1 GraphQL and v2 REST (parallel operation)"
+}
 
 function Refresh-Collection {
     param(
@@ -187,6 +213,91 @@ function Refresh-Collection {
     }
 }
 
+function Refresh-CollectionV2 {
+    param(
+        [string]$Name
+    )
+
+    Write-Host ""
+    Write-Host "=========================================="
+    Write-Host "Processing v2 REST collection: $Name"
+    Write-Host "=========================================="
+
+    Write-Host "Fetching $Name from CMS REST API..."
+
+    # Map collection name to REST endpoint path
+    $restPath = $Name
+    # Handle underscores → hyphens for REST paths (e.g., working_notes → working-notes)
+    $restPath = $restPath -replace '_', '-'
+
+    # Pagination settings
+    $pageSize = 100
+    $page = 1
+    $totalDocs = 0
+    $hasMore = $true
+    $allDocs = @()
+
+    # Fetch all pages
+    while ($hasMore) {
+        $restUrl = "${CmsRestUrl}/${restPath}?page=${page}&limit=${pageSize}"
+
+        try {
+            $response = Invoke-RestMethod -Uri $restUrl -Method Get
+        }
+        catch {
+            Write-Error "Failed to fetch $Name from CMS REST API (page $page). Is Tailscale connected? Error: $_"
+            return $false
+        }
+
+        # Extract page data (REST API returns paginated format)
+        $pageDocs = $response.docs
+        $pageCount = $pageDocs.Count
+        $totalDocs = $response.totalDocs
+        $hasMore = $response.hasNextPage -eq $true
+
+        # Accumulate documents
+        $allDocs += $pageDocs
+
+        Write-Host "  Page ${page}: fetched $pageCount documents (hasNextPage: $hasMore)"
+        $page++
+    }
+
+    $docCount = $allDocs.Count
+    Write-Host "Fetched $docCount documents total (totalDocs: $totalDocs) for $Name"
+
+    # Build the data structure matching REST API response format
+    $data = @{
+        docs = $allDocs
+        totalDocs = $totalDocs
+        totalPages = [Math]::Ceiling($totalDocs / $pageSize)
+        page = 1
+        limit = $totalDocs  # For full cache, store all docs
+        hasNextPage = $false
+        hasPrevPage = $false
+    }
+
+    # Write to v2 cache
+    Write-Host "Writing to v2 cache..."
+
+    $cacheBody = @{ data = $data } | ConvertTo-Json -Depth 100 -Compress
+
+    $headers = @{
+        "Authorization" = "Bearer $CacheApiKey"
+        "Content-Type" = "application/json"
+    }
+
+    try {
+        $cacheResponse = Invoke-RestMethod -Uri "${CacheApiUrl}/v2/refresh/${restPath}" -Method Post -Headers $headers -Body $cacheBody
+        Write-Host "Successfully cached v2 $Name"
+        Write-Host ($cacheResponse | ConvertTo-Json -Compress)
+        return $true
+    }
+    catch {
+        Write-Error "Failed to write v2 $Name to cache: $_"
+        return $false
+    }
+}
+
 function Update-CollectionMapping {
     Write-Host ""
     Write-Host "=========================================="
@@ -232,20 +343,46 @@ if ($Collection) {
         Write-Error "Unknown collection '$Collection'. Valid collections: $validCollections"
         exit 1
     }
-    $success = Refresh-Collection -Name $Collection -Config $collections[$Collection]
-    if (-not $success) { exit 1 }
+
+    # v1 GraphQL
+    if (-not $V2Only) {
+        $success = Refresh-Collection -Name $Collection -Config $collections[$Collection]
+        if (-not $success) { exit 1 }
+    }
+
+    # v2 REST
+    if (-not $V1Only) {
+        $success = Refresh-CollectionV2 -Name $Collection
+        if (-not $success) { 
+            Write-Warning "v2 refresh failed for $Collection, but continuing..."
+        }
+    }
 }
 else {
     # Refresh all collections
-    foreach ($name in $collections.Keys) {
-        $success = Refresh-Collection -Name $name -Config $collections[$name]
+
+    # v1 GraphQL
+    if (-not $V2Only) {
+        foreach ($name in $collections.Keys) {
+            $success = Refresh-Collection -Name $name -Config $collections[$name]
+            if (-not $success) { exit 1 }
+        }
+
+        # Update v1 collection mapping
+        $success = Update-CollectionMapping
         if (-not $success) { exit 1 }
     }
-}
 
-# Always update collection mapping
-$success = Update-CollectionMapping
-if (-not $success) { exit 1 }
+    # v2 REST
+    if (-not $V1Only) {
+        foreach ($name in $collections.Keys) {
+            $success = Refresh-CollectionV2 -Name $name
+            if (-not $success) { 
+                Write-Warning "v2 refresh failed for $name, but continuing..."
+            }
+        }
+    }
+}
 
 Write-Host ""
 Write-Host "=========================================="

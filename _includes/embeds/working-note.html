@@ -1,0 +1,38 @@
+{% comment %}
+  Embedded Working Note
+  
+  Renders a working note embedded within blog post content.
+  
+  When using v2 REST API:
+  - The note data comes from the blocks array in the post JSON
+  - This template receives the note as an include parameter
+  
+  When using v1 GraphQL API:
+  - The HTML is pre-rendered by Payload CMS in the markdown field
+  - This template is not used (kept for reference)
+  
+  Usage (v2 REST API):
+    {% include embeds/working-note.html 
+       title=embed.doc.title
+       content=embed.doc.contentHtml
+       permalink=embed.doc.permalink
+    %}
+  
+  Parameters:
+    - title: Note title
+    - content: Note content HTML
+    - permalink: Full URL path to the note
+{% endcomment %}
+<aside class="embedded-working-note" markdown="0">
+  <header class="embedded-working-note__header">
+    <h4 class="embedded-working-note__title">{{ include.title }}</h4>
+  </header>
+  <div class="embedded-working-note__content">
+    {{ include.content }}
+  </div>
+  <footer class="embedded-working-note__footer">
+    <a href="{{ include.permalink }}" class="embedded-working-note__link">
+      View full note &rarr;
+    </a>
+  </footer>
+</aside>

@@ -10,10 +10,20 @@ description: "Edward Jensen is a nonprofit technology professional who writes ab
 logo: "/assets/images/bluebackground.png"
 timezone: "America/Chicago"
 
-# GraphQL endpoint for CMS content
+# API version: v1 (GraphQL) or v2 (REST)
+api_version: "v1"  # Set to "v2" to use REST API
+fallback_to_v1: true  # Fallback to GraphQL if v2 fails
+
+# GraphQL endpoint for CMS content (v1)
 # Set via GRAPHQL_ENDPOINT env var, or defaults to this URL
 payload_graphql:
   url: "https://graphql.edwardjensen.net/api/graphql"
+  fail_on_error: true
+
+# REST API endpoint for CMS content (v2)
+# Set via REST_API_BASE_URL env var, or defaults to this URL
+payload_rest:
+  url: "https://graphql.edwardjensen.net/api/v2"  # Base URL without trailing slash
   fail_on_error: true
 
 plugins:
