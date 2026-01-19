@@ -212,9 +212,11 @@ module PayloadREST
         doc.data['post_credits'] = parse_post_credits_html(doc_data['postCredits'])
       end
 
-      # Redirect handling
+      # Redirect handling - extract path strings from array of objects
       if doc_data['redirectFrom'] && !doc_data['redirectFrom'].empty?
-        doc.data['redirect_from'] = doc_data['redirectFrom']
+        doc.data['redirect_from'] = doc_data['redirectFrom'].map do |redirect|
+          redirect.is_a?(Hash) ? redirect['path'] : redirect
+        end.compact
       end
 
       # Sitemap

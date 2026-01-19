@@ -99,20 +99,42 @@ Write v1 GraphQL data to cache. Requires `Authorization: Bearer {CACHE_API_KEY}`
 
 ### GET /v2/:collection
 
-List all documents with pagination metadata.
+List documents with pagination support.
 
 **Valid collections:** `posts`, `photography`, `working-notes`, `historic-posts`, `pages`
+
+**Query Parameters:**
+
+| Parameter | Type | Default | Max | Description |
+|-----------|------|---------|-----|-------------|
+| `page` | integer | 1 | - | Page number (1-indexed) |
+| `limit` | integer | 10 | 100 | Documents per page |
+
+**Examples:**
+```bash
+# First page, 10 items (default)
+curl https://graphql-cache.edwardjensenprojects.com/v2/posts
+
+# Second page, 10 items
+curl https://graphql-cache.edwardjensenprojects.com/v2/posts?page=2
+
+# Custom page size
+curl https://graphql-cache.edwardjensenprojects.com/v2/posts?page=1&limit=25
+
+# All documents (up to 100 per page)
+curl https://graphql-cache.edwardjensenprojects.com/v2/posts?limit=100
+```
 
 **Response:**
 ```json
 {
   "docs": [...],
-  "totalDocs": 42,
+  "totalDocs": 48,
   "totalPages": 5,
-  "page": 1,
-  "limit": 100,
-  "hasNextPage": false,
-  "hasPrevPage": false
+  "page": 2,
+  "limit": 10,
+  "hasNextPage": true,
+  "hasPrevPage": true
 }
 ```
 

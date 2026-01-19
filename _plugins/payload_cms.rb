@@ -17,6 +17,13 @@ module PayloadCMS
       @site = site
       @config = site.config['payload_graphql'] || {}
 
+      # Check if v1 API is enabled (default to v1 for backward compatibility)
+      api_version = site.config['api_version'] || 'v1'
+      unless api_version == 'v1'
+        Jekyll.logger.info 'PayloadCMS:', 'v1 GraphQL API disabled, skipping'
+        return
+      end
+
       # Default to true - builds fail on CMS errors unless explicitly disabled
       @fail_on_error = @config['fail_on_error'] != false
 

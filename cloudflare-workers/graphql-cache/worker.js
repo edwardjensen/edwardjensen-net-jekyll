@@ -441,7 +441,7 @@ export default {
       return jsonResponse({ error: 'Method not allowed' }, 405, origin);
     }
 
-    // v2 REST API: GET /v2/:collection (list all documents)
+    // v2 REST API: GET /v2/:collection (list all documents with pagination)
     const v2ListMatch = path.match(/^\/v2\/([a-z-]+)$/);
     if (v2ListMatch && request.method === 'GET') {
       const collection = v2ListMatch[1];
@@ -452,6 +452,15 @@ export default {
       }
 
       try {
+        // Parse pagination query parameters
+        const url = new URL(request.url);
+        const requestedPage = parseInt(url.searchParams.get('page') || '1', 10);
+        const requestedLimit = parseInt(url.searchParams.get('limit') || '10', 10);
+        
+        // Validate and cap values
+        const page = Math.max(1, requestedPage);
+        const limit = Math.min(100, Math.max(1, requestedLimit));
+
         // Fetch cached data
         const data = await env.GRAPHQL_CACHE.get(getV2CollectionKey(collection), 'json');
 
@@ -462,8 +471,25 @@ export default {
           }, 404, origin);
         }
 
-        // Return the data (should already be in paginated format with docs, totalDocs, etc.)
-        return jsonResponse(data, 200, origin);
+        // Calculate pagination
+        const totalDocs = data.totalDocs || data.docs?.length || 0;
+        const totalPages = Math.ceil(totalDocs / limit);
+        const startIndex = (page - 1) * limit;
+        const endIndex = startIndex + limit;
+        
+        // Slice docs array for requested page
+        const paginatedDocs = (data.docs || []).slice(startIndex, endIndex);
+
+        // Return paginated response
+        return jsonResponse({
+          docs: paginatedDocs,
+          totalDocs: totalDocs,
+          totalPages: totalPages,
+          page: page,
+          limit: limit,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1
+        }, 200, origin);
 
       } catch (error) {
         console.error('v2 list request error:', error);
