@@ -43,7 +43,11 @@
       "location": {
         "lat": {{ photo.location_lat | default: nil | jsonify }},
         "lng": {{ photo.location_lng | default: nil | jsonify }},
-        "name": {{ photo.location_name | default: nil | jsonify }}
+        "name": {{ photo.location_point_of_interest | default: nil | jsonify }},
+        "neighborhood": {{ photo.location_neighborhood | default: nil | jsonify }},
+        "city": {{ photo.location_city | default: nil | jsonify }},
+        "state": {{ photo.location_state | default: nil | jsonify }},
+        "country": {{ photo.location_country | default: nil | jsonify }}
       }
     }{% unless forloop.last %},{% endunless %}
     {% endfor %}

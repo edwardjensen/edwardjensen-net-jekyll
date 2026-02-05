@@ -85,9 +85,11 @@ collections:
         exifIso: exif_iso
         locationLat: location_lat
         locationLng: location_lng
-        locationName: location_name
+        locationPointOfInterest: location_point_of_interest
+        locationNeighborhood: location_neighborhood
         locationFormatted: location_formatted
         locationCity: location_city
+        locationState: location_state
         locationCountry: location_country
   portfolio:
     output: false  # Set to true in _config.local.yml to build portfolio pages

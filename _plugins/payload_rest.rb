@@ -289,9 +289,11 @@ module PayloadREST
       if doc_data['location']
         doc.data['location_lat'] = doc_data['location']['lat']
         doc.data['location_lng'] = doc_data['location']['lng']
-        doc.data['location_name'] = doc_data['location']['name']
+        doc.data['location_point_of_interest'] = doc_data['location']['pointOfInterest']
+        doc.data['location_neighborhood'] = doc_data['location']['neighborhood']
         doc.data['location_formatted'] = doc_data['location']['formatted']
         doc.data['location_city'] = doc_data['location']['city']
+        doc.data['location_state'] = doc_data['location']['state']
         doc.data['location_country'] = doc_data['location']['country']
       end
     end

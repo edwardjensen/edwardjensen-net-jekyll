@@ -638,11 +638,21 @@ window.photoGallery = function() {
       if (locationSection && locationMap) {
         if (hasLocation) {
           if (locationName) {
-            locationName.textContent = photo.location.name || '';
-            locationName.style.display = photo.location.name ? '' : 'none';
+            // Build location string from components
+            const locationParts = [
+              photo.location.name,
+              photo.location.neighborhood,
+              photo.location.city,
+              photo.location.state,
+              photo.location.country
+            ].filter(Boolean);
+            
+            locationName.textContent = locationParts.join(', ');
+            locationName.style.display = locationParts.length > 0 ? '' : 'none';
           }
           locationMap.src = this.getMapImageUrl(photo);
-          locationMap.alt = `Map showing photo location${photo.location.name ? ': ' + photo.location.name : ''}`;
+          const altLocation = [photo.location.city, photo.location.state].filter(Boolean).join(', ');
+          locationMap.alt = `Map showing photo location${altLocation ? ': ' + altLocation : ''}`;
           locationSection.style.display = '';
         } else {
           locationSection.style.display = 'none';

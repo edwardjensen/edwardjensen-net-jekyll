@@ -20,9 +20,11 @@ fields:
   - exifIso
   - locationLat
   - locationLng
-  - locationName
+  - locationPointOfInterest
+  - locationNeighborhood
   - locationFormatted
   - locationCity
+  - locationState
   - locationCountry
   - permalink
   - sitemap
