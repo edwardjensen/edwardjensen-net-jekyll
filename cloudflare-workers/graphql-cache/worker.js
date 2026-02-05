@@ -1,10 +1,8 @@
 /**
- * GraphQL Endpoint Worker
+ * GraphQL + REST API Endpoint Worker
  *
- * Provides a GraphQL endpoint that mirrors the Payload CMS GraphQL API.
- * The endpoint path (/api/graphql) matches Payload CMS exactly, allowing
- * Jekyll builds to use the same code path regardless of whether they're
- * hitting this worker or the CMS directly.
+ * Provides both GraphQL and REST API endpoints that mirror Payload CMS APIs.
+ * Supports parallel operation of v1 GraphQL and v2 REST APIs during migration.
  *
  * The collection mapping is stored in KV and updated by the cache refresh workflow,
  * making it easy to add new content types without code changes.
@@ -14,9 +12,16 @@
  *   CACHE_API_KEY   - Secret API key for write operations (set via wrangler secret put)
  *   GRAPHQL_API_KEY - Secret API key for read operations on /api/graphql (set via wrangler secret put)
  *
- * Endpoints:
+ * v1 GraphQL Endpoints:
  *   POST /api/graphql            - GraphQL queries (requires GRAPHQL_API_KEY)
  *   POST /refresh/:collection    - Write collection data (requires CACHE_API_KEY)
+ *
+ * v2 REST API Endpoints:
+ *   GET /v2/:collection          - List all documents (paginated)
+ *   GET /v2/:collection/:id      - Get single document by ID
+ *   POST /v2/refresh/:collection - Write collection data (requires CACHE_API_KEY)
+ *
+ * Configuration Endpoints:
  *   POST /config/:key            - Write configuration (requires CACHE_API_KEY)
  *   GET /config/:key             - Read configuration
  *   GET /status                  - Status and metadata
@@ -89,10 +94,24 @@ function isGraphqlApiKeyValid(request, env) {
 }
 
 /**
- * Generate KV key for a collection's data
+ * Generate KV key for a collection's data (v1 GraphQL)
  */
 function getCollectionKey(collection) {
   return `collection:${collection}`;
+}
+
+/**
+ * Generate KV key for a v2 REST collection's data
+ */
+function getV2CollectionKey(collection) {
+  return `v2:${collection}`;
+}
+
+/**
+ * Generate KV key for a single document in v2 REST cache
+ */
+function getV2DocumentKey(collection, id) {
+  return `v2:${collection}:${id}`;
 }
 
 /**
@@ -201,19 +220,37 @@ export default {
       });
     }
 
-    // Status endpoint - show cache metadata for all collections
+    // Status endpoint - show cache metadata for all collections (v1 and v2)
     if (path === '/status' && request.method === 'GET') {
       const collectionMap = await getCollectionMap(env);
       const validCollections = Object.values(collectionMap);
 
-      const status = {};
+      const statusV1 = {};
+      const statusV2 = {};
+
+      // v1 collections
       for (const collection of validCollections) {
         const metadata = await env.GRAPHQL_CACHE.get(getMetadataKey(collection), 'json');
-        status[collection] = metadata || { cached: false };
+        statusV1[collection] = metadata || { cached: false };
       }
+
+      // v2 collections (check for known REST collections)
+      const v2Collections = ['posts', 'working-notes', 'photography', 'historic-posts', 'pages'];
+      for (const collection of v2Collections) {
+        const metadata = await env.GRAPHQL_CACHE.get(getMetadataKey(`v2:${collection}`), 'json');
+        if (metadata) {
+          statusV2[collection] = metadata;
+        }
+      }
+
       return jsonResponse({
-        collections: status,
-        collectionMap,
+        v1: {
+          collections: statusV1,
+          collectionMap,
+        },
+        v2: {
+          collections: statusV2,
+        },
         timestamp: new Date().toISOString(),
       });
     }
@@ -404,6 +441,168 @@ export default {
       return jsonResponse({ error: 'Method not allowed' }, 405, origin);
     }
 
+    // v2 REST API: GET /v2/:collection (list all documents with pagination)
+    const v2ListMatch = path.match(/^\/v2\/([a-z-]+)$/);
+    if (v2ListMatch && request.method === 'GET') {
+      const collection = v2ListMatch[1];
+
+      // Validate origin
+      if (!isOriginAllowed(request)) {
+        return jsonResponse({ error: 'Unauthorized - origin not allowed' }, 401, origin);
+      }
+
+      try {
+        // Parse pagination query parameters
+        const url = new URL(request.url);
+        const requestedPage = parseInt(url.searchParams.get('page') || '1', 10);
+        const requestedLimit = parseInt(url.searchParams.get('limit') || '10', 10);
+        
+        // Validate and cap values
+        const page = Math.max(1, requestedPage);
+        const limit = Math.min(100, Math.max(1, requestedLimit));
+
+        // Fetch cached data
+        const data = await env.GRAPHQL_CACHE.get(getV2CollectionKey(collection), 'json');
+
+        if (!data) {
+          return jsonResponse({
+            error: `No cached data for v2 collection: ${collection}`,
+            hint: 'Cache may need to be refreshed'
+          }, 404, origin);
+        }
+
+        // Calculate pagination
+        const totalDocs = data.totalDocs || data.docs?.length || 0;
+        const totalPages = Math.ceil(totalDocs / limit);
+        const startIndex = (page - 1) * limit;
+        const endIndex = startIndex + limit;
+        
+        // Slice docs array for requested page
+        const paginatedDocs = (data.docs || []).slice(startIndex, endIndex);
+
+        // Return paginated response
+        return jsonResponse({
+          docs: paginatedDocs,
+          totalDocs: totalDocs,
+          totalPages: totalPages,
+          page: page,
+          limit: limit,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1
+        }, 200, origin);
+
+      } catch (error) {
+        console.error('v2 list request error:', error);
+        return jsonResponse({
+          error: 'Failed to process v2 list request',
+          details: error.message
+        }, 500, origin);
+      }
+    }
+
+    // v2 REST API: GET /v2/:collection/:id (get single document)
+    const v2SingleMatch = path.match(/^\/v2\/([a-z-]+)\/(\d+)$/);
+    if (v2SingleMatch && request.method === 'GET') {
+      const collection = v2SingleMatch[1];
+      const id = v2SingleMatch[2];
+
+      // Validate origin
+      if (!isOriginAllowed(request)) {
+        return jsonResponse({ error: 'Unauthorized - origin not allowed' }, 401, origin);
+      }
+
+      try {
+        // Fetch cached document
+        const data = await env.GRAPHQL_CACHE.get(getV2DocumentKey(collection, id), 'json');
+
+        if (!data) {
+          return jsonResponse({
+            error: `Document not found: ${collection}/${id}`,
+            hint: 'Document may not exist or cache needs refresh'
+          }, 404, origin);
+        }
+
+        return jsonResponse(data, 200, origin);
+
+      } catch (error) {
+        console.error('v2 single document request error:', error);
+        return jsonResponse({
+          error: 'Failed to process v2 single document request',
+          details: error.message
+        }, 500, origin);
+      }
+    }
+
+    // v2 REST API: POST /v2/refresh/:collection (write collection data)
+    const v2RefreshMatch = path.match(/^\/v2\/refresh\/([a-z-]+)$/);
+    if (v2RefreshMatch && request.method === 'POST') {
+      const collection = v2RefreshMatch[1];
+
+      // Validate API key
+      if (!isWriteApiKeyValid(request, env)) {
+        return jsonResponse({ error: 'Unauthorized - valid CACHE_API_KEY required' }, 401, origin);
+      }
+
+      try {
+        const body = await request.json();
+
+        // Validate body structure (should contain paginated response)
+        if (!body.data || !body.data.docs) {
+          return jsonResponse({ 
+            error: 'Request body must contain "data.docs" field (paginated response)' 
+          }, 400, origin);
+        }
+
+        const data = body.data;
+        const docs = data.docs;
+
+        // Store the full paginated response for list endpoint
+        await env.GRAPHQL_CACHE.put(
+          getV2CollectionKey(collection),
+          JSON.stringify(data)
+        );
+
+        // Store individual documents for single-document endpoint
+        const writePromises = docs.map(doc => {
+          if (!doc.id) {
+            console.warn(`Document in ${collection} missing id field, skipping individual cache`);
+            return Promise.resolve();
+          }
+          return env.GRAPHQL_CACHE.put(
+            getV2DocumentKey(collection, doc.id),
+            JSON.stringify(doc)
+          );
+        });
+        await Promise.all(writePromises);
+
+        // Store metadata
+        const metadata = {
+          cached: true,
+          updatedAt: new Date().toISOString(),
+          docCount: docs.length,
+          totalDocs: data.totalDocs || docs.length,
+          version: 'v2',
+        };
+        await env.GRAPHQL_CACHE.put(
+          getMetadataKey(`v2:${collection}`),
+          JSON.stringify(metadata)
+        );
+
+        return jsonResponse({
+          success: true,
+          collection,
+          metadata,
+        });
+      } catch (error) {
+        console.error('Error storing v2 cache:', error);
+        return jsonResponse(
+          { error: 'Failed to store v2 cache data', details: error.message },
+          500,
+          origin
+        );
+      }
+    }
+
     // Not found
     return jsonResponse(
       {
@@ -411,10 +610,13 @@ export default {
         availableEndpoints: [
           'GET /health',
           'GET /status',
-          'POST /api/graphql',
+          'POST /api/graphql (v1 GraphQL)',
           'GET /config/:key',
           'POST /config/:key',
-          'POST /refresh/:collection',
+          'POST /refresh/:collection (v1)',
+          'GET /v2/:collection (v2 REST list)',
+          'GET /v2/:collection/:id (v2 REST single)',
+          'POST /v2/refresh/:collection (v2)',
         ],
       },
       404,

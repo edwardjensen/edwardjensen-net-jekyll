@@ -116,18 +116,34 @@ Screenshot of website header with site title on left, navigation menu center, so
 
 ## Content Source
 
-This repository is **code and templates only**. All content (posts, working notes, historic posts) lives in **Payload CMS** and is fetched via GraphQL at build time.
+This repository is **code and templates only**. All content (posts, working notes, historic posts) lives in **Payload CMS** and is fetched at build time via REST API (v2) or GraphQL (v1).
 
 **Content workflow**: CMS publish → webhook → GitHub Actions → cache refresh → Jekyll build → Deploy
 
-**GraphQL Caching**: Production builds read from a Cloudflare KV cache instead of hitting the CMS directly:
+**API Versions:**
 
-- Cache worker: `cloudflare-workers/graphql-cache/`
-- Cache URL: `https://graphql-cache.edwardjensenprojects.com`
-- Config: `graphql_cache.enabled` and `graphql_cache.url` in `_config.yml`
-- Local dev: Set `graphql_cache.enabled: false` in `_config.local.yml` to bypass cache
+| Version | Plugin | Status | Default |
+|---------|--------|--------|---------|
+| **v2 REST** | `_plugins/payload_rest.rb` | Active | No |
+| **v1 GraphQL** | `_plugins/payload_cms.rb` | Active | Yes |
 
-**CMS Plugin** (`_plugins/payload_cms.rb`):
+**Configuration** (`_config.yml`):
+- `api_version: "v2"` - Enable v2 REST API (default: `"v1"`)
+- `fallback_to_v1: true` - Fallback to GraphQL if REST fails (default: `true`)
+- `payload_rest.url` - REST API base URL (default: `https://graphql.edwardjensen.net/api/v2`)
+- `payload_graphql.url` - GraphQL endpoint (default: `https://graphql.edwardjensen.net/api/graphql`)
+
+**v2 REST API Plugin** (`_plugins/payload_rest.rb`):
+
+- Fetches content from `/api/v2/posts`, `/api/v2/working-notes`, etc.
+- Receives pre-rendered HTML in `contentHtml` field (no Lexical conversion needed)
+- Handles nested objects (`exif: { camera, lens, ... }`, `location: { lat, lng, ... }`)
+- Maps nested fields to flat snake_case for template compatibility
+- Renders embedded working notes from `blocks` array using Jekyll includes
+- **Falls back to v1 GraphQL** if REST API fetch fails (when `fallback_to_v1: true`)
+- Generates Jekyll-format permalinks from `slug` + `date` fields
+
+**v1 GraphQL Plugin** (`_plugins/payload_cms.rb`):
 
 - Reads from GraphQL cache (production) or CMS directly (local dev with cache disabled)
 - Falls back to direct CMS access if cache is unavailable
@@ -138,18 +154,45 @@ This repository is **code and templates only**. All content (posts, working note
 
 ## Embedded Content System
 
-Embedded content (like working notes within blog posts) is rendered as complete HTML by Payload CMS handlers. The HTML is output in the `markdown` field and preserved by kramdown using the `markdown="0"` attribute. The `_includes/embeds/` directory contains reference templates only.
+Embedded content (like working notes within blog posts) is handled differently by each API version:
+
+**v2 REST API:**
+- Embedded content comes in the `blocks` array of the post JSON
+- Each block contains a nested object with the embedded document data
+- Jekyll plugin renders embedded content using `_includes/embeds/working-note.html` template
+- HTML is generated in Ruby and inserted into content with `markdown="0"` attribute
+
+**v1 GraphQL API:**
+- Embedded content is pre-rendered as complete HTML by Payload CMS handlers
+- HTML is output in the `markdown` field and preserved by kramdown using `markdown="0"` attribute
+- The `_includes/embeds/` templates are reference only (not actually included)
 
 **Current Embeds:**
-- `working-note.html` - Working note embedded in blog posts (reference only - HTML comes from Payload)
+- `working-note.html` - Working note embedded in blog posts
 
-**Important:** Collections that include embedded content must explicitly list the `markdown` field in their GraphQL `fields:` config in `_config.yml`. Without this, embedded content won't be fetched from the CMS.
+**v2 Block Structure:**
+```json
+{
+  "blocks": [
+    {
+      "blockType": "embeddedWorkingNote",
+      "doc": {
+        "id": "xyz789",
+        "slug": "note-slug",
+        "date": "2026-01-15T00:00:00.000Z",
+        "title": "Note Title",
+        "contentHtml": "<p>...</p>"
+      }
+    }
+  ]
+}
+```
 
-**Adding New Embed Types:**
-1. Create handler in Payload CMS (`src/lib/blocks/handlers/`)
-2. Handler outputs complete HTML with `markdown="0"` attribute
-3. Add BEM-style CSS in `assets/css/main.css`
-4. Ensure the collection's `fields:` config includes `markdown`
+**Adding New Embed Types (v2):**
+1. Update v2 serializer in Payload CMS to include block data
+2. Add rendering logic in `payload_rest.rb` plugin
+3. Create template in `_includes/embeds/`
+4. Add BEM-style CSS in `assets/css/main.css`
 
 **CSS Naming Convention:** Use BEM with `.embedded-{type}` as block name (e.g., `.embedded-working-note`, `.embedded-working-note__title`).
 

@@ -8,7 +8,11 @@
     page.location_lng - Longitude coordinate
 
   Optional fields:
-    page.location_name - Display name for the location
+    page.location_point_of_interest - Point of interest name
+    page.location_neighborhood - Neighborhood name
+    page.location_city - City name
+    page.location_state - State name
+    page.location_country - Country name
 
   Configuration (in _data/google-maps.yml, one of these must be set):
     proxy_url - Cloudflare Worker proxy URL (production)
@@ -35,14 +39,20 @@
     <i class="ph ph-map-pin me-2" aria-hidden="true"></i>Location
   </h2>
 
-  {% if page.location_name %}
-  <p class="text-body mb-4">{{ page.location_name }}</p>
+  {% if page.location_point_of_interest or page.location_neighborhood or page.location_city or page.location_state or page.location_country %}
+  <p class="text-body mb-4">
+    {% if page.location_point_of_interest %}{{ page.location_point_of_interest }}{% if page.location_neighborhood or page.location_city or page.location_state %}, {% endif %}{% endif %}
+    {% if page.location_neighborhood %}{{ page.location_neighborhood }}{% if page.location_city or page.location_state %}, {% endif %}{% endif %}
+    {% if page.location_city %}{{ page.location_city }}{% if page.location_state %}, {% endif %}{% endif %}
+    {% if page.location_state %}{{ page.location_state }}{% if page.location_country %}, {% endif %}{% endif %}
+    {% if page.location_country %}{{ page.location_country }}{% endif %}
+  </p>
   {% endif %}
 
   <div class="aspect-video w-full rounded-lg overflow-hidden bg-brand-grey/20 dark:bg-brand-grey/30">
     <img
       src="{{ map_url }}"
-      alt="Map showing photo location{% if page.location_name %}: {{ page.location_name }}{% endif %}"
+      alt="Map showing photo location{% if page.location_city %}: {{ page.location_city }}{% if page.location_state %}, {{ page.location_state }}{% endif %}{% endif %}"
       class="w-full h-full object-cover"
       loading="lazy">
   </div>
