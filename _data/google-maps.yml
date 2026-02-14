@@ -3,7 +3,11 @@
 #   - _includes/components/photo-location-map.html (Liquid component)
 #   - assets/js/photo-gallery.js (JavaScript modal)
 
-zoom: 12
+# Zoom levels based on location precision
+zoom_precise: 15     # Street-level detail for precise coordinates (6 decimal places)
+zoom_approximate: 12 # City-level view for approximate coordinates (2 decimal places, ~1km)
+zoom_default: 12     # Fallback if precision is not specified
+
 size: "320x160"
 scale: 2
 maptype: roadmap

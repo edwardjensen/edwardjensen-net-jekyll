@@ -488,7 +488,16 @@ window.photoGallery = function() {
       if (!this.hasLocationData(photo)) return null;
       const loc = photo.location;
       const s = this.googleMapsSettings;
-      const params = `center=${loc.lat},${loc.lng}&zoom=${s.zoom}&size=${s.size}&scale=${s.scale}&maptype=${s.maptype}`;
+      
+      // Select zoom level based on location precision
+      let zoom = s.zoom_default || s.zoom || 12;
+      if (loc.precision === 'precise') {
+        zoom = s.zoom_precise || 15;
+      } else if (loc.precision === 'approximate') {
+        zoom = s.zoom_approximate || 12;
+      }
+      
+      const params = `center=${loc.lat},${loc.lng}&zoom=${zoom}&size=${s.size}&scale=${s.scale}&maptype=${s.maptype}`;
 
       if (this.googleMapsProxyUrl) {
         // Use proxy (production) - API key is added server-side
