@@ -21,7 +21,17 @@
 
 {% if page.location_lat and page.location_lng %}
 {% assign map_settings = site.data.google-maps %}
-{% assign map_zoom = map_settings.zoom | default: 15 %}
+
+{% comment %} Select zoom level based on location precision {% endcomment %}
+{% assign location_precision = page.location_precision | default: "precise" %}
+{% if location_precision == "precise" %}
+  {% assign map_zoom = map_settings.zoom_precise | default: 15 %}
+{% elsif location_precision == "approximate" %}
+  {% assign map_zoom = map_settings.zoom_approximate | default: 12 %}
+{% else %}
+  {% assign map_zoom = map_settings.zoom_default | default: 12 %}
+{% endif %}
+
 {% assign map_size = map_settings.size | default: "640x360" %}
 {% assign map_scale = map_settings.scale | default: 2 %}
 {% assign map_type = map_settings.maptype | default: "roadmap" %}

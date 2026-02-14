@@ -44,7 +44,8 @@ layout: base
             "neighborhood": {{ photo.location_neighborhood | default: nil | jsonify }},
             "city": {{ photo.location_city | default: nil | jsonify }},
             "state": {{ photo.location_state | default: nil | jsonify }},
-            "country": {{ photo.location_country | default: nil | jsonify }}
+            "country": {{ photo.location_country | default: nil | jsonify }},
+            "precision": {{ photo.location_precision | default: "precise" | jsonify }}
           }
         }{% unless forloop.last %},{% endunless %}
         {% endfor %}
