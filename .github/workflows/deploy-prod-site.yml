@@ -116,6 +116,7 @@ jobs:
         env:
           GRAPHQL_ENDPOINT: ${{ secrets.GRAPHQL_CACHE_URL }}/api/graphql
           GRAPHQL_API_KEY: ${{ secrets.GRAPHQL_API_KEY }}
+          REST_API_BASE_URL: ${{ secrets.GRAPHQL_CACHE_URL }}/v2
         run: |
           JEKYLL_ENV=production bundle exec jekyll build
           npm run minify

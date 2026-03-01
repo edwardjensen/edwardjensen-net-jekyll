@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Jekyll-based personal website/portfolio for Edward Jensen, built with Ruby and Jekyll 4.4.1. The site uses Tailwind CSS 4.x for styling and follows an **environment promotion deployment model**. All content (posts, working notes, historic posts) is managed in **Payload CMS** and fetched via GraphQL at build time.
+This is a Jekyll-based personal website/portfolio for Edward Jensen, built with Ruby and Jekyll 4.4.1. The site uses Tailwind CSS 4.x for styling and follows an **environment promotion deployment model**. All content (posts, working notes, historic posts) is managed in **Payload CMS** and fetched via REST API v2 (with GraphQL fallback) at build time.
 
 **Content Source**: Payload CMS (`edwardjensencms.com` / `staging.edwardjensencms.com`)  
 **Staging**: Self-hosted server (`stagingsite.edwardjensencms.com`)  
@@ -41,7 +41,7 @@ npm run a11y:lenient      # Run without failing on issues
 
 The site uses Jekyll collections defined in [_config.yml](_config.yml):
 
-**CMS-Managed Collections** (content fetched from Payload CMS via GraphQL):
+**CMS-Managed Collections** (content fetched from Payload CMS via REST API v2 at build time, with GraphQL fallback):
 - **`posts`** - Blog posts (permalink: `/posts/YYYY/YYYY-MM/title`)
 - **`working_notes`** - Working notes (permalink: `/notes/YYYY-MM-DD/title`)
 - **`historic_posts`** - Archived posts (permalink: `/archive/posts/title`)
@@ -262,7 +262,7 @@ Located in `/cloudflare-workers/stream-proxy/`, this Cloudflare Worker proxies r
 
 ## CMS Integration Plugin
 
-The `_plugins/payload_cms.rb` plugin fetches content from Payload CMS via GraphQL at build time.
+Content is fetched at build time via the **v2 REST API** (`_plugins/payload_rest.rb`), with v1 GraphQL (`_plugins/payload_cms.rb`) as fallback. The active API is controlled by `api_version` in `_config.yml` (currently `"v2"`).
 
 ### GraphQL Caching Layer
 
@@ -630,6 +630,7 @@ Set in GitHub secrets:
 - `CLOUDFLARE_API_TOKEN` - API token with required permissions (see below)
 - `CLOUDFLARE_ACCOUNT_ID` - Cloudflare account ID
 - `CF_PAGES_PROJECT` - Cloudflare Pages project name
+- `GRAPHQL_CACHE_URL` - Cloudflare KV cache worker base URL. Workflows set `REST_API_BASE_URL=$GRAPHQL_CACHE_URL/v2` and `GRAPHQL_ENDPOINT=$GRAPHQL_CACHE_URL/api/graphql` for Jekyll builds.
 
 ### Cloudflare API Token Permissions
 

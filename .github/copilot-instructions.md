@@ -6,7 +6,7 @@
 - **Fonts**: Google Fonts (Fraunces for headings, Source Sans 3 for body)
 - **Interactivity**: AlpineJS v3 (lightweight component state/transitions)
 - **Runtime**: Ruby 3.4.5 + Node 25.1.0
-- **Content Source**: Payload CMS (headless, content via GraphQL at build time)
+- **Content Source**: Payload CMS (headless, content via REST API v2 at build time; v1 GraphQL fallback)
 - **Deployment**: Environment promotion model (staging → production)
 
 ## Reusable CSS Classes (2026 Refresh)
@@ -124,12 +124,12 @@ This repository is **code and templates only**. All content (posts, working note
 
 | Version | Plugin | Status | Default |
 |---------|--------|--------|---------|
-| **v2 REST** | `_plugins/payload_rest.rb` | Active | No |
-| **v1 GraphQL** | `_plugins/payload_cms.rb` | Active | Yes |
+| **v2 REST** | `_plugins/payload_rest.rb` | Active | **Yes** |
+| **v1 GraphQL** | `_plugins/payload_cms.rb` | Active | No (fallback) |
 
 **Configuration** (`_config.yml`):
-- `api_version: "v2"` - Enable v2 REST API (default: `"v1"`)
-- `fallback_to_v1: true` - Fallback to GraphQL if REST fails (default: `true`)
+- `api_version: "v2"` - Active default (v2 REST is now the primary API)
+- `fallback_to_v1: true` - Fallback to v1 GraphQL if REST fails (default: `true`)
 - `payload_rest.url` - REST API base URL (default: `https://graphql.edwardjensen.net/api/v2`)
 - `payload_graphql.url` - GraphQL endpoint (default: `https://graphql.edwardjensen.net/api/graphql`)
 
