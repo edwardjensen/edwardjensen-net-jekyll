@@ -295,7 +295,7 @@ module PayloadREST
         doc.data['location_city'] = doc_data['location']['city']
         doc.data['location_state'] = doc_data['location']['state']
         doc.data['location_country'] = doc_data['location']['country']
-        doc.data['location_precision'] = doc_data['location']['precision'] || 'precise'
+        doc.data['location_precision'] = doc_data['location']['precision'] || 'approximate'
       end
     end
 
