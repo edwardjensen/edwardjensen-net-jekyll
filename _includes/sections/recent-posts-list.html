@@ -34,6 +34,7 @@
 {% endif %}
 
 <div class="text-xl">
+    {% if recent_posts.size > 0 %}
     <nav aria-label="Recent blog posts">
         <ul role="list">
             {% for post in recent_posts %}
@@ -51,6 +52,7 @@
             {% endfor %}
         </ul>
     </nav>
+    {% endif %}
     <div class="mt-5 {% if filter == 'featured' %}flex justify-center{% else %}text-center{% endif %}">
         <a href="/writing" class="btn-primary inline-flex items-center gap-2 {% if filter == 'featured' %}px-6 py-2 font-semibold{% endif %}" aria-label="View all blog posts">
             <i class="ph ph-pen" aria-hidden="true"></i>
