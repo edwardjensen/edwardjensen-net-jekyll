@@ -14,6 +14,7 @@ on:
 jobs:
   validate-tag:
     name: Validate Tag and Branch
+    if: false  # Disabled: this repository is archived — see github.com/edwardjensen/edwardjensen-net-astro
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.extract.outputs.version }}

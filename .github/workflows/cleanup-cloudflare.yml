@@ -9,6 +9,7 @@ jobs:
   pages-deployment-cleanup:
     runs-on: ubuntu-latest
     name: Clean up old Cloudflare Pages deployments
+    if: false  # Disabled: this repository is archived — see github.com/edwardjensen/edwardjensen-net-astro
     environment: production
     steps:
 

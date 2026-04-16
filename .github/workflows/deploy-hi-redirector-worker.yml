@@ -15,6 +15,7 @@ jobs:
   get-redirects-and-deploy:
     runs-on: ubuntu-latest
     name: Deploy to Cloudflare Workers
+    if: false  # Disabled: this repository is archived — see github.com/edwardjensen/edwardjensen-net-astro
     environment: production
     defaults:
       run:

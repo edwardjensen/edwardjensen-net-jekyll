@@ -18,6 +18,7 @@ jobs:
   # Detect if only documentation files changed - if so, skip the expensive checks
   changes:
     name: Detect Changes
+    if: false  # Disabled: this repository is archived — see github.com/edwardjensen/edwardjensen-net-astro
     runs-on: ubuntu-latest
     outputs:
       code: ${{ steps.filter.outputs.code }}
@@ -41,7 +42,7 @@ jobs:
     name: Build Test Site
     runs-on: ubuntu-latest
     needs: changes
-    if: needs.changes.outputs.code == 'true'
+    if: false  # Disabled: this repository is archived — see github.com/edwardjensen/edwardjensen-net-astro
     environment: production
     steps:
       - name: Checkout repository

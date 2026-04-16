@@ -55,6 +55,7 @@ jobs:
   resolve-config:
     runs-on: ubuntu-latest
     name: Resolve Configuration
+    if: false  # Disabled: this repository is archived — see github.com/edwardjensen/edwardjensen-net-astro
     outputs:
       site_code: ${{ steps.config.outputs.site_code }}
       cms_source: ${{ steps.config.outputs.cms_source }}

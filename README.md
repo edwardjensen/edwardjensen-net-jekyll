@@ -1,3 +1,8 @@
+> [!NOTE]
+> **This repository is archived.** The site has migrated to Astro — see [edwardjensen/edwardjensen-net-astro](https://github.com/edwardjensen/edwardjensen-net-astro) for the current codebase. This repository is preserved as a historical reference.
+
+---
+
 # Edward Jensen - Portfolio & Blog
 
 A modern, accessible personal portfolio and blog built with Jekyll, Tailwind CSS, and AlpineJS. This site showcases writing on nonprofit technology, photography, and urban civic engagement.
