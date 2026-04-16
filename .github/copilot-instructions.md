@@ -1,5 +1,10 @@
 # Copilot Instructions for edwardjensen-net-jekyll
 
+> [!NOTE]
+> **This repository is archived.** The site has migrated to Astro — see [edwardjensen/edwardjensen-net-astro](https://github.com/edwardjensen/edwardjensen-net-astro). This file is preserved as a historical reference.
+
+---
+
 ## Tech Stack
 - **Framework**: Jekyll 4.4.1 (Ruby static site generator)
 - **Styling**: Tailwind CSS 4.0.x with custom brand color palette + reusable CSS classes

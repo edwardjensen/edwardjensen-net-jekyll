@@ -1,5 +1,10 @@
 # CLAUDE.md
 
+> [!NOTE]
+> **This repository is archived.** The site has migrated to Astro — see [edwardjensen/edwardjensen-net-astro](https://github.com/edwardjensen/edwardjensen-net-astro) for the current codebase. This documentation is preserved as a historical reference.
+
+---
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
